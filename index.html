@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的天氣網站</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #eaf6ff;
+            padding: 30px;
+        }
+
+        .weather {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            max-width: 350px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            background: #4aa3df;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="weather">
+        <h1>🌤️ 我的天氣網站</h1>
+
+        <h2>台南市</h2>
+
+        <p>🌡️ 溫度：30°C</p>
+        <p>☁️ 天氣：多雲</p>
+        <p>💨 風速：3 m/s</p>
+        <p>💧 濕度：75%</p>
+
+        <button onclick="alert('今天台南天氣不錯！')">
+            查看天氣
+        </button>
+    </div>
+
+</body>
+	</html><!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>我的天氣網站</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(180deg, #4facfe, #00f2fe);
+    min-height: 100vh;
+    text-align: center;
+    color: white;
+}
+
+.container {
+    padding: 40px 20px;
+}
+
+h1 {
+    font-size: 32px;
+}
+
+.search {
+    margin: 25px auto;
+}
+
+input {
+    padding: 12px;
+    width: 200px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 12px 18px;
+    margin-left: 5px;
+    border: none;
+    border-radius: 10px;
+    background: white;
+    color: #1683e8;
+    font-size: 16px;
+}
+
+.weather {
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 25px;
+    max-width: 350px;
+    margin: 20px auto;
+}
+
+.temperature {
+    font-size: 55px;
+    font-weight: bold;
+}
+
+.info {
+    font-size: 18px;
+    line-height: 2;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🌤️ 我的天氣網站</h1>
+
+<div class="search">
+    <input id="city" type="text" placeholder="輸入城市，例如台南">
+    <button onclick="showWeather()">查詢</button>
+</div>
+
+<div class="weather">
+
+    <h2 id="location">台南</h2>
+
+    <div class="temperature" id="temperature">
+        30°C
+    </div>
+
+    <div id="condition">
+        ☀️ 晴天
+    </div>
+
+    <div class="info">
+        💧 濕度：70%<br>
+        💨 風速：3 m/s<br>
+        🌧️ 降雨機率：20%
+    </div>
+
+</div>
+
+</div>
+
+<script>
+
+function showWeather() {
+
+    let city = document.getElementById("city").value;
+
+    if (city === "") {
+        alert("請輸入城市！");
+        return;
+    }
+
+    document.getElementById("location").innerText = city;
+
+    document.getElementById("temperature").innerText = "30°C";
+
+    document.getElementById("condition").innerText = "☀️ 晴天";
+}
+
+</script>
+
+</body>
+</html>
