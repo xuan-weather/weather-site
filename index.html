@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<title>台灣氣象監測中心｜Weather Now</title>
+<style>
+:root{--bg:#eef3f8;--card:#fff;--ink:#152033;--muted:#718096;--line:#e4eaf1;--blue:#2878ff;--navy:#101827;--shadow:0 12px 35px rgba(28,48,80,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Noto Sans TC",Arial,sans-serif;background:linear-gradient(180deg,var(--navy) 0 290px,var(--bg) 290px);color:var(--ink)}
+button,select{font:inherit}.wrap{max-width:1120px;margin:auto;padding:22px 18px 45px}.top{display:flex;align-items:center;justify-content:space-between;color:#fff;margin-bottom:22px}.brand{font-size:21px;font-weight:850;letter-spacing:.02em}.brand small{display:block;font-size:11px;font-weight:500;opacity:.65;margin-top:4px;letter-spacing:.12em}.actions{display:flex;gap:9px}.iconbtn{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);color:#fff;border-radius:14px;width:42px;height:42px;cursor:pointer}
+.hero{background:linear-gradient(135deg,#1e2d48,#172235);color:#fff;border-radius:28px;padding:24px;box-shadow:var(--shadow);position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:230px;height:230px;border-radius:50%;right:-90px;top:-100px;background:radial-gradient(circle,rgba(104,159,255,.35),transparent 67%)}.search{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;position:relative;z-index:2}.search select{min-width:0;background:#fff;border:0;border-radius:13px;padding:13px;color:#18243a;outline:none}.loc{border:0;border-radius:13px;padding:0 15px;background:#2d7cff;color:#fff;cursor:pointer}.place{margin-top:24px;font-size:14px;opacity:.78}.hero-main{display:flex;align-items:center;justify-content:space-between;gap:16px}.temp{font-size:72px;line-height:1;font-weight:850;letter-spacing:-3px;margin:7px 0}.desc{font-size:19px;font-weight:700}.weather-icon{font-size:58px;filter:drop-shadow(0 0 14px #82baff66)}.updated{font-size:11px;opacity:.58;margin-top:7px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px}.metric{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:13px}.metric span{font-size:11px;opacity:.65}.metric b{display:block;font-size:17px;margin-top:5px}
+.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;margin-top:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:23px;padding:20px;box-shadow:0 7px 25px rgba(28,48,80,.045);min-width:0}.title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.title h2{font-size:17px;margin:0}.title span{font-size:11px;color:var(--muted)}.hourly{display:flex;gap:9px;overflow-x:auto;padding-bottom:5px}.hour{min-width:75px;text-align:center;background:#f7f9fc;border:1px solid #edf1f6;border-radius:16px;padding:12px 8px}.hour .time{font-size:11px;color:var(--muted)}.hour .ico{font-size:25px;margin:8px 0}.hour b{font-size:15px}.rain{font-size:10px;color:var(--blue);margin-top:5px}
+.days{display:flex;flex-direction:column;gap:5px}.day{display:grid;grid-template-columns:65px 38px 1fr auto;align-items:center;gap:8px;padding:10px 4px;border-bottom:1px solid var(--line)}.day:last-child{border:0}.dayname{font-weight:700;font-size:13px}.day .ico{text-align:center;font-size:22px}.range{text-align:right;font-weight:700;font-size:13px}.range span{color:#a0a9b7;font-weight:500;margin-left:7px}.dayrain{font-size:10px;color:var(--blue);margin-top:3px}
+.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.detail-item{padding:12px;background:#f7f9fc;border:1px solid #edf1f6;border-radius:15px;min-width:0}.detail-item span{display:block;font-size:10px;color:var(--muted)}.detail-item b{display:block;margin-top:6px;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.station-list{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.station{padding:13px;border:1px solid #e8edf4;background:#f8fafc;border-radius:16px;min-width:0}.station-head{display:flex;justify-content:space-between;gap:6px;align-items:center}.station-name{font-weight:750;font-size:12px}.station-dist{font-size:10px;color:var(--blue);white-space:nowrap}.station-temp{font-size:25px;font-weight:850;margin-top:7px}.station-meta{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.5}.badge{font-size:10px;padding:4px 8px;border-radius:20px;background:#eaf2ff;color:#2878ff;white-space:nowrap}.notice{padding:11px 13px;background:#eef5ff;border-radius:13px;color:#4b6380;font-size:11px;line-height:1.6;margin-top:12px}.loading{text-align:center;padding:22px;color:var(--muted);font-size:12px}.error{color:#b45309;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px;font-size:12px}.footer{text-align:center;color:#8a95a5;font-size:10px;margin-top:20px;line-height:1.7}
+body.dark{--bg:#0c1422;--card:#151f30;--ink:#e8eef8;--muted:#9aabc1;--line:#29364a;background:linear-gradient(180deg,#080f1b 0 290px,var(--bg) 290px)}body.dark .hour,body.dark .detail-item,body.dark .station{background:#1b293d;border-color:#2b3c54}body.dark .notice{background:#1a2c43;color:#b7cce4}body.dark .range span{color:#8193aa}
+@media(max-width:760px){body{background:linear-gradient(180deg,var(--navy) 0 310px,var(--bg) 310px)}body.dark{background:linear-gradient(180deg,#080f1b 0 310px,var(--bg) 310px)}.wrap{padding:17px 13px 32px}.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.temp{font-size:63px}.hero{border-radius:23px;padding:19px}.card{border-radius:20px;padding:16px}.search{grid-template-columns:1fr 1fr}.loc{grid-column:1/-1;padding:12px}.detail-grid{grid-template-columns:repeat(2,1fr)}.station-list{grid-template-columns:1fr 1fr}.day{grid-template-columns:55px 34px 1fr auto}.brand{font-size:18px}}
+@media(max-width:390px){.station-list{grid-template-columns:1fr}.weather-icon{font-size:45px}.temp{font-size:56px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="brand">🌤️ 台灣氣象監測中心<small>TAIWAN WEATHER MONITORING CENTER</small></div><div class="actions"><button class="iconbtn" id="refreshBtn" title="重新載入">↻</button><button class="iconbtn" id="themeBtn" title="切換主題">☾</button></div></header>
+<section class="hero">
+ <div class="search"><select id="county" aria-label="選擇縣市"></select><select id="town" aria-label="選擇鄉鎮市區"></select><button class="loc" id="locBtn">📍 使用目前位置</button></div>
+ <div class="place" id="place">載入官方氣象資料中…</div>
+ <div class="hero-main"><div><div class="temp" id="temp">--°</div><div class="desc" id="desc">等待資料同步</div><div class="updated" id="updated">資料來源：中央氣象署</div></div><div class="weather-icon" id="weatherIcon">🌤️</div></div>
+ <div class="metrics"><div class="metric">💧<span>相對濕度</span><b id="humidity">--%</b></div><div class="metric">💨<span>平均風速</span><b id="wind">-- m/s</b></div><div class="metric">🌬️<span>最大陣風</span><b id="gust">-- m/s</b></div><div class="metric">🌧️<span>目前降水</span><b id="rain">-- mm</b></div></div>
+</section>
+<div class="grid">
+ <section class="card"><div class="title"><h2>未來 24 小時</h2><span>官方逐 3 小時預報</span></div><div class="hourly" id="hourly"><div class="loading">等待預報資料</div></div></section>
+ <section class="card"><div class="title"><h2>未來 7 天</h2><span>官方鄉鎮預報</span></div><div class="days" id="days"><div class="loading">等待預報資料</div></div></section>
+</div>
+<section class="card" style="margin-top:16px"><div class="title"><h2>🌡️ 目前天氣詳細資訊</h2><span id="detailStation">最近官方測站</span></div><div class="detail-grid">
+ <div class="detail-item"><span>測站氣溫</span><b id="dTemp">--°C</b></div><div class="detail-item"><span>相對濕度</span><b id="dHumidity">--%</b></div><div class="detail-item"><span>風向</span><b id="dDir">--</b></div><div class="detail-item"><span>平均風速</span><b id="dWind">-- m/s</b></div><div class="detail-item"><span>最大陣風</span><b id="dGust">-- m/s</b></div><div class="detail-item"><span>測站氣壓</span><b id="dPressure">-- hPa</b></div><div class="detail-item"><span>降水量</span><b id="dRain">-- mm</b></div><div class="detail-item"><span>觀測時間</span><b id="dTime">--</b></div>
+</div><div class="notice" id="sourceNote">測站資料只顯示中央氣象署實際觀測值；鄉鎮預報會獨立標示為預報資料。</div></section>
+<section class="card" style="margin-top:16px"><div class="title"><h2>📍 附近氣象測站</h2><span>依實際測站座標計算距離</span></div><div class="station-list" id="stations"><div class="loading">等待測站資料</div></div></section>
+<div class="footer">台灣氣象監測中心 · 資料來源：交通部中央氣象署<br>觀測與預報為不同資料產品，請以官方發布資訊及警報為準。</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let observations=[], forecasts=[], currentTown=null, userPosition=null;
+const weatherMap={0:["☀️","晴"],1:["🌤️","多雲時晴"],2:["⛅","多雲"],3:["☁️","陰"],4:["🌫️","霧"],5:["🌦️","雨"],6:["🌧️","雨"],7:["⛈️","雷雨"],8:["🌨️","雪"]};
+function wxIcon(v){const s=String(v??"");if(/雷|雷雨/.test(s))return "⛈️";if(/雪/.test(s))return "🌨️";if(/雨|陣雨/.test(s))return "🌧️";if(/霧/.test(s))return "🌫️";if(/陰/.test(s))return "☁️";if(/多雲/.test(s))return "⛅";if(/晴/.test(s))return "🌤️";return "🌡️"}
+function fmt(v,d=1){return v===null||v===undefined||v===""||!Number.isFinite(Number(v))?"--":Number(v).toFixed(d)}
+function direction(v){if(v===null||v===undefined)return "--";const dirs=["北","北北東","東北","東北東","東","東南東","東南","南南東","南","南南西","西南","西南西","西","西北西","西北","北北西"];return dirs[Math.round(Number(v)/22.5)%16]}
+function dist(a,b,c,d){const r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,z=Math.sin(x/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)**2;return 6371*2*Math.asin(Math.sqrt(z))}
+function localTime(v){if(!v)return "--";return v.replace("T"," ").slice(0,16)}
+function pickNearest(lat,lon){return observations.map(s=>({...s,distance:dist(lat,lon,s.latitude,s.longitude)})).filter(s=>Number.isFinite(s.distance)).sort((a,b)=>a.distance-b.distance)}
+function fillSelects(){
+ const county=$("county"),town=$("town");county.innerHTML="";town.innerHTML="";
+ const grouped={};forecasts.forEach(x=>{(grouped[x.county]??=[]).push(x)});
+ Object.keys(grouped).sort((a,b)=>a.localeCompare(b,"zh-Hant")).forEach(n=>county.add(new Option(n,n)));
+ const preferred=Object.keys(grouped).find(x=>x.includes("臺南"))||Object.keys(grouped)[0];county.value=preferred||"";
+ function towns(){town.innerHTML="";(grouped[county.value]||[]).sort((a,b)=>a.town.localeCompare(b.town,"zh-Hant")).forEach(x=>town.add(new Option(x.town,x.town)));if(town.options.length)town.selectedIndex=0;loadSelected()}
+ county.onchange=towns;town.onchange=loadSelected;towns();
+}
+function findForecast(){return forecasts.find(x=>x.county===$("county").value&&x.town===$("town").value)}
+function loadSelected(){
+ const f=findForecast();if(!f)return;currentTown=f;
+ $("place").textContent=`📍 ${f.county} ${f.town}`;
+ renderForecast(f);
+ const match=observations.filter(s=>s.county===f.county).sort((a,b)=>dist(f.latitude,f.longitude,a.latitude,a.longitude)-dist(f.latitude,f.longitude,b.latitude,b.longitude));
+ if(match.length)renderStation(match[0],dist(f.latitude,f.longitude,match[0].latitude,match[0].longitude));
+ renderNearby(f.latitude,f.longitude);
+}
+function renderForecast(f){
+ const now=f.hourly||[];const hourly=$("hourly");hourly.innerHTML="";
+ if(!now.length)hourly.innerHTML='<div class="loading">目前沒有逐時預報資料</div>';
+ now.slice(0,8).forEach(x=>{const el=document.createElement("div");el.className="hour";el.innerHTML=`<div class="time">${x.time?.slice(11,16)||"--:--"}</div><div class="ico">${wxIcon(x.weather)}</div><b>${x.temperature??"--"}°</b><div class="rain">降雨 ${x.pop??"--"}%</div>`;hourly.appendChild(el)});
+ const days=$("days");days.innerHTML="";
+ if(!f.daily?.length)days.innerHTML='<div class="loading">目前沒有七日預報資料</div>';
+ (f.daily||[]).slice(0,7).forEach((x,i)=>{const el=document.createElement("div");el.className="day";const date=new Date(x.date+"T12:00:00");const wd=["週日","週一","週二","週三","週四","週五","週六"][date.getDay()];el.innerHTML=`<div class="dayname">${i===0?"今天":wd}</div><div class="ico">${wxIcon(x.weather)}</div><div><div style="font-size:12px">${x.weather||"天氣預報"}</div><div class="dayrain">降雨 ${x.pop??"--"}%</div></div><div class="range">${x.max??"--"}° <span>${x.min??"--"}°</span></div>`;days.appendChild(el)});
+}
+function renderStation(s,km){
+ $("detailStation").textContent=`${s.name}測站 · ${fmt(km,1)} km`;
+ $("dTemp").textContent=fmt(s.temperature)+"°C";$("dHumidity").textContent=fmt(s.humidity,0)+"%";$("dDir").textContent=direction(s.wind_direction);$("dWind").textContent=fmt(s.wind_speed)+" m/s";$("dGust").textContent=fmt(s.gust)+" m/s";$("dPressure").textContent=fmt(s.pressure)+" hPa";$("dRain").textContent=fmt(s.precipitation)+" mm";$("dTime").textContent=localTime(s.observation_time);
+ $("temp").textContent=fmt(s.temperature,0)+"°";$("desc").textContent=s.weather||"測站即時觀測";$("weatherIcon").textContent=wxIcon(s.weather);$("humidity").textContent=fmt(s.humidity,0)+"%";$("wind").textContent=fmt(s.wind_speed)+" m/s";$("gust").textContent=fmt(s.gust)+" m/s";$("rain").textContent=fmt(s.precipitation)+" mm";$("updated").textContent=`${s.name} · 觀測時間 ${localTime(s.observation_time)} · 中央氣象署`;
+}
+function renderNearby(lat,lon){
+ const list=pickNearest(lat,lon).slice(0,9),box=$("stations");box.innerHTML="";
+ if(!list.length){box.innerHTML='<div class="loading">沒有可用的實際測站座標</div>';return}
+ list.forEach(s=>{const el=document.createElement("div");el.className="station";el.innerHTML=`<div class="station-head"><div class="station-name">${s.name}</div><div class="station-dist">${fmt(s.distance,1)} km</div></div><div class="station-temp">${fmt(s.temperature,0)}°</div><div class="station-meta">${s.weather||"觀測資料"}<br>濕度 ${fmt(s.humidity,0)}% · 風速 ${fmt(s.wind_speed)} m/s</div>`;el.onclick=()=>renderStation(s,s.distance);box.appendChild(el)});
+}
+async function loadData(){
+ $("place").textContent="📡 正在載入中央氣象署資料…";
+ try{
+  const [o,f]=await Promise.all([fetch("data/observations.json?t="+Date.now(),{cache:"no-store"}),fetch("data/forecasts.json?t="+Date.now(),{cache:"no-store"})]);
+  if(!o.ok||!f.ok)throw Error("資料檔尚未部署或讀取失敗");
+  const od=await o.json(),fd=await f.json();
+  if(od.status!=="ok"||!Array.isArray(od.stations)||!od.stations.length)throw Error(od.message||"目前沒有成功同步的測站資料");
+  observations=od.stations;forecasts=fd.locations||[];
+  if(!forecasts.length)throw Error("尚無鄉鎮預報資料");
+  fillSelects();
+  $("sourceNote").textContent=`觀測來源：中央氣象署 O-A0003-001，${observations.length} 個有效測站；預報來源：F-D0047-093。資料同步時間：${od.fetched_at||"--"}。`;
+ }catch(e){$("place").textContent="官方資料尚未完成第一次同步";$("desc").textContent=e.message;$("updated").textContent="請先設定 CWA_API_KEY 並執行 GitHub Actions";$("stations").innerHTML='<div class="error">目前不會顯示虛構天氣數值。請完成中央氣象署授權碼設定及第一次資料同步。</div>';$("hourly").innerHTML='<div class="loading">等待官方預報資料</div>';$("days").innerHTML='<div class="loading">等待官方預報資料</div>';console.warn(e)}
+}
+$("locBtn").onclick=()=>{if(!navigator.geolocation){alert("此瀏覽器不支援定位");return}navigator.geolocation.getCurrentPosition(pos=>{userPosition=[pos.coords.latitude,pos.coords.longitude];const near=pickNearest(...userPosition)[0];if(near){renderStation(near,near.distance);renderNearby(...userPosition);$("place").textContent=`📍 目前位置 · 最近測站 ${near.name}`;$("locationNote")?.remove()}else alert("目前無法找到附近的官方測站")},()=>alert("定位失敗，請允許瀏覽器存取位置。"),{enableHighAccuracy:true,timeout:12000,maximumAge:60000})};
+$("refreshBtn").onclick=loadData;$("themeBtn").onclick=()=>{document.body.classList.toggle("dark");$("themeBtn").textContent=document.body.classList.contains("dark")?"☀":"☾"};
+loadData();setInterval(loadData,10*60*1000);
+</script>
+</body></html>
