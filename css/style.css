@@ -1,37 +1,102 @@
-:root{color-scheme:dark;--bg:#081321;--panel:#101f32;--panel2:#14263c;--line:#263a52;--text:#edf4ff;--muted:#9aacc2;--blue:#65a5ff;--cyan:#63d6e8;--green:#49d5a0;--radius:20px}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#1a3b60 0,transparent 50%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Noto Sans TC",sans-serif}
-button{font:inherit;color:inherit;cursor:pointer}.wrap{max-width:1240px;margin:auto;padding:0 22px}
-header{border-bottom:1px solid #ffffff14;background:#091727d9;backdrop-filter:blur(18px);position:sticky;top:0;z-index:5}
-.head{height:76px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#2d6599,#142c49);display:grid;place-items:center;font-size:24px;box-shadow:0 8px 24px #0004}.brand strong{font-size:16px;letter-spacing:.04em}.brand small{display:block;color:#8fa6c1;font-size:9px;letter-spacing:.16em;margin-top:4px}.nav{display:flex;gap:5px;align-items:center}.nav button,.head-btn{border:1px solid transparent;background:transparent;padding:10px 13px;border-radius:11px;color:#afc0d5;font-size:12px}.nav button.active{background:#1b3553;color:#fff;border-color:#355477}.head-btn{border-color:#344961;color:#dceaff}
-main{padding:26px 0 50px}.eyebrow{font-size:10px;letter-spacing:.18em;color:#7fa6d0;font-weight:800}.page-title{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:20px}.page-title h1{font-size:26px;margin:7px 0 0;letter-spacing:.02em}.page-title p{margin:7px 0 0;color:var(--muted);font-size:12px}.updated{font-size:11px;color:#9db0c8;border:1px solid var(--line);padding:9px 12px;border-radius:12px;white-space:nowrap}
-.top-grid{display:grid;grid-template-columns:1.35fr .85fr;gap:16px}.panel{background:linear-gradient(145deg,#13263c,#0f1d2e);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 14px 40px #0002;min-width:0}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}.panel-head h2{font-size:14px;margin:0}.tag{font-size:10px;color:#9eb6d2;border:1px solid #35506d;border-radius:20px;padding:5px 9px}.location{display:flex;align-items:center;gap:8px;color:#a9bdd4;font-size:12px}.location b{color:#fff;font-size:14px}.weather-summary{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:8px 4px 18px}.temperature{font-size:76px;font-weight:800;letter-spacing:-5px;line-height:1}.temperature small{font-size:24px;letter-spacing:0;vertical-align:top;margin-left:5px}.condition{font-size:15px;font-weight:700;margin-top:9px}.feels{font-size:11px;color:var(--muted);margin-top:6px}.weather-icon{font-size:64px;filter:drop-shadow(0 8px 20px #6baaff55)}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.metric{padding:12px;border:1px solid #ffffff12;border-radius:14px;background:#ffffff08}.metric label{display:block;color:#9eb0c6;font-size:10px}.metric strong{display:block;font-size:18px;margin-top:8px}.metric em{font-style:normal;font-size:10px;color:#a5b8cf;margin-left:3px}
-.map-placeholder{height:228px;border-radius:15px;border:1px solid #29425d;background:radial-gradient(ellipse at 53% 48%,#244e70 0,#152d46 52%,#102239 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.map-placeholder:before{content:"";position:absolute;width:230px;height:270px;border:1px solid #75a9d633;border-radius:48% 52% 43% 57%;transform:rotate(28deg);background:linear-gradient(130deg,#397a9b55,#1a3e5b44 45%,#132a42aa);clip-path:polygon(43% 0,72% 8%,88% 30%,72% 48%,83% 64%,62% 100%,42% 87%,30% 65%,14% 45%,25% 21%)}.map-label{z-index:1;text-align:center;color:#d6e8fb;font-size:12px}.map-label small{display:block;color:#9db8d5;font-size:10px;margin-top:7px}.map-legend{position:absolute;bottom:10px;left:12px;right:12px;display:flex;justify-content:space-between;color:#9fb5ce;font-size:9px}
-.section-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px}.data-card{min-height:146px}.big-placeholder{font-size:25px;font-weight:800;margin-top:18px}.sub-placeholder{font-size:10px;color:var(--muted);margin-top:6px}.spark{height:42px;margin-top:14px;border-bottom:1px solid #36516c;position:relative;overflow:hidden}.spark svg{width:100%;height:100%}
-.forecast-row{display:grid;grid-template-columns:repeat(8,minmax(60px,1fr));gap:8px;overflow:auto;padding-bottom:3px}.hour{background:#ffffff08;border:1px solid #ffffff12;border-radius:13px;text-align:center;padding:12px 6px}.hour small{display:block;color:#a4b7ce;font-size:10px}.hour b{display:block;font-size:19px;margin:10px 0}.hour span{font-size:10px;color:#83b9ff}
-.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}.list{display:grid;gap:0}.list-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #ffffff12;font-size:12px}.list-row:last-child{border-bottom:0}.list-row span{color:#9fb2c9}.empty{color:#8fa6c1;font-size:11px;padding:12px 0}.foot{text-align:center;color:#6f849e;font-size:10px;padding:28px 0 8px}
-@media(max-width:850px){.nav{display:none}.top-grid{grid-template-columns:1fr}.section-grid{grid-template-columns:1fr 1fr}.bottom-grid{grid-template-columns:1fr}}
-@media(max-width:540px){.wrap{padding:0 13px}.head{height:66px}.brand strong{font-size:14px}.logo{width:40px;height:40px}.head-btn{font-size:10px;padding:8px}.page-title{align-items:start;flex-direction:column}.page-title h1{font-size:22px}.updated{font-size:10px}.panel{padding:16px;border-radius:17px}.temperature{font-size:65px}.weather-icon{font-size:54px}.metrics{grid-template-columns:repeat(2,1fr)}.section-grid{grid-template-columns:1fr}.forecast-row{grid-template-columns:repeat(8,68px)}main{padding-top:20px}}
+/* =========================================
+   Xuan Weather｜全台即時監測地圖版面優化
+   ========================================= */
 
-/* Light theme */
-body.light{
-  color-scheme:light;
-  --bg:#eef3f9;--panel:#fff;--panel2:#f5f8fc;--line:#dfe7f0;
-  --text:#17263b;--muted:#687d95;
-  background:radial-gradient(ellipse at 50% -20%,#dcecff 0,transparent 50%),var(--bg);
+/* 主版面改為上下排列 */
+.top-grid {
+  grid-template-columns: minmax(0, 1fr) !important;
 }
-body.light header{background:#f7faffed;border-bottom-color:#dce5ef}
-body.light .brand small{color:#7188a2}
-body.light .nav button{color:#526982}
-body.light .nav button.active{background:#e6f0ff;color:#1d4d83;border-color:#bfd6f2}
-body.light .head-btn{color:#315477;border-color:#c7d7e8}
-body.light .panel{background:linear-gradient(145deg,#fff,#f8fbff);box-shadow:0 12px 34px #27476b0d}
-body.light .metric,body.light .hour{background:#f4f8fd;border-color:#e2eaf3}
-body.light .tag{color:#58728f;border-color:#d5e1ee}
-body.light .location,body.light .feels,body.light .hour small,body.light .list-row span{color:#687d95}
-body.light .location b{color:#17263b}
-body.light .map-placeholder{background:radial-gradient(ellipse at 53% 48%,#d4e8f6 0,#e8f2fa 52%,#dbe9f5 100%);border-color:#c8d9e8}
-body.light .map-placeholder:before{border-color:#7ca8c533;background:linear-gradient(130deg,#75abc055,#b9d6e844 45%,#d3e3efaa)}
-body.light .map-label{color:#274b6c}
-body.light .map-label small,body.light .map-legend{color:#577894}
-body.light .list-row{border-bottom-color:#e6edf5}
-body.light .foot{color:#788da4}
+
+/* 地圖卡片完整展開 */
+.top-grid > section:nth-child(2) {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+}
+
+/* 移除原本示意地圖的固定高度及置中限制 */
+.map-placeholder {
+  display: block !important;
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.map-placeholder::before {
+  display: none !important;
+}
+
+/* 氣溫、雨量、風速改為地圖上方橫向排列 */
+.xuan-map-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 9px;
+  width: 100%;
+  margin: 0 0 14px;
+}
+
+/* 圖層選項 */
+.xuan-map-controls button {
+  min-width: 88px;
+  padding: 10px 17px !important;
+  margin: 0 !important;
+  border: 1px solid var(--line, #344961) !important;
+  border-radius: 12px !important;
+  background: var(--panel, #101f32) !important;
+  color: var(--text, #edf4ff) !important;
+  font-size: 13px !important;
+  font-weight: 600;
+}
+
+.xuan-map-controls button:hover {
+  border-color: var(--blue, #65a5ff) !important;
+}
+
+/* 地圖放大 */
+#xuan-map {
+  width: 100% !important;
+  height: min(70vh, 680px) !important;
+  min-height: 520px !important;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--line, #344961);
+  background: #dce8f2;
+}
+
+/* 地圖資料狀態 */
+#map-status {
+  padding: 12px 2px !important;
+  font-size: 12px;
+  color: var(--muted, #9aacc2);
+}
+
+/* 測站列表與地圖保持間距 */
+#station-live-list {
+  margin-top: 22px !important;
+}
+
+/* 手機版 */
+@media (max-width: 600px) {
+  .xuan-map-controls {
+    gap: 7px;
+  }
+
+  .xuan-map-controls button {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 8px !important;
+    font-size: 12px !important;
+  }
+
+  #xuan-map {
+    height: 65vh !important;
+    min-height: 440px !important;
+    border-radius: 12px;
+  }
+}
