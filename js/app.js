@@ -1,564 +1,558 @@
-/* =====================================================
-   Xuan Weather｜台灣氣象監測中心
-   CWA 即時觀測、GPS 定位、最近測站、深淺色模式
-   ===================================================== */
-
 'use strict';
 
-// -----------------------------------------------------
-// 1. 全域設定
-// -----------------------------------------------------
+/* =========================================
+   Xuan Weather｜即時氣象監測中心
+   GPS 定位＋全臺測站互動地圖
+   ========================================= */
 
 const DATA_URL = './data/cwa-observations.json';
-const REFRESH_INTERVAL = 10 * 60 * 1000;
+const REFRESH_MS = 10 * 60 * 1000;
 
-let weatherData = [];
-let selectedStationId = null;
-let isLocating = false;
+let stations = [];
+let selectedId = null;
+let gpsPosition = null;
+let weatherMap = null;
+let stationMarkers = null;
+let gpsMarker = null;
+let mapMetric = 'temperature';
+let locating = false;
 
-// -----------------------------------------------------
-// 2. 深淺色模式
-// -----------------------------------------------------
+const $ = selector => document.querySelector(selector);
 
-const themeButton = document.getElementById('theme');
-const systemTheme = window.matchMedia('(prefers-color-scheme: light)');
-
-let themeMode = systemTheme.matches ? 'light' : 'dark';
-
-function applyTheme(mode) {
-  const light = mode === 'light';
-
-  document.body.classList.toggle('light', light);
-
-  if (themeButton) {
-    themeButton.textContent = light
-      ? '☾　切換深色'
-      : '☼　切換淺色';
-  }
+function number(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n > -90 ? n : null;
 }
 
-applyTheme(themeMode);
-
-themeButton?.addEventListener('click', () => {
-  themeMode = themeMode === 'light' ? 'dark' : 'light';
-  applyTheme(themeMode);
-});
-
-// -----------------------------------------------------
-// 3. 數值處理
-// -----------------------------------------------------
-
-function validNumber(value) {
-  if (
-    value === undefined ||
-    value === null ||
-    value === ''
-  ) {
-    return null;
-  }
-
-  const number = Number(value);
-
-  // 氣象署缺測或無效資料
-  if (!Number.isFinite(number) || number <= -90) {
-    return null;
-  }
-
-  return number;
+function fmt(value, digits = 1) {
+  const n = number(value);
+  return n === null ? '--' : n.toFixed(digits);
 }
 
-function formatValue(value, digits = 1) {
-  const number = validNumber(value);
-
-  return number === null
-    ? '--'
-    : number.toFixed(digits);
-}
-
-function escapeHTML(value) {
-  return String(value ?? '').replace(/[&<>"']/g, char => ({
+function safe(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
     "'": '&#39;'
-  })[char]);
+  })[c]);
 }
-
-// -----------------------------------------------------
-// 4. 解析中央氣象署測站資料
-// -----------------------------------------------------
-
-function getStationData(station) {
-  const weather = station.WeatherElement || {};
-
-  const wgs84 = station.GeoInfo?.Coordinates?.find(
-    coordinate => coordinate.CoordinateName === 'WGS84'
-  );
-
-  return {
-    name: station.StationName || '未知測站',
-
-    id: station.StationId || '',
-
-    county: station.GeoInfo?.CountyName || '',
-
-    town: station.GeoInfo?.TownName || '',
-
-    lat: validNumber(wgs84?.StationLatitude),
-
-    lon: validNumber(wgs84?.StationLongitude),
-
-    time: station.ObsTime?.DateTime || '',
-
-    condition: weather.Weather || '無資料',
-
-    temperature: validNumber(weather.AirTemperature),
-
-    humidity: validNumber(weather.RelativeHumidity),
-
-    wind: validNumber(weather.WindSpeed),
-
-    gust: validNumber(weather.GustInfo?.PeakGustSpeed),
-
-    rain: validNumber(weather.Now?.Precipitation)
-  };
-}
-
-// -----------------------------------------------------
-// 5. 日期時間
-// -----------------------------------------------------
 
 function formatTime(value) {
   if (!value) return '--';
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return '--';
-
-  return date.toLocaleString('zh-TW', {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '--';
+  return d.toLocaleString('zh-TW', {
     timeZone: 'Asia/Taipei',
     hour12: false
   });
 }
 
-// -----------------------------------------------------
-// 6. 全臺統計
-// -----------------------------------------------------
+/* 深淺色模式 */
 
-function getAverage(stations, key) {
-  const values = stations
-    .map(station => station[key])
-    .filter(value => value !== null);
+let theme = window.matchMedia(
+  '(prefers-color-scheme: light)'
+).matches ? 'light' : 'dark';
 
-  if (!values.length) return null;
-
-  return values.reduce((a, b) => a + b, 0) / values.length;
+function applyTheme() {
+  document.body.classList.toggle('light', theme === 'light');
+  const button = $('#theme');
+  if (button) {
+    button.textContent = theme === 'light'
+      ? '☾　切換深色'
+      : '☼　切換淺色';
+  }
 }
 
-function getMaximum(stations, key) {
+applyTheme();
+
+$('#theme')?.addEventListener('click', () => {
+  theme = theme === 'light' ? 'dark' : 'light';
+  applyTheme();
+});
+
+/* 解析中央氣象署 O-A0003-001 */
+
+function parseStation(raw) {
+  const w = raw.WeatherElement || {};
+
+  const coord = raw.GeoInfo?.Coordinates?.find(
+    item => item.CoordinateName === 'WGS84'
+  );
+
+  return {
+    id: raw.StationId || '',
+    name: raw.StationName || '未知測站',
+    county: raw.GeoInfo?.CountyName || '',
+    town: raw.GeoInfo?.TownName || '',
+    lat: number(coord?.StationLatitude),
+    lon: number(coord?.StationLongitude),
+    time: raw.ObsTime?.DateTime || '',
+    weather: w.Weather || '無資料',
+    temperature: number(w.AirTemperature),
+    humidity: number(w.RelativeHumidity),
+    wind: number(w.WindSpeed),
+    gust: number(w.GustInfo?.PeakGustSpeed),
+    rain: number(w.Now?.Precipitation)
+  };
+}
+
+function average(key) {
   const values = stations
-    .map(station => station[key])
-    .filter(value => value !== null);
+    .map(s => s[key])
+    .filter(v => v !== null);
+
+  return values.length
+    ? values.reduce((a, b) => a + b, 0) / values.length
+    : null;
+}
+
+function maximum(key) {
+  const values = stations
+    .map(s => s[key])
+    .filter(v => v !== null);
 
   return values.length ? Math.max(...values) : null;
 }
 
-// -----------------------------------------------------
-// 7. 更新首頁摘要
-// -----------------------------------------------------
+/* 建立 GPS 定位介面 */
 
-function updateHomepage(data) {
-  const stations = data.stations || [];
+function setupLocation() {
+  const box = $('.location');
+  if (!box) return;
 
-  const validStations = stations
-    .map(getStationData)
-    .filter(station => station.temperature !== null);
+  box.innerHTML = `
+    📍 <b>所在地天氣</b>
+    <span id="location-label">臺灣・位置待選</span>
+    <button id="gps-button" type="button">
+      📍 定位目前位置
+    </button>
+  `;
 
-  const stationCount = document.getElementById('station-count');
+  const button = $('#gps-button');
 
-  if (stationCount) {
-    stationCount.textContent = `${stations.length} 個測站`;
-  }
+  button.style.cssText = `
+    margin-left:8px;
+    padding:7px 11px;
+    border:1px solid #8ba5c5;
+    border-radius:20px;
+    background:transparent;
+    color:inherit;
+    font-size:12px;
+    cursor:pointer;
+  `;
 
-  const updated = document.querySelector('.updated');
+  button.addEventListener('click', locateUser);
 
-  if (updated) {
-    updated.textContent =
-      `●　即時資料已連線｜${formatTime(data.updatedAt)}`;
-  }
+  const status = document.createElement('div');
+  status.id = 'gps-status';
+  status.style.cssText =
+    'font-size:12px;margin-top:8px;line-height:1.6;';
 
-  // 若使用者已經 GPS 定位，優先保留所在地測站
-  if (selectedStationId) {
-    const selected = weatherData.find(
-      station => station.id === selectedStationId
-    );
-
-    if (selected) {
-      updateLocalWeather(selected);
-      renderStationList(weatherData);
-      return;
-    }
-  }
-
-  const averageTemperature = getAverage(
-    validStations,
-    'temperature'
-  );
-
-  const temperature = document.querySelector('.temperature');
-
-  if (temperature) {
-    temperature.innerHTML =
-      `${formatValue(averageTemperature)}<small>°C</small>`;
-  }
-
-  const condition = document.querySelector('.condition');
-
-  if (condition) {
-    condition.textContent =
-      `全臺測站平均氣溫｜${validStations.length} 個有效測站`;
-  }
-
-  const metrics = document.querySelectorAll('.metric strong');
-
-  if (metrics[0]) {
-    metrics[0].innerHTML =
-      `${formatValue(getAverage(validStations, 'humidity'))}<em>%</em>`;
-  }
-
-  if (metrics[1]) {
-    metrics[1].innerHTML =
-      `${formatValue(getAverage(validStations, 'wind'))}<em>m/s</em>`;
-  }
-
-  if (metrics[2]) {
-    metrics[2].innerHTML =
-      `${formatValue(getMaximum(validStations, 'gust'))}<em>m/s</em>`;
-  }
-
-  if (metrics[3]) {
-    metrics[3].innerHTML =
-      `${formatValue(getMaximum(validStations, 'rain'))}<em>mm</em>`;
-  }
-
-  const feels = document.querySelector('.feels');
-
-  if (feels) {
-    feels.textContent = '全臺平均統計｜非所在地觀測';
-  }
-
-  renderStationList(weatherData);
+  box.parentElement.appendChild(status);
 }
 
-// -----------------------------------------------------
-// 8. GPS 最近測站距離計算
-// -----------------------------------------------------
+/* 建立真正的地圖區域 */
 
-function calculateDistance(lat1, lon1, lat2, lon2) {
-  const radians = value => value * Math.PI / 180;
+function setupMap() {
+  const area = $('.map-placeholder');
+  if (!area) return;
 
-  const earthRadius = 6371;
+  area.innerHTML = `
+    <div class="xuan-map-controls">
+      <button type="button" data-map="temperature">🌡️ 氣溫</button>
+      <button type="button" data-map="rain">🌧️ 雨量</button>
+      <button type="button" data-map="wind">💨 風速</button>
+    </div>
 
-  const dLat = radians(lat2 - lat1);
-  const dLon = radians(lon2 - lon1);
+    <div id="xuan-map"
+      style="width:100%;height:440px;min-height:340px;background:#e5edf5;">
+    </div>
+
+    <div id="map-status"
+      style="padding:9px 12px;font-size:12px;">
+      正在載入測站地圖…
+    </div>
+  `;
+
+  area.querySelectorAll('[data-map]').forEach(button => {
+    button.style.cssText = `
+      padding:7px 12px;
+      margin:5px 3px;
+      border:1px solid #8ba5c5;
+      border-radius:20px;
+      background:transparent;
+      color:inherit;
+      font-size:12px;
+    `;
+
+    button.addEventListener('click', () => {
+      mapMetric = button.dataset.map;
+
+      area.querySelectorAll('[data-map]').forEach(b => {
+        b.style.background =
+          b === button ? 'var(--accent,#dce9f8)' : 'transparent';
+      });
+
+      drawMarkers();
+    });
+  });
+
+  area.querySelector('[data-map="temperature"]').style.background =
+    'var(--accent,#dce9f8)';
+}
+
+/* 載入 Leaflet 地圖 */
+
+function loadLeaflet() {
+  return new Promise((resolve, reject) => {
+    if (window.L) {
+      resolve();
+      return;
+    }
+
+    if (!$('#xuan-leaflet-css')) {
+      const css = document.createElement('link');
+      css.id = 'xuan-leaflet-css';
+      css.rel = 'stylesheet';
+      css.href =
+        'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+
+      document.head.appendChild(css);
+    }
+
+    const script = document.createElement('script');
+    script.src =
+      'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+
+    script.onload = resolve;
+    script.onerror = () => reject(
+      new Error('Leaflet 地圖載入失敗')
+    );
+
+    document.head.appendChild(script);
+  });
+}
+
+/* 地圖顏色 */
+
+function getMapValue(station) {
+  if (mapMetric === 'rain') return station.rain;
+  if (mapMetric === 'wind') return station.wind;
+  return station.temperature;
+}
+
+function getColor(value) {
+  if (value === null) return '#8993a3';
+
+  if (mapMetric === 'rain') {
+    if (value >= 20) return '#8438bf';
+    if (value >= 10) return '#2867cf';
+    if (value > 0) return '#35a7d8';
+    return '#78b98b';
+  }
+
+  if (mapMetric === 'wind') {
+    if (value >= 10) return '#983db5';
+    if (value >= 6) return '#e18b35';
+    if (value >= 3) return '#3289c9';
+    return '#55a987';
+  }
+
+  if (value >= 35) return '#d94b3d';
+  if (value >= 30) return '#e58a35';
+  if (value >= 25) return '#d8b743';
+  if (value >= 20) return '#3999c7';
+
+  return '#6576bd';
+}
+
+/* 初始化臺灣地圖 */
+
+function initMap() {
+  if (!window.L || weatherMap) return;
+
+  weatherMap = L.map('xuan-map', {
+    scrollWheelZoom: false
+  }).setView([23.7, 120.9], 7);
+
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    }
+  ).addTo(weatherMap);
+
+  stationMarkers = L.layerGroup().addTo(weatherMap);
+
+  setTimeout(() => weatherMap.invalidateSize(), 300);
+}
+
+/* 測站點位與資訊彈窗 */
+
+function drawMarkers() {
+  if (!weatherMap || !stationMarkers) return;
+
+  stationMarkers.clearLayers();
+
+  const valid = stations.filter(s =>
+    s.lat !== null &&
+    s.lon !== null &&
+    s.lat >= 20 &&
+    s.lat <= 27 &&
+    s.lon >= 117 &&
+    s.lon <= 123
+  );
+
+  valid.forEach(station => {
+    const value = getMapValue(station);
+
+    const marker = L.circleMarker(
+      [station.lat, station.lon],
+      {
+        radius: station.id === selectedId ? 8 : 5,
+        color: '#ffffff',
+        weight: 1.5,
+        fillColor: getColor(value),
+        fillOpacity: 0.92
+      }
+    );
+
+    marker.bindPopup(`
+      <div style="min-width:160px">
+        <strong>${safe(station.name)}</strong>
+        <div>${safe(station.county)} ${safe(station.town)}</div>
+        <hr>
+        氣溫：${fmt(station.temperature)} °C<br>
+        天氣：${safe(station.weather)}<br>
+        濕度：${fmt(station.humidity, 0)} %<br>
+        風速：${fmt(station.wind)} m/s<br>
+        陣風：${fmt(station.gust)} m/s<br>
+        雨量：${fmt(station.rain)} mm<br>
+        <small>觀測時間：${safe(formatTime(station.time))}</small>
+      </div>
+    `);
+
+    marker.addTo(stationMarkers);
+  });
+
+  const status = $('#map-status');
+
+  if (status) {
+    status.textContent =
+      `地圖顯示 ${valid.length} 個有效座標測站`;
+  }
+
+  if (gpsPosition && gpsMarker) {
+    gpsMarker.setLatLng([
+      gpsPosition.lat,
+      gpsPosition.lon
+    ]);
+  }
+}
+
+/* GPS 距離計算 */
+
+function distanceKm(lat1, lon1, lat2, lon2) {
+  const rad = value => value * Math.PI / 180;
+
+  const dLat = rad(lat2 - lat1);
+  const dLon = rad(lon2 - lon1);
 
   const a =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos(radians(lat1)) *
-    Math.cos(radians(lat2)) *
+    Math.cos(rad(lat1)) *
+    Math.cos(rad(lat2)) *
     Math.sin(dLon / 2) ** 2;
 
-  return earthRadius * 2 * Math.atan2(
+  return 6371 * 2 * Math.atan2(
     Math.sqrt(a),
     Math.sqrt(1 - a)
   );
 }
 
-function findNearestStation(lat, lon) {
-  const candidates = weatherData.filter(station =>
-    station.lat !== null &&
-    station.lon !== null &&
-    station.temperature !== null &&
-    station.lat >= -90 &&
-    station.lat <= 90 &&
-    station.lon >= -180 &&
-    station.lon <= 180
-  );
-
-  if (!candidates.length) return null;
-
-  return candidates
-    .map(station => ({
-      ...station,
-      distance: calculateDistance(
-        lat,
-        lon,
-        station.lat,
-        station.lon
+function findNearest(lat, lon) {
+  return stations
+    .filter(s =>
+      s.lat !== null &&
+      s.lon !== null &&
+      s.temperature !== null
+    )
+    .map(s => ({
+      ...s,
+      distance: distanceKm(
+        lat, lon, s.lat, s.lon
       )
     }))
-    .sort((a, b) => a.distance - b.distance)[0];
+    .sort((a, b) => a.distance - b.distance)[0] || null;
 }
 
-// -----------------------------------------------------
-// 9. 所在地天氣卡片
-// -----------------------------------------------------
+/* 更新所在地天氣 */
 
-function updateLocalWeather(station) {
+function updateLocal(station) {
   if (!station) return;
 
-  const locationBox = document.querySelector('.location');
+  selectedId = station.id;
 
-  if (locationBox) {
-    const title = locationBox.querySelector('b');
+  $('#location-label').textContent =
+    `${station.county}・${station.town}・${station.name}`;
 
-    if (title) {
-      title.textContent = '所在地最近測站';
-    }
+  $('.temperature').innerHTML =
+    `${fmt(station.temperature)}<small>°C</small>`;
 
-    const label = document.getElementById('location-label');
+  $('.condition').textContent =
+    `${station.name}｜${station.weather}`;
 
-    if (label) {
-      label.textContent =
-        `${station.county}・${station.town}・${station.name}`;
-    }
-  }
-
-  const temperature = document.querySelector('.temperature');
-
-  if (temperature) {
-    temperature.innerHTML =
-      `${formatValue(station.temperature)}<small>°C</small>`;
-  }
-
-  const condition = document.querySelector('.condition');
-
-  if (condition) {
-    condition.textContent =
-      `${station.name}｜${station.condition}`;
-  }
-
-  const feels = document.querySelector('.feels');
-
-  if (feels) {
-    feels.textContent =
-      `最近測站觀測｜${formatTime(station.time)}`;
-  }
+  $('.feels').textContent =
+    `最近測站觀測｜${formatTime(station.time)}`;
 
   const metrics = document.querySelectorAll('.metric strong');
 
   if (metrics[0]) {
     metrics[0].innerHTML =
-      `${formatValue(station.humidity, 0)}<em>%</em>`;
+      `${fmt(station.humidity, 0)}<em>%</em>`;
   }
 
   if (metrics[1]) {
     metrics[1].innerHTML =
-      `${formatValue(station.wind)}<em>m/s</em>`;
+      `${fmt(station.wind)}<em>m/s</em>`;
   }
 
   if (metrics[2]) {
     metrics[2].innerHTML =
-      `${formatValue(station.gust)}<em>m/s</em>`;
+      `${fmt(station.gust)}<em>m/s</em>`;
   }
 
   if (metrics[3]) {
     metrics[3].innerHTML =
-      `${formatValue(station.rain)}<em>mm</em>`;
+      `${fmt(station.rain)}<em>mm</em>`;
   }
 
-  const status = document.getElementById('location-status');
+  $('#gps-status').textContent =
+    `定位成功｜最近測站：${station.name}｜直線距離 ${station.distance.toFixed(1)} 公里`;
 
-  if (status) {
-    status.textContent =
-      `GPS 定位成功｜最近測站 ${station.name}｜直線距離 ${station.distance.toFixed(1)} 公里`;
-  }
+  drawMarkers();
 }
 
-// -----------------------------------------------------
-// 10. 建立定位介面
-// -----------------------------------------------------
-
-function setupLocation() {
-  const locationBox = document.querySelector('.location');
-
-  if (!locationBox) return;
-
-  // 建立位置文字
-  let label = document.getElementById('location-label');
-
-  if (!label) {
-    label = document.createElement('span');
-    label.id = 'location-label';
-    label.textContent = '臺灣・位置待選';
-
-    locationBox.appendChild(label);
-  }
-
-  // 建立 GPS 按鈕
-  let button = document.getElementById('gps-location-button');
-
-  if (!button) {
-    button = document.createElement('button');
-
-    button.id = 'gps-location-button';
-    button.type = 'button';
-    button.textContent = '📍 定位目前位置';
-
-    button.style.cssText = `
-      margin-left:8px;
-      padding:7px 11px;
-      border-radius:20px;
-      border:1px solid #8ba5c5;
-      background:transparent;
-      color:inherit;
-      font-size:12px;
-      cursor:pointer;
-    `;
-
-    locationBox.appendChild(button);
-  }
-
-  // 定位狀態
-  let status = document.getElementById('location-status');
-
-  if (!status) {
-    status = document.createElement('div');
-
-    status.id = 'location-status';
-
-    status.style.cssText = `
-      font-size:12px;
-      margin-top:8px;
-      color:var(--muted,#718096);
-      line-height:1.6;
-    `;
-
-    locationBox.parentElement.appendChild(status);
-  }
-
-  button.addEventListener('click', locateUser);
-}
-
-// -----------------------------------------------------
-// 11. 執行 GPS 定位
-// -----------------------------------------------------
+/* 執行 iPhone GPS 定位 */
 
 function locateUser() {
-  const button = document.getElementById('gps-location-button');
-  const status = document.getElementById('location-status');
+  if (locating) return;
 
-  if (isLocating) return;
+  const button = $('#gps-button');
+  const status = $('#gps-status');
 
   if (!navigator.geolocation) {
-    status.textContent = '目前瀏覽器不支援 GPS 定位';
+    status.textContent = '瀏覽器不支援 GPS 定位';
     return;
   }
 
   if (!window.isSecureContext) {
-    status.textContent = '定位需要 HTTPS 安全連線';
+    status.textContent = 'GPS 定位需要 HTTPS 安全連線';
     return;
   }
 
-  isLocating = true;
-
+  locating = true;
   button.disabled = true;
-  button.textContent = '正在取得 GPS 位置…';
-
-  status.textContent = '請允許 Safari 取用你的位置';
+  button.textContent = '正在定位…';
+  status.textContent = '請允許 Safari 使用你的位置';
 
   navigator.geolocation.getCurrentPosition(
     position => {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-
-      const nearest = findNearestStation(lat, lon);
-
-      isLocating = false;
+      locating = false;
       button.disabled = false;
       button.textContent = '重新定位';
 
+      gpsPosition = {
+        lat: position.coords.latitude,
+        lon: position.coords.longitude
+      };
+
+      const nearest = findNearest(
+        gpsPosition.lat,
+        gpsPosition.lon
+      );
+
       if (!nearest) {
         status.textContent =
-          '目前找不到具有有效座標及氣溫資料的測站';
+          '找不到具有有效座標及氣溫的測站';
         return;
       }
 
-      selectedStationId = nearest.id;
+      updateLocal(nearest);
 
-      updateLocalWeather(nearest);
+      if (weatherMap) {
+        if (gpsMarker) gpsMarker.remove();
+
+        gpsMarker = L.marker([
+          gpsPosition.lat,
+          gpsPosition.lon
+        ])
+          .addTo(weatherMap)
+          .bindPopup('📍 你的 GPS 位置')
+          .openPopup();
+
+        weatherMap.setView(
+          [gpsPosition.lat, gpsPosition.lon],
+          9
+        );
+      }
     },
 
     error => {
-      isLocating = false;
+      locating = false;
       button.disabled = false;
-      button.textContent = '📍 重新定位';
+      button.textContent = '重新定位';
 
       const messages = {
-        1: '定位權限被拒絕，請允許 Safari 使用位置',
-        2: '目前無法取得 GPS 位置，請檢查定位服務',
+        1: '定位權限遭拒絕，請允許 Safari 使用位置',
+        2: '無法取得 GPS 位置，請檢查定位服務',
         3: '定位逾時，請再次嘗試'
       };
 
       status.textContent =
-        messages[error.code] || '定位失敗，請稍後再試';
+        messages[error.code] || '定位失敗';
     },
 
     {
       enableHighAccuracy: true,
-      timeout: 20000,
+      timeout: 25000,
       maximumAge: 60000
     }
   );
 }
 
-// -----------------------------------------------------
-// 12. 全臺測站搜尋列表
-// -----------------------------------------------------
+/* 全臺測站列表 */
 
-function renderStationList(stations) {
-  const mapPanel = document.querySelector('.map-placeholder');
+function renderStations() {
+  const mapArea = $('.map-placeholder');
+  if (!mapArea) return;
 
-  if (!mapPanel) return;
-
-  let panel = document.getElementById('station-live-list');
+  let panel = $('#station-live-list');
 
   if (!panel) {
-    panel = document.createElement('div');
-
+    panel = document.createElement('section');
     panel.id = 'station-live-list';
+    panel.style.cssText =
+      'margin-top:16px;max-height:600px;overflow:auto;';
 
-    panel.style.cssText = `
-      margin-top:16px;
-      max-height:600px;
-      overflow:auto;
-    `;
-
-    mapPanel.insertAdjacentElement('afterend', panel);
+    mapArea.insertAdjacentElement('afterend', panel);
   }
 
-  const previousSearch =
-    document.getElementById('station-search');
+  const keyword =
+    ($('#station-search')?.value || '').trim().toLowerCase();
 
-  const keyword = previousSearch?.value.trim().toLowerCase() || '';
-
-  const filtered = stations.filter(station => {
-    const text =
-      `${station.name} ${station.county} ${station.town}`.toLowerCase();
-
-    return text.includes(keyword);
-  });
+  const filtered = stations.filter(s =>
+    `${s.name} ${s.county} ${s.town}`
+      .toLowerCase()
+      .includes(keyword)
+  );
 
   panel.innerHTML = `
-    <div style="
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-bottom:12px;
-    ">
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
       <strong>🌡️ 全臺即時測站觀測</strong>
       <span>${filtered.length} 個測站</span>
     </div>
@@ -567,75 +561,46 @@ function renderStationList(stations) {
       id="station-search"
       type="search"
       placeholder="搜尋縣市、鄉鎮或測站名稱"
-      value="${escapeHTML(keyword)}"
-      style="
-        width:100%;
-        box-sizing:border-box;
-        padding:12px;
-        border-radius:10px;
-        margin-bottom:12px;
-      "
+      value="${safe(keyword)}"
+      style="width:100%;box-sizing:border-box;padding:12px;border-radius:10px;margin-bottom:12px"
     >
 
-    <div style="
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-      gap:10px;
-    ">
-      ${filtered.map(station => `
-        <div style="
-          padding:12px;
-          border:1px solid var(--border,#8885);
-          border-radius:12px;
-        ">
-          <strong>${escapeHTML(station.name)}</strong>
-
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px">
+      ${filtered.map(s => `
+        <article style="padding:12px;border:1px solid var(--border,#8885);border-radius:12px">
+          <strong>${safe(s.name)}</strong>
           <div style="font-size:12px;opacity:.7;margin:4px 0">
-            ${escapeHTML(station.county)}
-            ${escapeHTML(station.town)}
+            ${safe(s.county)} ${safe(s.town)}
           </div>
-
-          <div style="
-            font-size:24px;
-            font-weight:700;
-            margin:8px 0;
-          ">
-            ${formatValue(station.temperature)}°C
+          <div style="font-size:24px;font-weight:700;margin:8px 0">
+            ${fmt(s.temperature)}°C
           </div>
-
           <div style="font-size:13px;line-height:1.8">
-            ${escapeHTML(station.condition)}<br>
-            濕度 ${formatValue(station.humidity,0)}%　
-            風速 ${formatValue(station.wind)} m/s<br>
-            陣風 ${formatValue(station.gust)} m/s　
-            雨量 ${formatValue(station.rain)} mm
+            ${safe(s.weather)}<br>
+            濕度 ${fmt(s.humidity, 0)}%　
+            風速 ${fmt(s.wind)} m/s<br>
+            陣風 ${fmt(s.gust)} m/s　
+            雨量 ${fmt(s.rain)} mm
           </div>
-
-          <div style="font-size:11px;opacity:.65;margin-top:6px">
-            ${escapeHTML(formatTime(station.time))}
-          </div>
-        </div>
+          <small>${safe(formatTime(s.time))}</small>
+        </article>
       `).join('')}
     </div>
   `;
 
-  document.getElementById('station-search')
-    ?.addEventListener('input', () => {
-      renderStationList(stations);
-    });
+  $('#station-search').addEventListener(
+    'input',
+    renderStations
+  );
 }
 
-// -----------------------------------------------------
-// 13. 載入中央氣象署資料
-// -----------------------------------------------------
+/* 載入官方資料 */
 
 async function loadWeatherData() {
   try {
     const response = await fetch(
       `${DATA_URL}?_=${Date.now()}`,
-      {
-        cache: 'no-store'
-      }
+      { cache: 'no-store' }
     );
 
     if (!response.ok) {
@@ -647,47 +612,110 @@ async function loadWeatherData() {
     if (
       !data.success ||
       !Array.isArray(data.stations) ||
-      data.stations.length === 0
+      !data.stations.length
     ) {
-      throw new Error('測站資料格式不正確');
+      throw new Error('測站資料格式錯誤');
     }
 
-    weatherData = data.stations.map(getStationData);
+    stations = data.stations.map(parseStation);
 
-    updateHomepage(data);
+    const valid = stations.filter(
+      s => s.temperature !== null
+    );
+
+    $('.updated').textContent =
+      `●　即時資料已連線｜${formatTime(data.updatedAt)}`;
+
+    if (selectedId) {
+      const selected = stations.find(s => s.id === selectedId);
+
+      if (selected) {
+        selected.distance = gpsPosition
+          ? distanceKm(
+              gpsPosition.lat,
+              gpsPosition.lon,
+              selected.lat,
+              selected.lon
+            )
+          : 0;
+
+        updateLocal(selected);
+      }
+    } else {
+      $('.temperature').innerHTML =
+        `${fmt(average('temperature'))}<small>°C</small>`;
+
+      $('.condition').textContent =
+        `全臺測站平均氣溫｜${valid.length} 個有效測站`;
+
+      $('.feels').textContent =
+        '全臺平均統計｜非所在地觀測';
+
+      const metrics =
+        document.querySelectorAll('.metric strong');
+
+      if (metrics[0]) {
+        metrics[0].innerHTML =
+          `${fmt(average('humidity'))}<em>%</em>`;
+      }
+
+      if (metrics[1]) {
+        metrics[1].innerHTML =
+          `${fmt(average('wind'))}<em>m/s</em>`;
+      }
+
+      if (metrics[2]) {
+        metrics[2].innerHTML =
+          `${fmt(maximum('gust'))}<em>m/s</em>`;
+      }
+
+      if (metrics[3]) {
+        metrics[3].innerHTML =
+          `${fmt(maximum('rain'))}<em>mm</em>`;
+      }
+    }
+
+    renderStations();
+    drawMarkers();
 
     console.log(
-      `Xuan Weather：成功載入 ${weatherData.length} 個測站`
+      `Xuan Weather：成功載入 ${stations.length} 個測站`
     );
 
   } catch (error) {
-    console.error('即時氣象資料讀取失敗：', error);
+    console.error('氣象資料讀取失敗：', error);
 
-    const updated = document.querySelector('.updated');
-
-    if (updated) {
-      updated.textContent = '●　資料讀取失敗，請稍後重試';
-    }
-
-    const status = document.getElementById('location-status');
-
-    if (status && !weatherData.length) {
-      status.textContent = '目前尚未取得測站資料';
-    }
+    $('.updated').textContent =
+      '●　即時資料讀取失敗，請稍後重試';
   }
 }
 
-// -----------------------------------------------------
-// 14. 初始化
-// -----------------------------------------------------
+/* 啟動 */
 
-setupLocation();
+async function startWeather() {
+  setupLocation();
+  setupMap();
 
-loadWeatherData();
+  await loadWeatherData();
 
-setInterval(
-  loadWeatherData,
-  REFRESH_INTERVAL
-);
+  try {
+    await loadLeaflet();
+    initMap();
+    drawMarkers();
+  } catch (error) {
+    console.error(error);
 
-console.log('Xuan Weather 氣象監測中心已啟動');
+    const status = $('#map-status');
+    if (status) {
+      status.textContent =
+        '地圖載入失敗，請檢查網路連線';
+    }
+  }
+
+  setInterval(
+    loadWeatherData,
+    REFRESH_MS
+  );
+}
+
+startWeather();
