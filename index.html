@@ -3,47 +3,356 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1425"><meta name="description" content="Xuan Weather 台灣氣象監測中心｜官方氣象觀測與預報資訊。">
+<meta name="theme-color" content="#0b1425">
+<meta name="description" content="Xuan Weather 台灣氣象監測中心｜官方氣象觀測與預報資訊。">
+
 <title>Xuan Weather｜台灣氣象監測中心</title>
-<link rel="stylesheet" href="css/style.css">
+
+<!-- 更新版本號，避免 iPhone Safari 使用舊版快取 -->
+<link rel="stylesheet" href="css/style.css?v=3">
+
 </head>
+
 <body>
-<header><div class="wrap head">
-  <div class="brand"><div class="logo">🌦️</div><div><strong>Xuan Weather 氣象監測中心</strong><small>TAIWAN WEATHER MONITORING CENTER</small></div></div>
-  <nav class="nav"><button class="active">總覽</button><button>全台觀測</button><button>雷達衛星</button><button>預報資訊</button><button>颱風地震</button></nav>
-  <button class="head-btn" id="theme">☼　切換主題</button>
-</div></header>
-<main class="wrap">
-  <div class="page-title"><div><div class="eyebrow">LIVE WEATHER OPERATIONS</div><h1>台灣即時氣象總覽</h1><p>整合官方觀測、天氣圖資與預報資訊的監測入口</p></div><div class="updated">●　示意版型｜尚未連接即時資料</div></div>
-  <div class="top-grid">
-    <section class="panel">
-      <div class="panel-head"><div><div class="location">📍 <b>所在地天氣</b>　臺灣・位置待選</div></div><span class="tag">中央氣象署資料</span></div>
-      <div class="weather-summary"><div><div class="temperature">--<small>°C</small></div><div class="condition">等待官方觀測資料</div><div class="feels">體感溫度 --　｜　觀測時間 --</div></div><div class="weather-icon">🌤️</div></div>
-      <div class="metrics">
-        <div class="metric"><label>相對濕度</label><strong>--<em>%</em></strong></div>
-        <div class="metric"><label>平均風速</label><strong>--<em>m/s</em></strong></div>
-        <div class="metric"><label>最大陣風</label><strong>--<em>m/s</em></strong></div>
-        <div class="metric"><label>累積雨量</label><strong>--<em>mm</em></strong></div>
+
+<header>
+  <div class="wrap head">
+
+    <div class="brand">
+      <div class="logo">🌦️</div>
+      <div>
+        <strong>Xuan Weather 氣象監測中心</strong>
+        <small>TAIWAN WEATHER MONITORING CENTER</small>
       </div>
-    </section>
+    </div>
+
+    <nav class="nav">
+      <button class="active">總覽</button>
+      <button>全台觀測</button>
+      <button>雷達衛星</button>
+      <button>預報資訊</button>
+      <button>颱風地震</button>
+    </nav>
+
+    <button class="head-btn" id="theme">☼　切換主題</button>
+
+  </div>
+</header>
+
+
+<main class="wrap">
+
+  <!-- 首頁標題 -->
+  <div class="page-title">
+
+    <div>
+      <div class="eyebrow">LIVE WEATHER OPERATIONS</div>
+      <h1>台灣即時氣象總覽</h1>
+      <p>整合官方觀測、天氣圖資與預報資訊的監測入口</p>
+    </div>
+
+    <div class="updated">
+      ●　正在連線中央氣象署資料
+    </div>
+
+  </div>
+
+
+  <!-- 即時天氣與全台地圖 -->
+  <div class="top-grid">
+
+    <!-- 所在地天氣 -->
     <section class="panel">
-      <div class="panel-head"><h2>🗺️ 全台即時監測</h2><span class="tag">地圖模組預留</span></div>
-      <div class="map-placeholder"><div class="map-label">台灣監測地圖區域<small>正式版將載入官方測站位置與即時觀測值</small></div><div class="map-legend"><span>測站分布</span><span>氣溫・雨量・風速圖層</span></div></div>
+
+      <div class="panel-head">
+
+        <div>
+          <div class="location">
+            📍 <b>所在地天氣</b>　臺灣・位置待選
+          </div>
+        </div>
+
+        <span class="tag">中央氣象署資料</span>
+
+      </div>
+
+
+      <div class="weather-summary">
+
+        <div>
+
+          <div class="temperature">
+            --<small>°C</small>
+          </div>
+
+          <div class="condition">
+            等待官方觀測資料
+          </div>
+
+          <div class="feels">
+            體感溫度 --　｜　觀測時間 --
+          </div>
+
+        </div>
+
+        <div class="weather-icon">🌤️</div>
+
+      </div>
+
+
+      <div class="metrics">
+
+        <div class="metric">
+          <label>相對濕度</label>
+          <strong>--<em>%</em></strong>
+        </div>
+
+        <div class="metric">
+          <label>平均風速</label>
+          <strong>--<em>m/s</em></strong>
+        </div>
+
+        <div class="metric">
+          <label>最大陣風</label>
+          <strong>--<em>m/s</em></strong>
+        </div>
+
+        <div class="metric">
+          <label>累積雨量</label>
+          <strong>--<em>mm</em></strong>
+        </div>
+
+      </div>
+
     </section>
+
+
+    <!-- 全台即時監測地圖 -->
+    <section class="panel">
+
+      <div class="panel-head">
+
+        <h2>🗺️ 全台即時監測</h2>
+
+        <span class="tag">中央氣象署即時測站</span>
+
+      </div>
+
+      <!-- 地圖由 app.js 自動建立 -->
+      <div class="map-placeholder">
+
+        <div class="map-label">
+          台灣監測地圖區域
+          <small>正在準備官方測站位置與即時觀測值</small>
+        </div>
+
+        <div class="map-legend">
+          <span>測站分布</span>
+          <span>氣溫・雨量・風速圖層</span>
+        </div>
+
+      </div>
+
+    </section>
+
   </div>
+
+
+  <!-- 即時圖資 -->
   <div class="section-grid">
-    <section class="panel data-card"><div class="panel-head"><h2>🌧️ 雷達回波</h2><span class="tag">圖資入口</span></div><div class="big-placeholder">等待雷達圖資</div><div class="sub-placeholder">中央氣象署雷達回波｜時間軸與圖例</div></section>
-    <section class="panel data-card"><div class="panel-head"><h2>🛰️ 衛星雲圖</h2><span class="tag">圖資入口</span></div><div class="big-placeholder">等待衛星影像</div><div class="sub-placeholder">中央氣象署衛星影像｜可切換區域</div></section>
-    <section class="panel data-card"><div class="panel-head"><h2>💨 風場監測</h2><span class="tag">圖資入口</span></div><div class="big-placeholder">等待風場資料</div><div class="sub-placeholder">風向・風速・流場視覺化</div></section>
+
+    <section class="panel data-card">
+
+      <div class="panel-head">
+        <h2>🌧️ 雷達回波</h2>
+        <span class="tag">圖資入口</span>
+      </div>
+
+      <div class="big-placeholder">
+        等待雷達圖資
+      </div>
+
+      <div class="sub-placeholder">
+        中央氣象署雷達回波｜時間軸與圖例
+      </div>
+
+    </section>
+
+
+    <section class="panel data-card">
+
+      <div class="panel-head">
+        <h2>🛰️ 衛星雲圖</h2>
+        <span class="tag">圖資入口</span>
+      </div>
+
+      <div class="big-placeholder">
+        等待衛星影像
+      </div>
+
+      <div class="sub-placeholder">
+        中央氣象署衛星影像｜可切換區域
+      </div>
+
+    </section>
+
+
+    <section class="panel data-card">
+
+      <div class="panel-head">
+        <h2>💨 風場監測</h2>
+        <span class="tag">圖資入口</span>
+      </div>
+
+      <div class="big-placeholder">
+        等待風場資料
+      </div>
+
+      <div class="sub-placeholder">
+        風向・風速・流場視覺化
+      </div>
+
+    </section>
+
   </div>
-  <section class="panel" style="margin-top:16px"><div class="panel-head"><h2>🕒 未來 24 小時逐時預報</h2><span class="tag">官方預報資料</span></div><div class="forecast-row">
-    <div class="hour"><small>現在</small><b>—</b><span>--°C</span></div><div class="hour"><small>時段 02</small><b>—</b><span>--°C</span></div><div class="hour"><small>時段 03</small><b>—</b><span>--°C</span></div><div class="hour"><small>時段 04</small><b>—</b><span>--°C</span></div><div class="hour"><small>時段 05</small><b>—</b><span>--°C</span></div><div class="hour"><small>時段 06</small><b>—</b><span>--°C</span></div><div class="hour"><small>時段 07</small><b>—</b><span>--°C</span></div><div class="hour"><small>時段 08</small><b>—</b><span>--°C</span></div>
-  </div></section>
+
+
+  <!-- 24 小時預報 -->
+  <section class="panel" style="margin-top:16px">
+
+    <div class="panel-head">
+      <h2>🕒 未來 24 小時逐時預報</h2>
+      <span class="tag">官方預報資料</span>
+    </div>
+
+    <div class="forecast-row">
+
+      <div class="hour">
+        <small>現在</small>
+        <b>—</b>
+        <span>--°C</span>
+      </div>
+
+      <div class="hour">
+        <small>時段 02</small>
+        <b>—</b>
+        <span>--°C</span>
+      </div>
+
+      <div class="hour">
+        <small>時段 03</small>
+        <b>—</b>
+        <span>--°C</span>
+      </div>
+
+      <div class="hour">
+        <small>時段 04</small>
+        <b>—</b>
+        <span>--°C</span>
+      </div>
+
+      <div class="hour">
+        <small>時段 05</small>
+        <b>—</b>
+        <span>--°C</span>
+      </div>
+
+      <div class="hour">
+        <small>時段 06</small>
+        <b>—</b>
+        <span>--°C</span>
+      </div>
+
+      <div class="hour">
+        <small>時段 07</small>
+        <b>—</b>
+        <span>--°C</span>
+      </div>
+
+      <div class="hour">
+        <small>時段 08</small>
+        <b>—</b>
+        <span>--°C</span>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- 七天預報與警報 -->
   <div class="bottom-grid">
-    <section class="panel"><div class="panel-head"><h2>📅 未來 7 天預報</h2><span class="tag">鄉鎮預報</span></div><div class="list"><div class="list-row"><b>每日天氣</b><span>高低溫・降雨機率</span></div><div class="empty">等待中央氣象署預報資料同步</div></div></section>
-    <section class="panel"><div class="panel-head"><h2>⚠️ 氣象警特報與監測</h2><span class="tag">官方發布</span></div><div class="list"><div class="list-row"><b>颱風動態</b><span>等待官方資訊</span></div><div class="list-row"><b>地震資訊</b><span>等待官方資訊</span></div><div class="list-row"><b>空氣品質</b><span>等待官方資訊</span></div></div></section>
+
+    <section class="panel">
+
+      <div class="panel-head">
+        <h2>📅 未來 7 天預報</h2>
+        <span class="tag">鄉鎮預報</span>
+      </div>
+
+      <div class="list">
+
+        <div class="list-row">
+          <b>每日天氣</b>
+          <span>高低溫・降雨機率</span>
+        </div>
+
+        <div class="empty">
+          等待中央氣象署預報資料同步
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <section class="panel">
+
+      <div class="panel-head">
+        <h2>⚠️ 氣象警特報與監測</h2>
+        <span class="tag">官方發布</span>
+      </div>
+
+      <div class="list">
+
+        <div class="list-row">
+          <b>颱風動態</b>
+          <span>等待官方資訊</span>
+        </div>
+
+        <div class="list-row">
+          <b>地震資訊</b>
+          <span>等待官方資訊</span>
+        </div>
+
+        <div class="list-row">
+          <b>空氣品質</b>
+          <span>等待官方資訊</span>
+        </div>
+
+      </div>
+
+    </section>
+
   </div>
-  <div class="foot">Xuan Weather｜台灣氣象監測中心<br>此頁為首頁設計預覽，所有即時數值與圖資將於資料串接後顯示，不使用示意數值。</div>
+
+
+  <!-- 頁尾 -->
+  <div class="foot">
+
+    Xuan Weather｜台灣氣象監測中心
+
+    <br>
+
+    此頁即時數值與圖資以官方資料串接結果為準。
+
+  </div>
+
 </main>
-<script src="js/app.js" defer></script>
-</body></html>
+
+
+<!-- 更新 JS 版本，避免讀取舊版程式 -->
+<script src="js/app.js?v=3" defer></script>
+
+</body>
+</html>
