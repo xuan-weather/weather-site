@@ -1,54 +1,85 @@
 <!doctype html>
 <html lang="zh-Hant">
+
 <head>
 <meta charset="utf-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
 <meta name="theme-color" content="#0b1425">
+
 <meta name="description" content="Xuan Weather 台灣氣象監測中心｜官方氣象觀測與預報資訊。">
 
 <title>Xuan Weather｜台灣氣象監測中心</title>
 
-<!-- 更新版本號，避免 iPhone Safari 使用舊版快取 -->
-<link rel="stylesheet" href="css/style.css?v=3">
+<!-- CSS 快取版本 v4 -->
+<link rel="stylesheet" href="css/style.css?v=4">
 
 </head>
 
 <body>
 
+<!-- =====================================
+     頂部品牌與導覽列
+===================================== -->
+
 <header>
+
   <div class="wrap head">
 
     <div class="brand">
+
       <div class="logo">🌦️</div>
+
       <div>
         <strong>Xuan Weather 氣象監測中心</strong>
         <small>TAIWAN WEATHER MONITORING CENTER</small>
       </div>
+
     </div>
 
     <nav class="nav">
+
       <button class="active">總覽</button>
       <button>全台觀測</button>
       <button>雷達衛星</button>
       <button>預報資訊</button>
       <button>颱風地震</button>
+
     </nav>
 
-    <button class="head-btn" id="theme">☼　切換主題</button>
+    <button class="head-btn" id="theme">
+      ☼　切換主題
+    </button>
 
   </div>
+
 </header>
 
 
+<!-- =====================================
+     主內容
+===================================== -->
+
 <main class="wrap">
 
+
   <!-- 首頁標題 -->
+
   <div class="page-title">
 
     <div>
-      <div class="eyebrow">LIVE WEATHER OPERATIONS</div>
+
+      <div class="eyebrow">
+        LIVE WEATHER OPERATIONS
+      </div>
+
       <h1>台灣即時氣象總覽</h1>
-      <p>整合官方觀測、天氣圖資與預報資訊的監測入口</p>
+
+      <p>
+        整合官方觀測、天氣圖資與預報資訊的監測入口
+      </p>
+
     </div>
 
     <div class="updated">
@@ -58,10 +89,15 @@
   </div>
 
 
-  <!-- 即時天氣與全台地圖 -->
+  <!-- =====================================
+       即時天氣與全台監測
+  ===================================== -->
+
   <div class="top-grid">
 
+
     <!-- 所在地天氣 -->
+
     <section class="panel">
 
       <div class="panel-head">
@@ -72,7 +108,9 @@
           </div>
         </div>
 
-        <span class="tag">中央氣象署資料</span>
+        <span class="tag">
+          中央氣象署資料
+        </span>
 
       </div>
 
@@ -95,10 +133,14 @@
 
         </div>
 
-        <div class="weather-icon">🌤️</div>
+        <div class="weather-icon">
+          🌤️
+        </div>
 
       </div>
 
+
+      <!-- 即時氣象數據 -->
 
       <div class="metrics">
 
@@ -128,22 +170,31 @@
 
 
     <!-- 全台即時監測地圖 -->
+
     <section class="panel">
 
       <div class="panel-head">
 
         <h2>🗺️ 全台即時監測</h2>
 
-        <span class="tag">中央氣象署即時測站</span>
+        <span class="tag">
+          中央氣象署即時測站
+        </span>
 
       </div>
 
       <!-- 地圖由 app.js 自動建立 -->
+
       <div class="map-placeholder">
 
         <div class="map-label">
+
           台灣監測地圖區域
-          <small>正在準備官方測站位置與即時觀測值</small>
+
+          <small>
+            正在準備官方測站位置與即時觀測值
+          </small>
+
         </div>
 
         <div class="map-legend">
@@ -158,14 +209,23 @@
   </div>
 
 
-  <!-- 即時圖資 -->
+  <!-- =====================================
+       監測圖資入口
+  ===================================== -->
+
   <div class="section-grid">
+
+
+    <!-- 雷達回波 -->
 
     <section class="panel data-card">
 
       <div class="panel-head">
+
         <h2>🌧️ 雷達回波</h2>
+
         <span class="tag">圖資入口</span>
+
       </div>
 
       <div class="big-placeholder">
@@ -179,11 +239,16 @@
     </section>
 
 
+    <!-- 衛星雲圖 -->
+
     <section class="panel data-card">
 
       <div class="panel-head">
+
         <h2>🛰️ 衛星雲圖</h2>
+
         <span class="tag">圖資入口</span>
+
       </div>
 
       <div class="big-placeholder">
@@ -197,11 +262,16 @@
     </section>
 
 
+    <!-- 風場監測 -->
+
     <section class="panel data-card">
 
       <div class="panel-head">
+
         <h2>💨 風場監測</h2>
+
         <span class="tag">圖資入口</span>
+
       </div>
 
       <div class="big-placeholder">
@@ -217,13 +287,22 @@
   </div>
 
 
-  <!-- 24 小時預報 -->
+  <!-- =====================================
+       未來24小時逐時預報
+  ===================================== -->
+
   <section class="panel" style="margin-top:16px">
 
     <div class="panel-head">
+
       <h2>🕒 未來 24 小時逐時預報</h2>
-      <span class="tag">官方預報資料</span>
+
+      <span class="tag">
+        官方預報資料
+      </span>
+
     </div>
+
 
     <div class="forecast-row">
 
@@ -280,14 +359,25 @@
   </section>
 
 
-  <!-- 七天預報與警報 -->
+  <!-- =====================================
+       七天預報與氣象警報
+  ===================================== -->
+
   <div class="bottom-grid">
+
+
+    <!-- 七天預報 -->
 
     <section class="panel">
 
       <div class="panel-head">
+
         <h2>📅 未來 7 天預報</h2>
-        <span class="tag">鄉鎮預報</span>
+
+        <span class="tag">
+          鄉鎮預報
+        </span>
+
       </div>
 
       <div class="list">
@@ -306,11 +396,18 @@
     </section>
 
 
+    <!-- 氣象警特報 -->
+
     <section class="panel">
 
       <div class="panel-head">
+
         <h2>⚠️ 氣象警特報與監測</h2>
-        <span class="tag">官方發布</span>
+
+        <span class="tag">
+          官方發布
+        </span>
+
       </div>
 
       <div class="list">
@@ -337,7 +434,10 @@
   </div>
 
 
-  <!-- 頁尾 -->
+  <!-- =====================================
+       頁尾
+  ===================================== -->
+
   <div class="foot">
 
     Xuan Weather｜台灣氣象監測中心
@@ -351,8 +451,9 @@
 </main>
 
 
-<!-- 更新 JS 版本，避免讀取舊版程式 -->
-<script src="js/app.js?v=3" defer></script>
+<!-- JavaScript 快取版本 v4 -->
+
+<script src="js/app.js?v=4" defer></script>
 
 </body>
 </html>
