@@ -500,15 +500,8 @@ function initMap() {
     }
   ).addTo(weatherMap);
 
-  stationMarkers = markerClusterReady
-    ? L.markerClusterGroup({
-        chunkedLoading:true,
-        maxClusterRadius:42,
-        showCoverageOnHover:false,
-        spiderfyOnMaxZoom:true,
-        disableClusteringAtZoom:11
-      })
-    : L.layerGroup();
+  // 直接顯示每個測站，不進行群聚
+stationMarkers = L.layerGroup();
 
   stationMarkers.addTo(weatherMap);
 
