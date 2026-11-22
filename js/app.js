@@ -1,4 +1,4 @@
-'use strict';
+use strict';
 
 /* Xuan Weather｜全臺即時氣象監測中心 */
 
@@ -821,6 +821,21 @@ function renderStations() {
   $('#station-search').addEventListener('input',renderStations);
 }
 
+/* 首頁資料連線狀態：只改狀態顏色，不影響地圖或測站 */
+function setDataConnectionStatus(state, message) {
+  const element = $('.updated');
+  if (!element) return;
+  const colors = {
+    connected: '#16834a',
+    updating: '#b7791f',
+    error: '#dc3545'
+  };
+  element.textContent = `●　${message}`;
+  element.style.setProperty('color', colors[state] || '#64748b', 'important');
+  element.setAttribute('role', 'status');
+  element.setAttribute('aria-live', 'polite');
+}
+
 /* 讀取官方整合資料 */
 
 async function loadWeatherData() {
@@ -850,8 +865,17 @@ async function loadWeatherData() {
       s => s.temperature !== null
     );
 
-    $('.updated').textContent =
-      `●　即時資料已連線｜${formatTime(data.updatedAt)}`;
+    const updatedTimestamp = Date.parse(data.updatedAt);
+    const ageMs = Date.now() - updatedTimestamp;
+    const isRecent = Number.isFinite(updatedTimestamp) &&
+      ageMs >= -5 * 60 * 1000 && ageMs <= 20 * 60 * 1000;
+
+    setDataConnectionStatus(
+      isRecent ? 'connected' : 'updating',
+      isRecent
+        ? `即時資料已連線｜${formatTime(data.updatedAt)}`
+        : `資料已載入，等待最新同步｜${formatTime(data.updatedAt)}`
+    );
 
     if (selectedId) {
       const selected = stations.find(s => s.id === selectedId);
@@ -901,10 +925,7 @@ async function loadWeatherData() {
   } catch (error) {
     console.error('氣象資料讀取失敗：',error);
 
-    if ($('.updated')) {
-      $('.updated').textContent =
-        '●　即時資料讀取失敗，請稍後重試';
-    }
+    setDataConnectionStatus('error', '即時資料讀取失敗，請稍後重試');
 
     const status = $('#map-status');
     if (status) status.textContent = '測站資料讀取失敗，請稍後重新整理';
@@ -914,6 +935,7 @@ async function loadWeatherData() {
 /* 啟動 */
 
 async function startWeather() {
+  setDataConnectionStatus('updating', '正在連線中央氣象署資料');
   setupLocation();
   setupMap();
 
