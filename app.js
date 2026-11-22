@@ -529,16 +529,22 @@ function drawMarkers() {
     const selected = station.id === selectedId;
     const size = selected ? 17 : 11;
 
-    const icon = L.divIcon({
-      className:'',
-      html:`<div class="xuan-station-dot" style="
-        width:${size}px;height:${size}px;
-        background:${color};
-        box-sizing:border-box;
-      "></div>`,
-      iconSize:[size,size],
-      iconAnchor:[size/2,size/2]
-    });
+    
+// 直接顯示單一測站圓點，不使用數字圖示或群聚圖示
+const marker = L.circleMarker(
+  [station.lat, station.lon],
+  {
+    radius: selected ? 8 : 5,
+    color: '#ffffff',
+    weight: 1.5,
+    opacity: 1,
+    fillColor: color,
+    fillOpacity: 0.95,
+    interactive: true,
+    bubblingMouseEvents: false
+  }
+);
+
 
     const marker = L.marker(
       [station.lat,station.lon],
