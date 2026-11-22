@@ -934,6 +934,21 @@ async function loadWeatherData() {
 /* 啟動 */
 
 async function startWeather() {
+  const refreshButton = $('#refresh-weather');
+  if (refreshButton) {
+    refreshButton.addEventListener('click', async () => {
+      if (refreshButton.disabled) return;
+      refreshButton.disabled = true;
+      refreshButton.textContent = '⏳ 更新中…';
+      try {
+        await loadWeatherData();
+      } finally {
+        refreshButton.disabled = false;
+        refreshButton.textContent = '🔄 重新整理';
+      }
+    });
+  }
+
   setDataConnectionStatus('updating', '正在連線中央氣象署資料');
   setupLocation();
   setupMap();
