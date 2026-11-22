@@ -1,4 +1,4 @@
-use strict';
+'use strict';
 
 /* Xuan Weather｜全臺即時氣象監測中心 */
 
