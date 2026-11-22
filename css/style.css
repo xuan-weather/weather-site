@@ -871,3 +871,51 @@ body.light .xuan-map-controls button {
   }
 
 }
+
+
+/* 即時資料連線狀態：依 JavaScript 實際資料狀態顯示 */
+.updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+}
+.updated::before {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 16%, transparent);
+}
+.updated[data-state="connected"] {
+  color: #16834a !important;
+  background: #eaf8ef;
+  border-color: #a9dfba;
+}
+.updated[data-state="updating"] {
+  color: #a66a0b !important;
+  background: #fff7e6;
+  border-color: #f0d59a;
+}
+.updated[data-state="error"] {
+  color: #c62828 !important;
+  background: #fff0f0;
+  border-color: #efb4b4;
+}
+body:not(.light) .updated[data-state="connected"] {
+  color: #49d5a0 !important;
+  background: #12382f;
+  border-color: #286b55;
+}
+body:not(.light) .updated[data-state="updating"] {
+  color: #f2c36b !important;
+  background: #3b2d16;
+  border-color: #76551f;
+}
+body:not(.light) .updated[data-state="error"] {
+  color: #ff8585 !important;
+  background: #3d2025;
+  border-color: #7b3942;
