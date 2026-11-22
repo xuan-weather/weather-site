@@ -545,7 +545,6 @@ const marker = L.circleMarker(
   }
 );
 
-
     const marker = L.marker(
       [station.lat,station.lon],
       { icon, keyboard:true }
