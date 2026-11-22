@@ -825,13 +825,12 @@ function renderStations() {
 function setDataConnectionStatus(state, message) {
   const element = $('.updated');
   if (!element) return;
-  const colors = {
-    connected: '#16834a',
-    updating: '#b7791f',
-    error: '#dc3545'
-  };
-  element.textContent = `●　${message}`;
-  element.style.setProperty('color', colors[state] || '#64748b', 'important');
+
+  // 狀態由實際資料載入結果與資料時間決定，不強制假設已連線。
+  element.dataset.state = ['connected', 'updating', 'error'].includes(state)
+    ? state : 'updating';
+  element.textContent = message;
+  element.removeAttribute('style');
   element.setAttribute('role', 'status');
   element.setAttribute('aria-live', 'polite');
 }
