@@ -1239,11 +1239,36 @@ function initMap() {
     preferCanvas:true
   }).setView([23.7,120.9],7);
 
-  L.tileLayer(
+  // 保留原本 OpenStreetMap 作為預設底圖，另提供 CartoDB 淺色簡約底圖切換。
+  const osmBaseLayer = L.tileLayer(
     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     {
       maxZoom:18,
       attribution:'&copy; OpenStreetMap contributors'
+    }
+  );
+
+  const positronBaseLayer = L.tileLayer(
+    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    {
+      subdomains:'abcd',
+      maxZoom:20,
+      attribution:'&copy; OpenStreetMap contributors &copy; CARTO'
+    }
+  );
+
+  // 預設仍使用原本底圖；右下角圖層控制器可切換底圖，不影響測站資料圖層。
+  osmBaseLayer.addTo(weatherMap);
+
+  L.control.layers(
+    {
+      '目前底圖（OpenStreetMap）':osmBaseLayer,
+      '淺色簡約底圖（CartoDB）':positronBaseLayer
+    },
+    null,
+    {
+      collapsed:true,
+      position:'bottomright'
     }
   ).addTo(weatherMap);
 
