@@ -1567,9 +1567,6 @@ function initMap() {
     }
   ).addTo(weatherMap);
 
-  // 將縮放控制移至右下角，排列在全螢幕按鈕上方。
-  L.control.zoom({position:'bottomright'}).addTo(weatherMap);
-
   // 全螢幕控制：支援原生 Fullscreen API；不支援時使用 CSS 全螢幕備援。
   const fullscreenControl = L.control({position:'bottomright'});
   fullscreenControl.onAdd = function() {
@@ -1616,6 +1613,9 @@ function initMap() {
     return container;
   };
   fullscreenControl.addTo(weatherMap);
+
+  // Leaflet 右下角控制項依加入順序排列；縮放最後加入，顯示在全螢幕按鈕上方。
+  L.control.zoom({position:'bottomright'}).addTo(weatherMap);
 
   // 衛星影像底圖行政區界線：鄉鎮市區淺灰細線、縣市外圍白色粗線。
   // 圖資來源：內政部國土測繪中心開放資料。
