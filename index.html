@@ -202,6 +202,206 @@ body:not(.light) .refresh-weather {
 
 </style>
 
+
+<style id="xuan-premium-redesign">
+:root{
+ --xw-ink:#14243a;--xw-muted:#718198;--xw-line:rgba(125,151,183,.22);
+ --xw-blue:#2563eb;--xw-cyan:#38bdf8;--xw-surface:rgba(255,255,255,.92);
+ --xw-shadow:0 16px 44px rgba(16,39,73,.09);
+}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{
+ background:
+ radial-gradient(ellipse at 8% 0%,rgba(61,139,220,.13),transparent 34%),
+ radial-gradient(ellipse at 92% 12%,rgba(38,190,203,.10),transparent 30%),
+ #f3f7fc;
+ color:#17263b;
+}
+header{
+ position:sticky;top:0;z-index:1000;
+ background:rgba(248,251,255,.88)!important;
+ border-bottom:1px solid rgba(130,155,187,.2)!important;
+ box-shadow:0 6px 24px rgba(19,45,78,.06);
+ backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+.head{min-height:76px;gap:20px}
+.brand{gap:12px}
+.brand .logo{
+ width:44px;height:44px;display:grid;place-items:center;border-radius:15px;
+ background:linear-gradient(145deg,#1d4ed8,#38bdf8);
+ box-shadow:0 8px 18px rgba(37,99,235,.25);font-size:23px;
+}
+.brand strong{font-size:16px;letter-spacing:.01em;color:#14243a}
+.brand small{letter-spacing:.16em;font-size:9px;color:#8191a7}
+.nav{gap:5px}
+.nav button{
+ border:0!important;border-radius:12px!important;padding:10px 14px!important;
+ color:#64748b!important;background:transparent!important;font-weight:700;
+ transition:.2s ease;
+}
+.nav button:hover,.nav button.active{
+ color:#1d4ed8!important;background:#e8f1ff!important;
+}
+.head-btn,.refresh-weather{
+ border-radius:13px!important;border:1px solid #d9e4f1!important;
+ background:#fff!important;color:#38516e!important;box-shadow:0 3px 10px #17365d0a;
+}
+main.wrap{max-width:1440px;padding-top:34px;padding-bottom:44px}
+.page-title{
+ align-items:flex-end;margin:0 0 24px;padding:28px 30px;border-radius:26px;
+ color:#fff;background:
+ radial-gradient(circle at 82% 15%,rgba(120,214,255,.26),transparent 24%),
+ linear-gradient(120deg,#102b52 0%,#174c82 54%,#167b9c 100%);
+ box-shadow:0 18px 42px rgba(16,54,96,.19);overflow:hidden;position:relative;
+}
+.page-title:after{
+ content:"";position:absolute;width:300px;height:300px;border:1px solid #ffffff20;
+ border-radius:50%;right:7%;top:-190px;box-shadow:0 0 0 28px #ffffff08,0 0 0 58px #ffffff06;
+}
+.page-title .eyebrow{color:#9edfff;letter-spacing:.2em;font-weight:800;font-size:10px}
+.page-title h1{color:#fff;font-size:clamp(27px,4vw,40px);letter-spacing:.02em;margin:8px 0}
+.page-title p{color:#d4e8f8;margin:0;font-size:14px}
+.updated{color:#d9f5ff!important;font-size:12px}
+.page-title .refresh-weather{position:relative;z-index:1}
+.panel{
+ border:1px solid rgba(135,159,189,.22)!important;border-radius:22px!important;
+ background:rgba(255,255,255,.94)!important;
+ box-shadow:var(--xw-shadow)!important;padding:22px!important;
+ transition:transform .22s ease,box-shadow .22s ease;
+}
+.panel:hover{box-shadow:0 20px 48px rgba(16,39,73,.12)!important}
+.panel-head{gap:12px;margin-bottom:18px}
+.panel-head h2{font-size:17px;letter-spacing:.01em;color:#1b2e48}
+.tag{
+ border:1px solid #dbeafe!important;background:#eff6ff!important;color:#35649b!important;
+ border-radius:999px!important;padding:6px 10px!important;font-size:10px!important;font-weight:800;
+}
+.top-grid{grid-template-columns:minmax(280px,.82fr) minmax(0,1.65fr)!important;gap:18px!important}
+.top-grid>section:first-child{
+ padding:22px!important;border-radius:22px!important;
+ background:linear-gradient(160deg,#fff 0%,#f4f8ff 100%)!important;
+}
+.top-grid>section:first-child .xuan-location-title b{font-size:17px!important}
+.top-grid>section:first-child .temperature{font-size:clamp(54px,6vw,72px)!important;letter-spacing:-4px}
+.top-grid>section:first-child .weather-icon{font-size:64px!important}
+.top-grid>section:first-child .metrics{gap:9px;margin-top:22px}
+.top-grid>section:first-child .metric{
+ min-height:76px;border-radius:15px;background:#f7faff;border:1px solid #e5edf7;padding:12px;
+}
+.top-grid>section:first-child .metric label{font-size:11px;color:#8292a8}
+.top-grid>section:first-child .metric strong{font-size:21px;color:#1b3556;margin-top:7px}
+.top-grid>section:nth-child(2){padding:22px!important}
+#xuan-map{border-radius:17px!important;min-height:430px!important}
+.xuan-map-controls button{border-radius:999px!important;font-weight:750!important}
+.xuan-highlights{margin:22px 0 26px}
+.xuan-section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 2px 14px}
+.xuan-section-heading h2{font-size:21px;margin:4px 0;color:#1a2e49}
+.xuan-section-heading p{margin:0;color:#8291a5;font-size:12px}
+.xuan-kicker{font-size:9px;letter-spacing:.19em;font-weight:900;color:#3984c6}
+.xuan-live-pill{display:flex;align-items:center;gap:8px;border:1px solid #d8eee5;background:#f0fbf5;color:#23815c;padding:7px 12px;border-radius:999px;font-size:11px;font-weight:800}
+.xuan-live-pill i{width:7px;height:7px;background:#25b77a;border-radius:50%;box-shadow:0 0 0 4px #25b77a20}
+.xuan-highlight-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.xuan-highlight-card{
+ min-width:0;position:relative;overflow:hidden;padding:18px 18px 16px;
+ border:1px solid #e0e9f4;border-radius:19px;background:#fff;
+ box-shadow:0 10px 28px rgba(19,45,78,.055);
+}
+.xuan-highlight-card:after{content:"";position:absolute;width:90px;height:90px;border-radius:50%;right:-28px;top:-35px;background:var(--tint,#eaf3ff)}
+.xuan-highlight-icon{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:11px;background:var(--tint,#eaf3ff);font-size:17px;margin-bottom:13px}
+.xuan-highlight-card small{display:block;color:#8291a5;font-size:11px;font-weight:700}
+.xuan-highlight-card strong{display:block;font-size:30px;letter-spacing:-1px;color:#1b3556;margin:5px 0 3px;position:relative;z-index:1}
+.xuan-highlight-card strong em{font-style:normal;font-size:12px;color:#8291a5;margin-left:4px;letter-spacing:0}
+.xuan-highlight-card>span:last-child{display:block;color:#8291a5;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xuan-highlight-temp{--tint:#fff1df}.xuan-highlight-cool{--tint:#e6f5ff}.xuan-highlight-wind{--tint:#eaf0ff}.xuan-highlight-rain{--tint:#e8f7f7}
+.section-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:17px!important}
+.data-card{min-width:0}
+.big-placeholder{
+ min-height:190px!important;border-radius:16px!important;border:1px dashed #cbd9e9!important;
+ background:linear-gradient(145deg,#f1f6fc,#eaf2fa)!important;color:#647b98!important;
+ display:grid;place-items:center;font-weight:750;
+}
+.sub-placeholder{color:#8a9bb0!important;font-size:11px!important;padding-top:12px}
+.forecast-row{gap:9px!important;overflow-x:auto;padding:4px 2px 10px}
+.hour{
+ min-width:92px!important;padding:15px 10px!important;border:1px solid #e3ebf5!important;
+ border-radius:16px!important;background:linear-gradient(180deg,#f9fbff,#f1f6fc)!important;
+}
+.hour small{color:#8291a5!important;font-weight:700}
+.hour b{font-size:21px!important;margin:10px 0;color:#3c6eaa}
+.hour span{font-weight:800;color:#203a5b}
+.bottom-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:17px!important;margin-top:18px}
+.list-row{padding:13px 0!important;border-bottom:1px solid #edf1f6!important}
+.list-row b{color:#304863}
+.list-row span{color:#8291a5;font-size:12px}
+.empty{border-radius:14px;background:#f6f9fd;padding:18px!important;color:#8a9bb0!important}
+#station-live-list{padding:20px;border:1px solid #e1eaf4;border-radius:20px;background:#fff;box-shadow:var(--xw-shadow)}
+#station-live-list article{background:#fbfdff}
+.foot{margin-top:28px;padding:25px 10px!important;border-top:1px solid #dfe8f2;color:#8796a9!important;font-size:11px;line-height:2}
+@media(max-width:900px){
+ .top-grid{grid-template-columns:1fr!important}
+ .section-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .xuan-highlight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .nav{overflow-x:auto;max-width:100%;padding-bottom:4px}
+ .head{flex-wrap:wrap;padding:12px 0}
+}
+@media(max-width:600px){
+ main.wrap{padding-top:18px;padding-left:13px;padding-right:13px}
+ header{position:sticky}
+ .head{gap:9px}
+ .brand strong{font-size:13px}
+ .brand small{font-size:8px}
+ .brand .logo{width:38px;height:38px}
+ .nav{width:100%;order:3;gap:3px}
+ .nav button{padding:8px 11px!important;font-size:11px}
+ .head-btn{margin-left:auto;font-size:11px}
+ .page-title{padding:22px 19px;border-radius:20px;display:block}
+ .page-title h1{font-size:27px}
+ .updated-actions{margin-top:17px}
+ .panel{padding:16px!important;border-radius:18px!important}
+ .top-grid>section:first-child{padding:17px!important}
+ .top-grid>section:first-child .temperature{font-size:54px!important}
+ .top-grid>section:first-child .weather-icon{font-size:52px!important}
+ #xuan-map{height:60vh!important;min-height:390px!important}
+ .section-grid{grid-template-columns:1fr!important}
+ .xuan-highlight-grid{gap:9px}
+ .xuan-highlight-card{padding:14px 12px;border-radius:16px}
+ .xuan-highlight-card strong{font-size:25px}
+ .xuan-section-heading h2{font-size:18px}
+ .xuan-section-heading p{font-size:10px}
+ .bottom-grid{grid-template-columns:1fr!important}
+ .xuan-live-pill{font-size:10px;white-space:nowrap}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
+body:not(.light){background:#091525;color:#e7f0fb}
+body:not(.light) header{background:rgba(9,21,37,.9)!important;border-color:#263a52!important}
+body:not(.light) .brand strong{color:#e6f0fc}
+body:not(.light) .nav button{color:#a7bad1!important}
+body:not(.light) .nav button.active,body:not(.light) .nav button:hover{background:#193454!important;color:#b9dcff!important}
+body:not(.light) .panel,body:not(.light) .xuan-highlight-card,body:not(.light) #station-live-list{
+ background:#122238!important;border-color:#29415e!important;color:#e7f0fb
+}
+body:not(.light) .panel-head h2,body:not(.light) .xuan-section-heading h2,
+body:not(.light) .xuan-highlight-card strong,body:not(.light) .list-row b{color:#e7f0fb}
+body:not(.light) .xuan-highlight-card small,body:not(.light) .xuan-highlight-card>span:last-child,
+body:not(.light) .xuan-section-heading p,body:not(.light) .sub-placeholder{color:#9aadc5!important}
+body:not(.light) .hour,body:not(.light) .empty,body:not(.light) #station-live-list article{
+ background:#172b44!important;border-color:#2b4360!important;color:#dce9f8
+}
+body:not(.light) .big-placeholder{background:linear-gradient(145deg,#172b44,#1c3552)!important;border-color:#38516e!important;color:#c0d3e8!important}
+body:not(.light) .top-grid>section:first-child{background:linear-gradient(160deg,#152a43,#102238)!important;color:#e7f0fb!important}
+body:not(.light) .top-grid>section:first-child .xuan-location-title b,
+body:not(.light) .top-grid>section:first-child .temperature,
+body:not(.light) .top-grid>section:first-child .condition,
+body:not(.light) .top-grid>section:first-child .metric strong{color:#e7f0fb!important}
+body:not(.light) .top-grid>section:first-child .metric{background:#1b314b!important;border-color:#304963!important}
+body:not(.light) .top-grid>section:first-child .metric label,
+body:not(.light) .top-grid>section:first-child .feels{color:#9aadc5!important}
+body:not(.light) .tag{background:#1b3553!important;border-color:#315273!important;color:#b8d9fb!important}
+body:not(.light) .foot{border-color:#263a52;color:#8498b2!important}
+</style>
+
 </head>
 
 <body>
@@ -248,7 +448,7 @@ body:not(.light) .refresh-weather {
      主內容
 ===================================== -->
 
-<main class="wrap">
+<main class="wrap" id="overview">
 
 
   <!-- 首頁標題 -->
@@ -285,7 +485,7 @@ body:not(.light) .refresh-weather {
        即時天氣與全台監測
   ===================================== -->
 
-  <div class="top-grid">
+  <div class="top-grid" id="live-weather">
 
 
     <!-- 所在地天氣 -->
@@ -396,11 +596,42 @@ body:not(.light) .refresh-weather {
   </div>
 
 
+
+  <!-- 即時觀測摘要：由已載入的官方測站資料計算，不填入虛構數值 -->
+  <section class="xuan-highlights" id="live-highlights" aria-label="全台即時觀測摘要">
+    <div class="xuan-section-heading">
+      <div>
+        <span class="xuan-kicker">LIVE OBSERVATION</span>
+        <h2>全台即時觀測摘要</h2>
+        <p>依目前已取得的有效測站資料即時計算</p>
+      </div>
+      <span class="xuan-live-pill"><i></i> 即時監測</span>
+    </div>
+    <div class="xuan-highlight-grid">
+      <article class="xuan-highlight-card xuan-highlight-temp">
+        <span class="xuan-highlight-icon">🌡️</span><small>目前最高氣溫</small>
+        <strong id="xuan-high-temp">--<em>°C</em></strong><span id="xuan-high-temp-station">等待測站資料</span>
+      </article>
+      <article class="xuan-highlight-card xuan-highlight-cool">
+        <span class="xuan-highlight-icon">❄️</span><small>目前最低氣溫</small>
+        <strong id="xuan-low-temp">--<em>°C</em></strong><span id="xuan-low-temp-station">等待測站資料</span>
+      </article>
+      <article class="xuan-highlight-card xuan-highlight-wind">
+        <span class="xuan-highlight-icon">💨</span><small>最大陣風</small>
+        <strong id="xuan-max-gust">--<em>m/s</em></strong><span id="xuan-max-gust-station">等待測站資料</span>
+      </article>
+      <article class="xuan-highlight-card xuan-highlight-rain">
+        <span class="xuan-highlight-icon">🌧️</span><small>最大累積雨量</small>
+        <strong id="xuan-max-rain">--<em>mm</em></strong><span id="xuan-max-rain-station">等待測站資料</span>
+      </article>
+    </div>
+  </section>
+
   <!-- =====================================
        監測圖資入口
   ===================================== -->
 
-  <div class="section-grid">
+  <div class="section-grid" id="weather-maps">
 
 
     <!-- 雷達回波 -->
@@ -478,7 +709,7 @@ body:not(.light) .refresh-weather {
        未來24小時逐時預報
   ===================================== -->
 
-  <section class="panel" style="margin-top:16px">
+  <section class="panel xuan-forecast-panel" id="hourly-forecast" style="margin-top:16px">
 
     <div class="panel-head">
 
@@ -550,7 +781,7 @@ body:not(.light) .refresh-weather {
        七天預報與氣象警報
   ===================================== -->
 
-  <div class="bottom-grid">
+  <div class="bottom-grid" id="alerts-forecast">
 
 
     <!-- 七天預報 -->
@@ -767,7 +998,6 @@ function ensureMapStyles() {
       width:100% !important;
       min-width:0 !important;
     }
-
     .top-grid > section:nth-child(2) .panel-head {
       display:flex;
       align-items:center;
@@ -1642,6 +1872,28 @@ function setDataConnectionStatus(state, message) {
   element.setAttribute('aria-live', 'polite');
 }
 
+
+/* 全台即時極值摘要：僅使用本頁已取得的測站觀測值 */
+function renderXuanHighlights() {
+  const valid = stations.filter(s => s && s.name);
+  const pick = key => valid.filter(s => Number.isFinite(s[key]))
+    .sort((a,b) => b[key]-a[key]);
+  const temp = pick('temperature');
+  const gust = pick('gust');
+  const rain = pick('rain');
+  const low = temp.length ? [...temp].sort((a,b) => a.temperature-b.temperature)[0] : null;
+  const set = (valueId, stationId, item, key, unit, digits=1) => {
+    const valueEl = document.getElementById(valueId);
+    const stationEl = document.getElementById(stationId);
+    if (valueEl) valueEl.innerHTML = item ? `${Number(item[key]).toFixed(digits)}<em>${unit}</em>` : `--<em>${unit}</em>`;
+    if (stationEl) stationEl.textContent = item ? `${item.county || ''} ${item.name}`.trim() : '目前無有效資料';
+  };
+  set('xuan-high-temp','xuan-high-temp-station',temp[0],'temperature','°C');
+  set('xuan-low-temp','xuan-low-temp-station',low,'temperature','°C');
+  set('xuan-max-gust','xuan-max-gust-station',gust[0],'gust','m/s');
+  set('xuan-max-rain','xuan-max-rain-station',rain[0],'rain','mm');
+}
+
 /* 讀取官方整合資料 */
 
 async function loadWeatherData() {
@@ -1666,6 +1918,7 @@ async function loadWeatherData() {
     }
 
     stations = data.stations.map(parseStation);
+    renderXuanHighlights();
 
     const validTemperature = stations.filter(
       s => s.temperature !== null
@@ -1744,7 +1997,6 @@ async function startWeather() {
   setDataConnectionStatus('updating', '正在連線');
   setupLocation();
   setupMap();
-
   await loadWeatherData();
 
   try {
@@ -1771,6 +2023,36 @@ async function startWeather() {
 
 startWeather();
 
+</script>
+
+
+<script>
+/* Xuan Weather｜新版導覽與首頁即時摘要；不更動既有資料來源 */
+(() => {
+  const navTargets = ['overview','live-weather','weather-maps','hourly-forecast','alerts-forecast'];
+  const navButtons = document.querySelectorAll('.nav button');
+  navButtons.forEach((button, index) => {
+    const targetId = navTargets[index] || navTargets[0];
+    button.type = 'button';
+    button.addEventListener('click', () => {
+      const target = document.getElementById(targetId);
+      if (target) target.scrollIntoView({behavior:'smooth', block:'start'});
+      navButtons.forEach(item => item.classList.toggle('active', item === button));
+    });
+  });
+  const refresh = document.getElementById('refresh-weather');
+  refresh?.addEventListener('click', async () => {
+    if (typeof loadWeatherData !== 'function') return;
+    refresh.disabled = true;
+    const oldText = refresh.textContent;
+    refresh.textContent = '更新中…';
+    try { await loadWeatherData(); }
+    finally {
+      refresh.disabled = false;
+      refresh.textContent = oldText;
+    }
+  });
+})();
 </script>
 
 </body>
