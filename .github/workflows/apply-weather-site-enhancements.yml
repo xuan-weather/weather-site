@@ -54,7 +54,7 @@ jobs:
           anchor_pos = s.rfind("  <!--", 0, title_pos)
           if anchor_pos < 0:
               raise SystemExit("Content insertion marker not found")
-          s = s[:anchor_pos] + markup + "\\n" + s[anchor_pos:]
+          s = s[:anchor_pos] + markup + "\n" + s[anchor_pos:]
           css = """
           /* Live ranking and regional analysis */
           .xuan-insights{margin:24px 0 28px}.xuan-insight-grid{display:grid;grid-template-columns:minmax(0,1.35fr) repeat(2,minmax(0,1fr));gap:14px}
@@ -72,7 +72,7 @@ jobs:
           """
           style_anchor = "</head>"
           if style_anchor not in s: raise SystemExit("Head anchor not found")
-          s = s.replace(style_anchor, '<style id="xuan-live-insights-style">\\n'+css+'\\n</style>\\n'+style_anchor, 1)
+          s = s.replace(style_anchor, '<style id="xuan-live-insights-style">\n'+css+'\n</style>\n'+style_anchor, 1)
           js = """
           /* Live rankings, regional comparison and observation briefing */
           let currentRanking='hot';
@@ -111,10 +111,10 @@ jobs:
           """
           js_anchor = "/* 讀取官方整合資料 */"
           if js_anchor not in s: raise SystemExit("JavaScript anchor not found")
-          s = s.replace(js_anchor, js + "\\n" + js_anchor, 1)
+          s = s.replace(js_anchor, js + "\n" + js_anchor, 1)
           call_anchor = "    renderXuanHighlights();"
           if call_anchor not in s: raise SystemExit("Data render anchor not found")
-          s = s.replace(call_anchor, call_anchor+"\\n    renderWeatherInsights();", 1)
+          s = s.replace(call_anchor, call_anchor+"\n    renderWeatherInsights();", 1)
           nav_anchor = "const navTargets = ['overview','live-weather','weather-maps','hourly-forecast','alerts-forecast'];"
           if nav_anchor not in s: raise SystemExit("Navigation targets anchor not found")
           s = s.replace(nav_anchor, "const navTargets = ['overview','live-weather','live-rankings','weather-maps','hourly-forecast','alerts-forecast'];", 1)
