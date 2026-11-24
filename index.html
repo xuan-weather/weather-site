@@ -921,6 +921,7 @@ let gpsPosition = null;
 let weatherMap = null;
 let stationMarkers = null;
 let gpsMarker = null;
+let gpsAccuracyCircle = null;
 let mapMetric = 'temperature';
 let locating = false;
 let markerClusterReady = false;
@@ -1133,6 +1134,16 @@ function ensureMapStyles() {
     #xuan-map:fullscreen .xuan-fullscreen-button,
     #xuan-map.xuan-map-fullscreen .xuan-fullscreen-button { margin:10px; }
     body:not(.light) .xuan-fullscreen-button { background:#fff !important; color:#26364b !important; }
+
+    /* DPIP 風格 GPS 定位點與實際精度範圍 */
+    .xuan-gps-marker-wrap{background:transparent!important;border:0!important}
+    .xuan-gps-marker{position:relative;width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+    .xuan-gps-dot{position:relative;width:14px;height:14px;border-radius:50%;background:#4285f4;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.55);z-index:2}
+    .xuan-gps-pulse{position:absolute;width:28px;height:28px;border-radius:50%;background:rgba(66,133,244,.20);border:1px solid rgba(66,133,244,.45);animation:xuanGpsPulse 1.8s ease-out infinite;z-index:1}
+    @keyframes xuanGpsPulse{0%{transform:scale(.65);opacity:.75}70%{transform:scale(1.45);opacity:.18}100%{transform:scale(1.6);opacity:0}}
+    .xuan-gps-accuracy-breath{animation:xuanGpsAccuracyBreath 2.2s ease-in-out infinite}
+    @keyframes xuanGpsAccuracyBreath{0%,100%{stroke-opacity:.48;fill-opacity:.07}50%{stroke-opacity:1;fill-opacity:.19}}
+    @media(prefers-reduced-motion:reduce){.xuan-gps-pulse,.xuan-gps-accuracy-breath{animation:none!important}}
 
     /* 測站標籤：名稱在上、目前圖層數值在下；放大地圖後顯示以避免全臺視圖過度重疊。 */
     .xuan-station-tooltip {
@@ -2005,7 +2016,8 @@ function locateUser() {
 
       gpsPosition = {
         lat:position.coords.latitude,
-        lon:position.coords.longitude
+        lon:position.coords.longitude,
+        accuracy:Math.max(1,position.coords.accuracy || 0)
       };
 
       const nearest = findNearest(
@@ -2021,16 +2033,39 @@ function locateUser() {
       updateLocal(nearest);
 
       if (weatherMap) {
-        if (gpsMarker) gpsMarker.remove();
+        if (gpsMarker) weatherMap.removeLayer(gpsMarker);
+        if (gpsAccuracyCircle) weatherMap.removeLayer(gpsAccuracyCircle);
 
-        gpsMarker = L.marker([
-          gpsPosition.lat,gpsPosition.lon
-        ]).addTo(weatherMap)
-          .bindPopup('📍 你的 GPS 位置')
+        gpsAccuracyCircle = L.circle(
+          [gpsPosition.lat,gpsPosition.lon],
+          {
+            radius:gpsPosition.accuracy,
+            className:'xuan-gps-accuracy-breath',
+            color:'#4285f4',
+            weight:2,
+            fillColor:'#4285f4',
+            fillOpacity:.14,
+            interactive:false
+          }
+        ).addTo(weatherMap);
+
+        gpsMarker = L.marker(
+          [gpsPosition.lat,gpsPosition.lon],
+          {
+            icon:L.divIcon({
+              className:'xuan-gps-marker-wrap',
+              html:'<div class="xuan-gps-marker"><span class="xuan-gps-pulse"></span><span class="xuan-gps-dot"></span></div>',
+              iconSize:[28,28],
+              iconAnchor:[14,14]
+            }),
+            zIndexOffset:10000
+          }
+        ).addTo(weatherMap)
+          .bindPopup(`📍 你的 GPS 位置<br>定位精度：約 ${Math.round(gpsPosition.accuracy)} 公尺`)
           .openPopup();
 
         weatherMap.setView(
-          [gpsPosition.lat,gpsPosition.lon],9
+          [gpsPosition.lat,gpsPosition.lon],Math.max(weatherMap.getZoom(),9)
         );
       }
     },
