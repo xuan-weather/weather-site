@@ -48,11 +48,13 @@ jobs:
             </div>
           </section>
           """
-          anchor = '''  <!-- =====================================
-               監測圖資入口'''
-          if anchor not in s:
+          title_pos = s.find("監測圖資入口")
+          if title_pos < 0:
               raise SystemExit("Content insertion anchor not found; refusing to modify")
-          s = s.replace(anchor, markup + "\\n" + anchor, 1)
+          anchor_pos = s.rfind("  <!--", 0, title_pos)
+          if anchor_pos < 0:
+              raise SystemExit("Content insertion marker not found")
+          s = s[:anchor_pos] + markup + "\\n" + s[anchor_pos:]
           css = """
           /* Live ranking and regional analysis */
           .xuan-insights{margin:24px 0 28px}.xuan-insight-grid{display:grid;grid-template-columns:minmax(0,1.35fr) repeat(2,minmax(0,1fr));gap:14px}
