@@ -832,6 +832,11 @@ function ensureMapStyles() {
       background:#e5edf5;
     }
 
+    /* C 風格：米白柔和底圖。只調整替代底圖瓦片色調，不影響測站圓點與圖例。 */
+    #xuan-map .xuan-warm-ivory-base {
+      filter:sepia(.18) saturate(.72) brightness(1.045) contrast(.94);
+    }
+
     /* A 風格：灰白清爽底圖，只柔化淺色底圖，不影響測站標記與其他圖層 */
     #xuan-map .xuan-light-gray-base {
       filter:brightness(1.055) saturate(.82) contrast(.94);
@@ -1253,12 +1258,13 @@ function initMap() {
     }
   );
 
-  // Esri World Street Map：高細節道路底圖，包含道路、地名與主要道路標示。
+  // Esri World Street Map：保留道路與地名細節，套用米白柔和色調作為 C 風格底圖。
   // 使用公開 ArcGIS 瓦片服務，不使用 CARTO API Key。
   const esriStreetBaseLayer = L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
     {
       maxZoom:19,
+      className:'xuan-warm-ivory-base',
       attribution:'Tiles &copy; Esri'
     }
   );
@@ -1269,7 +1275,7 @@ function initMap() {
   L.control.layers(
     {
       '目前底圖（OpenStreetMap）':osmBaseLayer,
-      '高細節道路底圖（Esri）':esriStreetBaseLayer
+      '米白柔和底圖（Esri）':esriStreetBaseLayer
     },
     null,
     {
