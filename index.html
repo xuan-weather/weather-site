@@ -1542,6 +1542,57 @@ function initMap() {
     }
   ).addTo(weatherMap);
 
+  // 衛星影像底圖行政區界線：鄉鎮市區淺灰細線、縣市外圍白色粗線。
+  // 圖資來源：內政部國土測繪中心開放資料。
+  let townshipBoundaryLayer = null;
+  let countyBoundaryLayer = null;
+  let boundaryLoading = false;
+  let boundaryLoaded = false;
+
+  const boundaryPane = weatherMap.createPane('xuanAdminBoundaryPane');
+  boundaryPane.style.zIndex = '350';
+  boundaryPane.style.pointerEvents = 'none';
+
+  async function toggleSatelliteBoundaries(show) {
+    if (!show) {
+      if (townshipBoundaryLayer && weatherMap.hasLayer(townshipBoundaryLayer)) weatherMap.removeLayer(townshipBoundaryLayer);
+      if (countyBoundaryLayer && weatherMap.hasLayer(countyBoundaryLayer)) weatherMap.removeLayer(countyBoundaryLayer);
+      return;
+    }
+    if (!boundaryLoaded && !boundaryLoading) {
+      boundaryLoading = true;
+      try {
+        const [townResponse, countyResponse] = await Promise.all([
+          fetch('https://geo.maderaojen.me/datasets/tw-townships/releases/v1/2026-07-04.1/data.geojson'),
+          fetch('https://geo.maderaojen.me/datasets/tw-counties/releases/v1/2026-08-07.1/data.geojson')
+        ]);
+        if (!townResponse.ok || !countyResponse.ok) throw new Error('行政區界線圖資載入失敗');
+        const [townGeoJson, countyGeoJson] = await Promise.all([townResponse.json(), countyResponse.json()]);
+        townshipBoundaryLayer = L.geoJSON(townGeoJson, {
+          pane:'xuanAdminBoundaryPane', interactive:false,
+          style:() => ({color:'#d5dce5',weight:0.75,opacity:0.92,fill:false,fillOpacity:0})
+        });
+        countyBoundaryLayer = L.geoJSON(countyGeoJson, {
+          pane:'xuanAdminBoundaryPane', interactive:false,
+          style:() => ({color:'#ffffff',weight:2.5,opacity:0.98,fill:false,fillOpacity:0})
+        });
+        boundaryLoaded = true;
+      } catch (error) {
+        console.warn('Xuan Weather 行政區界線載入失敗：', error);
+      } finally {
+        boundaryLoading = false;
+      }
+    }
+    if (boundaryLoaded) {
+      if (townshipBoundaryLayer && !weatherMap.hasLayer(townshipBoundaryLayer)) townshipBoundaryLayer.addTo(weatherMap);
+      if (countyBoundaryLayer && !weatherMap.hasLayer(countyBoundaryLayer)) countyBoundaryLayer.addTo(weatherMap);
+    }
+  }
+
+  weatherMap.on('baselayerchange', event => {
+    toggleSatelliteBoundaries(event.layer === esriSatelliteBaseLayer);
+  });
+
   // 右上角懸浮圖例，會依目前選取的地圖圖層同步更新
   const legendControl = L.control({ position:'topright' });
   legendControl.onAdd = function() {
