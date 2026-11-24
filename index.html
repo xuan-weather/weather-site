@@ -1114,12 +1114,22 @@ function ensureMapStyles() {
       text-decoration:none !important; box-shadow:0 1px 5px rgba(0,0,0,.25);
     }
     .xuan-fullscreen-button:hover { background:#f4f7fb !important; color:#1d4f83 !important; }
-    #xuan-map:fullscreen, #xuan-map.xuan-map-fullscreen {
-      position:fixed !important; inset:0 !important; z-index:99999 !important;
-      width:100vw !important; height:100vh !important; height:100dvh !important;
-      min-height:0 !important; max-height:none !important; border-radius:0 !important;
+    #xuan-map:fullscreen, #xuan-map.xuan-map-fullscreen,
+    body.xuan-map-fullscreen-active #xuan-map {
+      position:fixed !important;
+      top:0 !important; right:0 !important; bottom:0 !important; left:0 !important;
+      inset:0 !important;
+      width:100vw !important; width:100dvw !important;
+      min-width:100vw !important; max-width:none !important;
+      height:100vh !important; height:100dvh !important;
+      min-height:0 !important; max-height:none !important;
+      margin:0 !important; padding:0 !important; border:0 !important;
+      border-radius:0 !important; box-sizing:border-box !important;
+      transform:none !important; z-index:99999 !important;
     }
-    body.xuan-map-fullscreen-active { overflow:hidden !important; }
+    body.xuan-map-fullscreen-active {
+      overflow:hidden !important; padding:0 !important; margin:0 !important;
+    }
     #xuan-map:fullscreen .xuan-fullscreen-button,
     #xuan-map.xuan-map-fullscreen .xuan-fullscreen-button { margin:10px; }
     body:not(.light) .xuan-fullscreen-button { background:#fff !important; color:#26364b !important; }
@@ -1153,7 +1163,13 @@ function ensureMapStyles() {
     }
     .xuan-station-label-value { font-size:10px; font-weight:900; }
     #xuan-map .xuan-station-tooltip { display:none !important; }
-    #xuan-map.xuan-show-station-labels .xuan-station-tooltip { display:block !important; }
+    #xuan-map.xuan-show-station-labels .xuan-station-tooltip {
+      display:block !important;
+      visibility:visible;
+    }
+    #xuan-map.xuan-show-station-labels .xuan-station-tooltip.xuan-label-overlap {
+      visibility:hidden !important;
+    }
 
     /* 地圖右上角懸浮圖例 */
     .xuan-floating-legend {
@@ -1714,9 +1730,43 @@ function initMap() {
   // 全臺總覽時先隱藏密集標籤；從初始第 7 級開始，需放大約 4 級至第 11 級才顯示。
   function syncStationLabelVisibility() {
     const mapElement = document.getElementById('xuan-map');
-    if (mapElement) mapElement.classList.toggle('xuan-show-station-labels',weatherMap.getZoom() >= 11);
+    if (!mapElement) return;
+    const show = weatherMap.getZoom() >= 11;
+    mapElement.classList.toggle('xuan-show-station-labels',show);
+    if (!show) {
+      mapElement.querySelectorAll('.xuan-station-tooltip').forEach(el => el.classList.remove('xuan-label-overlap'));
+      return;
+    }
+    // 等待 Leaflet 完成標籤排版，再逐一避開已顯示標籤的範圍。
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const mapRect = mapElement.getBoundingClientRect();
+      const labels = Array.from(mapElement.querySelectorAll('.xuan-station-tooltip'));
+      labels.forEach(el => el.classList.remove('xuan-label-overlap'));
+      const centerX = mapRect.left + mapRect.width / 2;
+      const centerY = mapRect.top + mapRect.height / 2;
+      labels.sort((a,b) => {
+        const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        const pa = a.dataset.selected === '1' ? -1e9 : Math.hypot((ra.left+ra.right)/2-centerX,(ra.top+ra.bottom)/2-centerY);
+        const pb = b.dataset.selected === '1' ? -1e9 : Math.hypot((rb.left+rb.right)/2-centerX,(rb.top+rb.bottom)/2-centerY);
+        return pa-pb;
+      });
+      const accepted = [];
+      labels.forEach(el => {
+        const r = el.getBoundingClientRect();
+        const box = {left:r.left-3,right:r.right+3,top:r.top-2,bottom:r.bottom+2};
+        const overlaps = accepted.some(a => !(box.right <= a.left || box.left >= a.right || box.bottom <= a.top || box.top >= a.bottom));
+        if (overlaps) {
+          el.classList.add('xuan-label-overlap');
+        } else if (r.width && r.height && r.right > mapRect.left && r.left < mapRect.right && r.bottom > mapRect.top && r.top < mapRect.bottom) {
+          accepted.push(box);
+        } else {
+          el.classList.add('xuan-label-overlap');
+        }
+      });
+    }));
   }
-  weatherMap.on('zoomend',syncStationLabelVisibility);
+  weatherMap.on('zoomend moveend',syncStationLabelVisibility);
+  window.addEventListener('resize',syncStationLabelVisibility);
   syncStationLabelVisibility();
 
   // 直接顯示每個測站，不進行群聚
@@ -1785,6 +1835,11 @@ function drawMarkers() {
       offset:[0,7],
       opacity:1,
       className:'xuan-station-tooltip'
+    });
+    marker.on('tooltipopen', event => {
+      if (event.tooltip && event.tooltip.getElement()) {
+        event.tooltip.getElement().dataset.selected = selected ? '1' : '0';
+      }
     });
 
     marker.bindPopup(`
