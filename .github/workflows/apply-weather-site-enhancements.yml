@@ -1,4 +1,4 @@
-name: Apply Xuan Weather site enhancements
+name: Apply Xuan Weather site enhancements # one-time dashboard enhancement
 on:
   push:
     paths:
