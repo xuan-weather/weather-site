@@ -1596,6 +1596,10 @@ function initMap() {
         mapElement.classList.toggle('xuan-map-fullscreen');
         document.body.classList.toggle('xuan-map-fullscreen-active',mapElement.classList.contains('xuan-map-fullscreen'));
       }
+      const active = Boolean(document.fullscreenElement) || mapElement.classList.contains('xuan-map-fullscreen');
+      button.textContent = active ? '↙' : '⛶';
+      button.setAttribute('aria-label',active ? '退出全螢幕' : '開啟全螢幕');
+      button.setAttribute('title',active ? '退出全螢幕' : '開啟全螢幕');
       setTimeout(() => weatherMap.invalidateSize(),180);
     });
     document.addEventListener('fullscreenchange',() => {
