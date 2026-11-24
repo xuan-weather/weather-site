@@ -1529,7 +1529,8 @@ function initMap() {
   weatherMap = L.map('xuan-map', {
     scrollWheelZoom:false,
     preferCanvas:true,
-    attributionControl:false
+    attributionControl:false,
+    zoomControl:false
   }).setView([23.7,120.9],7);
 
   // 保留原本 OpenStreetMap 作為預設底圖，另提供 CartoDB 淺色簡約底圖切換。
@@ -1565,6 +1566,9 @@ function initMap() {
       position:'bottomleft'
     }
   ).addTo(weatherMap);
+
+  // 將縮放控制移至右下角，排列在全螢幕按鈕上方。
+  L.control.zoom({position:'bottomright'}).addTo(weatherMap);
 
   // 全螢幕控制：支援原生 Fullscreen API；不支援時使用 CSS 全螢幕備援。
   const fullscreenControl = L.control({position:'bottomright'});
@@ -1665,7 +1669,7 @@ function initMap() {
   });
 
   // 右上角懸浮圖例，會依目前選取的地圖圖層同步更新
-  const legendControl = L.control({ position:'topright' });
+  const legendControl = L.control({ position:'topleft' });
   legendControl.onAdd = function() {
     const container = L.DomUtil.create('div', 'xuan-floating-legend');
     container.id = 'xuan-floating-legend';
