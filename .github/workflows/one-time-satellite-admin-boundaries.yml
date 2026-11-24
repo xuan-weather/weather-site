@@ -1,0 +1,113 @@
+name: One-time weather-site satellite admin boundaries
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/one-time-satellite-admin-boundaries.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Add satellite-only administrative boundaries
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, subprocess
+          p = Path("index.html")
+          html = p.read_text(encoding="utf-8")
+          anchor = """  L.control.layers(
+              {
+                '目前底圖（OpenStreetMap）':osmBaseLayer,
+                '衛星影像底圖（Esri）':esriSatelliteBaseLayer
+              },
+              null,
+              {
+                collapsed:true,
+                position:'bottomright'
+              }
+            ).addTo(weatherMap);
+          """
+          if html.count(anchor) != 1:
+              raise SystemExit("地圖底圖控制區塊不唯一或版本不符，停止修改。")
+          addition = anchor + """
+            // 衛星影像底圖行政區界線：鄉鎮市區淺灰細線、縣市外圍白色粗線。
+            // 圖資來源：內政部國土測繪中心開放資料。
+            let townshipBoundaryLayer = null;
+            let countyBoundaryLayer = null;
+            let boundaryLoading = false;
+            let boundaryLoaded = false;
+
+            const boundaryPane = weatherMap.createPane('xuanAdminBoundaryPane');
+            boundaryPane.style.zIndex = '350';
+            boundaryPane.style.pointerEvents = 'none';
+
+            async function toggleSatelliteBoundaries(show) {
+              if (!show) {
+                if (townshipBoundaryLayer && weatherMap.hasLayer(townshipBoundaryLayer)) weatherMap.removeLayer(townshipBoundaryLayer);
+                if (countyBoundaryLayer && weatherMap.hasLayer(countyBoundaryLayer)) weatherMap.removeLayer(countyBoundaryLayer);
+                return;
+              }
+              if (!boundaryLoaded && !boundaryLoading) {
+                boundaryLoading = true;
+                try {
+                  const [townResponse, countyResponse] = await Promise.all([
+                    fetch('https://geo.maderaojen.me/datasets/tw-townships/releases/v1/2026-07-04.1/data.geojson'),
+                    fetch('https://geo.maderaojen.me/datasets/tw-counties/releases/v1/2026-08-07.1/data.geojson')
+                  ]);
+                  if (!townResponse.ok || !countyResponse.ok) throw new Error('行政區界線圖資載入失敗');
+                  const [townGeoJson, countyGeoJson] = await Promise.all([townResponse.json(), countyResponse.json()]);
+                  townshipBoundaryLayer = L.geoJSON(townGeoJson, {
+                    pane:'xuanAdminBoundaryPane', interactive:false,
+                    style:() => ({color:'#d5dce5',weight:0.75,opacity:0.92,fill:false,fillOpacity:0})
+                  });
+                  countyBoundaryLayer = L.geoJSON(countyGeoJson, {
+                    pane:'xuanAdminBoundaryPane', interactive:false,
+                    style:() => ({color:'#ffffff',weight:2.5,opacity:0.98,fill:false,fillOpacity:0})
+                  });
+                  boundaryLoaded = true;
+                } catch (error) {
+                  console.warn('Xuan Weather 行政區界線載入失敗：', error);
+                } finally {
+                  boundaryLoading = false;
+                }
+              }
+              if (boundaryLoaded) {
+                if (townshipBoundaryLayer && !weatherMap.hasLayer(townshipBoundaryLayer)) townshipBoundaryLayer.addTo(weatherMap);
+                if (countyBoundaryLayer && !weatherMap.hasLayer(countyBoundaryLayer)) countyBoundaryLayer.addTo(weatherMap);
+              }
+            }
+
+            weatherMap.on('baselayerchange', event => {
+              toggleSatelliteBoundaries(event.layer === esriSatelliteBaseLayer);
+            });
+          """
+          html = html.replace(anchor, addition, 1)
+          p.write_text(html, encoding="utf-8")
+          scripts = re.findall(r"<script\\b[^>]*>([\\s\\S]*?)</script\\s*>", html, re.I)
+          checked = 0
+          for i, script in enumerate(scripts, 1):
+              if not script.strip(): continue
+              result = subprocess.run(["node", "--check"], input=script, text=True, capture_output=True)
+              if result.returncode: raise SystemExit(f"Inline script {i} syntax error:\\n{result.stderr}")
+              checked += 1
+          print(f"已完成修改，通過 {checked} 個 inline script 語法檢查。")
+          PY
+      - name: Remove one-time workflow and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/one-time-satellite-admin-boundaries.yml
+          git add index.html
+          git commit -m "Add county and township boundaries to satellite map"
+          git push origin HEAD:main
