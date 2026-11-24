@@ -896,6 +896,10 @@ body:not(.light) .xuan-insight-card{background:#122238;border-color:#29415e;colo
 
     此頁即時數值與圖資以官方資料串接結果為準。
 
+    <br>
+
+    地圖資料來源：OpenStreetMap contributors；衛星影像：Esri、Maxar、Earthstar Geographics。
+
   </div>
 
 </main>
@@ -1505,7 +1509,8 @@ function initMap() {
 
   weatherMap = L.map('xuan-map', {
     scrollWheelZoom:false,
-    preferCanvas:true
+    preferCanvas:true,
+    attributionControl:false
   }).setView([23.7,120.9],7);
 
   // 保留原本 OpenStreetMap 作為預設底圖，另提供 CartoDB 淺色簡約底圖切換。
