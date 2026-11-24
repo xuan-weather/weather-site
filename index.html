@@ -832,6 +832,11 @@ function ensureMapStyles() {
       background:#e5edf5;
     }
 
+    /* A 風格：灰白清爽底圖，只柔化淺色底圖，不影響測站標記與其他圖層 */
+    #xuan-map .xuan-light-gray-base {
+      filter:brightness(1.055) saturate(.82) contrast(.94);
+    }
+
     /* 地圖右上角懸浮圖例 */
     .xuan-floating-legend {
       min-width:112px;
@@ -1254,6 +1259,7 @@ function initMap() {
     'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     {
       maxZoom:16,
+      className:'xuan-light-gray-base',
       attribution:'Tiles &copy; Esri'
     }
   );
@@ -1277,7 +1283,7 @@ function initMap() {
   L.control.layers(
     {
       '目前底圖（OpenStreetMap）':osmBaseLayer,
-      '淺色簡約底圖（Esri）':esriLightBaseLayer
+      '淺色簡約底圖（灰白清爽）':esriLightBaseLayer
     },
     null,
     {
