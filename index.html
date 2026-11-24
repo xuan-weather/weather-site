@@ -1253,29 +1253,15 @@ function initMap() {
     }
   );
 
-  // Esri World Light Gray Canvas：不使用 CARTO 圖磚，避免 API KEY REQUIRED 浮水印。
-  // Reference 圖層補上地名與行政界線，並與底圖綁成同一個可切換圖層。
-  const esriLightBaseTiles = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+  // Esri World Street Map：高細節道路底圖，包含道路、地名與主要道路標示。
+  // 使用公開 ArcGIS 瓦片服務，不使用 CARTO API Key。
+  const esriStreetBaseLayer = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
     {
-      maxZoom:16,
-      className:'xuan-light-gray-base',
+      maxZoom:19,
       attribution:'Tiles &copy; Esri'
     }
   );
-
-  const esriLightReferenceTiles = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-    {
-      maxZoom:16,
-      attribution:'Labels &copy; Esri'
-    }
-  );
-
-  const esriLightBaseLayer = L.layerGroup([
-    esriLightBaseTiles,
-    esriLightReferenceTiles
-  ]);
 
   // 預設仍使用原本 OpenStreetMap；切換淺色底圖時不影響測站資料圖層。
   osmBaseLayer.addTo(weatherMap);
@@ -1283,7 +1269,7 @@ function initMap() {
   L.control.layers(
     {
       '目前底圖（OpenStreetMap）':osmBaseLayer,
-      '淺色簡約底圖（灰白清爽）':esriLightBaseLayer
+      '高細節道路底圖（Esri）':esriStreetBaseLayer
     },
     null,
     {
