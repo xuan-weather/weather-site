@@ -832,9 +832,9 @@ function ensureMapStyles() {
       background:#e5edf5;
     }
 
-    /* C 風格：米白柔和底圖。只調整替代底圖瓦片色調，不影響測站圓點與圖例。 */
-    #xuan-map .xuan-warm-ivory-base {
-      filter:sepia(.18) saturate(.72) brightness(1.045) contrast(.94);
+    /* F 風格：藍白科技底圖。淡化底圖色彩並轉為冷藍色調；不影響測站圓點、圖例及其他資料圖層。 */
+    #xuan-map .xuan-blue-tech-base {
+      filter:saturate(.58) hue-rotate(155deg) brightness(1.10) contrast(.90);
     }
 
     /* A 風格：灰白清爽底圖，只柔化淺色底圖，不影響測站標記與其他圖層 */
@@ -1258,13 +1258,13 @@ function initMap() {
     }
   );
 
-  // Esri World Street Map：保留道路與地名細節，套用米白柔和色調作為 C 風格底圖。
+  // Esri World Street Map：保留道路與地名細節，套用藍白冷色調作為 F 風格科技底圖。
   // 使用公開 ArcGIS 瓦片服務，不使用 CARTO API Key。
   const esriStreetBaseLayer = L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
     {
       maxZoom:19,
-      className:'xuan-warm-ivory-base',
+      className:'xuan-blue-tech-base',
       attribution:'Tiles &copy; Esri'
     }
   );
@@ -1275,7 +1275,7 @@ function initMap() {
   L.control.layers(
     {
       '目前底圖（OpenStreetMap）':osmBaseLayer,
-      '米白柔和底圖（Esri）':esriStreetBaseLayer
+      '藍白科技底圖（Esri）':esriStreetBaseLayer
     },
     null,
     {
