@@ -1711,10 +1711,10 @@ function initMap() {
   legendControl.addTo(weatherMap);
   updateMapLegend();
 
-  // 全臺總覽時先隱藏密集標籤；放大至街區尺度（第 8 級）再顯示。
+  // 全臺總覽時先隱藏密集標籤；從初始第 7 級開始，需放大約 4 級至第 11 級才顯示。
   function syncStationLabelVisibility() {
     const mapElement = document.getElementById('xuan-map');
-    if (mapElement) mapElement.classList.toggle('xuan-show-station-labels',weatherMap.getZoom() >= 8);
+    if (mapElement) mapElement.classList.toggle('xuan-show-station-labels',weatherMap.getZoom() >= 11);
   }
   weatherMap.on('zoomend',syncStationLabelVisibility);
   syncStationLabelVisibility();
