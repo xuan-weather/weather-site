@@ -832,10 +832,7 @@ function ensureMapStyles() {
       background:#e5edf5;
     }
 
-    /* H 風格：淺綠自然底圖。僅調整替代底圖瓦片的色調，保留道路、地名及測站資料圖層。 */
-    #xuan-map .xuan-soft-green-base {
-      filter:sepia(.12) saturate(.72) hue-rotate(35deg) brightness(1.08) contrast(.91);
-    }
+    /* 衛星影像底圖不套用色彩濾鏡，保留原始影像色彩；測站標記與資料圖層獨立顯示。 */
 
     /* A 風格：灰白清爽底圖，只柔化淺色底圖，不影響測站標記與其他圖層 */
     #xuan-map .xuan-light-gray-base {
@@ -1258,14 +1255,13 @@ function initMap() {
     }
   );
 
-  // Esri World Street Map：保留道路與地名細節，套用淺綠自然色調作為 H 風格底圖。
+  // Esri World Imagery：衛星影像底圖，保留真實地表影像色彩與細節。
   // 使用公開 ArcGIS 瓦片服務，不使用 CARTO API Key。
-  const esriStreetBaseLayer = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+  const esriSatelliteBaseLayer = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     {
       maxZoom:19,
-      className:'xuan-soft-green-base',
-      attribution:'Tiles &copy; Esri'
+      attribution:'Imagery &copy; Esri, Maxar, Earthstar Geographics'
     }
   );
 
@@ -1275,7 +1271,7 @@ function initMap() {
   L.control.layers(
     {
       '目前底圖（OpenStreetMap）':osmBaseLayer,
-      '淺綠自然底圖（Esri）':esriStreetBaseLayer
+      '衛星影像底圖（Esri）':esriSatelliteBaseLayer
     },
     null,
     {
