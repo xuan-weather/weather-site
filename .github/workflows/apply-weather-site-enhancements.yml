@@ -121,14 +121,14 @@ jobs:
           p.write_text(s, encoding="utf-8")
           print("Enhanced index.html; original data sources and refresh interval remain unchanged.")
           PY
-          node --check <(python3 - <<'PY'
+          python3 - <<'PY'
           import re
           from pathlib import Path
-          s=Path('index.html').read_text()
-          blocks=re.findall(r'<script\\b[^>]*>(.*?)</script>',s,re.S)
-          print(blocks[0])
+          s=Path('index.html').read_text(encoding='utf-8')
+          blocks=re.findall(r'<script[^>]*>(.*?)</script>',s,re.S)
+          Path('/tmp/xuan-weather-main.js').write_text(blocks[0],encoding='utf-8')
           PY
-          )
+          node --check /tmp/xuan-weather-main.js
       - name: Commit enhanced site
         run: |
           git config user.name "github-actions[bot]"
