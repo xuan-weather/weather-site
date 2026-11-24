@@ -1248,22 +1248,36 @@ function initMap() {
     }
   );
 
-  const positronBaseLayer = L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  // Esri World Light Gray Canvas：不使用 CARTO 圖磚，避免 API KEY REQUIRED 浮水印。
+  // Reference 圖層補上地名與行政界線，並與底圖綁成同一個可切換圖層。
+  const esriLightBaseTiles = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     {
-      subdomains:'abcd',
-      maxZoom:20,
-      attribution:'&copy; OpenStreetMap contributors &copy; CARTO'
+      maxZoom:16,
+      attribution:'Tiles &copy; Esri'
     }
   );
 
-  // 預設仍使用原本底圖；右下角圖層控制器可切換底圖，不影響測站資料圖層。
+  const esriLightReferenceTiles = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+    {
+      maxZoom:16,
+      attribution:'Labels &copy; Esri'
+    }
+  );
+
+  const esriLightBaseLayer = L.layerGroup([
+    esriLightBaseTiles,
+    esriLightReferenceTiles
+  ]);
+
+  // 預設仍使用原本 OpenStreetMap；切換淺色底圖時不影響測站資料圖層。
   osmBaseLayer.addTo(weatherMap);
 
   L.control.layers(
     {
       '目前底圖（OpenStreetMap）':osmBaseLayer,
-      '淺色簡約底圖（CartoDB）':positronBaseLayer
+      '淺色簡約底圖（Esri）':esriLightBaseLayer
     },
     null,
     {
