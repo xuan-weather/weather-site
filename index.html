@@ -1105,6 +1105,25 @@ function ensureMapStyles() {
       filter:brightness(1.055) saturate(.82) contrast(.94);
     }
 
+    /* 地圖圖層控制移至左下；右下新增全螢幕按鈕。 */
+    .xuan-fullscreen-control { border:0 !important; box-shadow:none !important; background:transparent !important; }
+    .xuan-fullscreen-button {
+      display:grid !important; place-items:center; width:44px !important; height:44px !important;
+      border:1px solid #d7dee8 !important; border-radius:8px !important; background:#fff !important;
+      color:#34445a !important; font-size:29px !important; font-weight:600; line-height:1 !important;
+      text-decoration:none !important; box-shadow:0 1px 5px rgba(0,0,0,.25);
+    }
+    .xuan-fullscreen-button:hover { background:#f4f7fb !important; color:#1d4f83 !important; }
+    #xuan-map:fullscreen, #xuan-map.xuan-map-fullscreen {
+      position:fixed !important; inset:0 !important; z-index:99999 !important;
+      width:100vw !important; height:100vh !important; height:100dvh !important;
+      min-height:0 !important; max-height:none !important; border-radius:0 !important;
+    }
+    body.xuan-map-fullscreen-active { overflow:hidden !important; }
+    #xuan-map:fullscreen .xuan-fullscreen-button,
+    #xuan-map.xuan-map-fullscreen .xuan-fullscreen-button { margin:10px; }
+    body:not(.light) .xuan-fullscreen-button { background:#fff !important; color:#26364b !important; }
+
     /* 地圖右上角懸浮圖例 */
     .xuan-floating-legend {
       min-width:112px;
@@ -1543,9 +1562,52 @@ function initMap() {
     null,
     {
       collapsed:true,
-      position:'bottomright'
+      position:'bottomleft'
     }
   ).addTo(weatherMap);
+
+  // 全螢幕控制：支援原生 Fullscreen API；不支援時使用 CSS 全螢幕備援。
+  const fullscreenControl = L.control({position:'bottomright'});
+  fullscreenControl.onAdd = function() {
+    const container = L.DomUtil.create('div','leaflet-bar xuan-fullscreen-control');
+    const button = L.DomUtil.create('a','xuan-fullscreen-button',container);
+    button.href = '#';
+    button.setAttribute('role','button');
+    button.setAttribute('aria-label','開啟全螢幕');
+    button.setAttribute('title','開啟全螢幕');
+    button.textContent = '⛶';
+    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.on(button,'click',async function(event) {
+      L.DomEvent.preventDefault(event);
+      const mapElement = document.getElementById('xuan-map');
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else if (mapElement.classList.contains('xuan-map-fullscreen')) {
+          mapElement.classList.remove('xuan-map-fullscreen');
+          document.body.classList.remove('xuan-map-fullscreen-active');
+        } else if (mapElement.requestFullscreen) {
+          await mapElement.requestFullscreen();
+        } else {
+          mapElement.classList.add('xuan-map-fullscreen');
+          document.body.classList.add('xuan-map-fullscreen-active');
+        }
+      } catch (error) {
+        mapElement.classList.toggle('xuan-map-fullscreen');
+        document.body.classList.toggle('xuan-map-fullscreen-active',mapElement.classList.contains('xuan-map-fullscreen'));
+      }
+      setTimeout(() => weatherMap.invalidateSize(),180);
+    });
+    document.addEventListener('fullscreenchange',() => {
+      const active = Boolean(document.fullscreenElement) || document.getElementById('xuan-map')?.classList.contains('xuan-map-fullscreen');
+      button.textContent = active ? '↙' : '⛶';
+      button.setAttribute('aria-label',active ? '退出全螢幕' : '開啟全螢幕');
+      button.setAttribute('title',active ? '退出全螢幕' : '開啟全螢幕');
+      setTimeout(() => weatherMap.invalidateSize(),180);
+    });
+    return container;
+  };
+  fullscreenControl.addTo(weatherMap);
 
   // 衛星影像底圖行政區界線：鄉鎮市區淺灰細線、縣市外圍白色粗線。
   // 圖資來源：內政部國土測繪中心開放資料。
