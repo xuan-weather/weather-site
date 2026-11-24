@@ -1124,6 +1124,37 @@ function ensureMapStyles() {
     #xuan-map.xuan-map-fullscreen .xuan-fullscreen-button { margin:10px; }
     body:not(.light) .xuan-fullscreen-button { background:#fff !important; color:#26364b !important; }
 
+    /* 測站標籤：名稱在上、目前圖層數值在下；放大地圖後顯示以避免全臺視圖過度重疊。 */
+    .xuan-station-tooltip {
+      background:transparent !important;
+      border:0 !important;
+      box-shadow:none !important;
+      padding:0 !important;
+      margin:0 !important;
+      color:#fff !important;
+      text-align:center;
+      white-space:nowrap;
+      pointer-events:none !important;
+    }
+    .xuan-station-tooltip::before { display:none !important; }
+    .xuan-station-label-name,
+    .xuan-station-label-value {
+      display:block;
+      width:max-content;
+      max-width:112px;
+      margin:0 auto;
+      padding:1px 4px;
+      border-radius:3px;
+      color:#fff;
+      font-size:10px;
+      font-weight:800;
+      line-height:1.25;
+      text-shadow:-1px -1px 2px #263342,1px -1px 2px #263342,-1px 1px 2px #263342,1px 1px 2px #263342,0 1px 4px #172536;
+    }
+    .xuan-station-label-value { font-size:10px; font-weight:900; }
+    #xuan-map .xuan-station-tooltip { display:none !important; }
+    #xuan-map.xuan-show-station-labels .xuan-station-tooltip { display:block !important; }
+
     /* 地圖右上角懸浮圖例 */
     .xuan-floating-legend {
       min-width:112px;
@@ -1680,6 +1711,14 @@ function initMap() {
   legendControl.addTo(weatherMap);
   updateMapLegend();
 
+  // 全臺總覽時先隱藏密集標籤；放大至街區尺度（第 8 級）再顯示。
+  function syncStationLabelVisibility() {
+    const mapElement = document.getElementById('xuan-map');
+    if (mapElement) mapElement.classList.toggle('xuan-show-station-labels',weatherMap.getZoom() >= 8);
+  }
+  weatherMap.on('zoomend',syncStationLabelVisibility);
+  syncStationLabelVisibility();
+
   // 直接顯示每個測站，不進行群聚
 stationMarkers = L.layerGroup();
 
@@ -1734,6 +1773,19 @@ function drawMarkers() {
         bubblingMouseEvents: false
       }
     );
+
+    const metricUnit = mapMetric === 'rain' ? 'mm' : (mapMetric === 'wind' ? 'm/s' : '°C');
+    const metricValue = value === null ? '--' : `${fmt(value,1)} ${metricUnit}`;
+    marker.bindTooltip(`
+      <span class="xuan-station-label-name">${safe(station.name)}</span>
+      <span class="xuan-station-label-value">${safe(metricValue)}</span>
+    `, {
+      permanent:true,
+      direction:'bottom',
+      offset:[0,7],
+      opacity:1,
+      className:'xuan-station-tooltip'
+    });
 
     marker.bindPopup(`
       <div style="min-width:175px;line-height:1.8">
