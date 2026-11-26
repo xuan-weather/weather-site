@@ -374,48 +374,6 @@ main.wrap{max-width:1440px;padding-top:34px;padding-bottom:44px}
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
-/* 即時排行榜與區域分析 */
-.xuan-insights{margin:24px 0 28px}
-.xuan-insight-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr);gap:14px}
-.xuan-insight-card{min-width:0;padding:19px;border:1px solid #e0e9f4;border-radius:20px;background:#fff;box-shadow:0 10px 28px rgba(19,45,78,.055)}
-.xuan-insight-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
-.xuan-insight-title b{display:block;color:#1b3556;font-size:15px}
-.xuan-insight-title small{display:block;color:#8291a5;font-size:10px;margin-top:4px}
-.xuan-mini-tag{padding:5px 8px;border-radius:999px;background:#eff6ff;color:#4773a4;font-size:9px;font-weight:800;white-space:nowrap}
-.xuan-rank-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px}
-.xuan-rank-tabs button{flex:0 0 auto;border:1px solid #dce6f1;border-radius:999px;background:#f7faff;color:#60758e;padding:7px 11px;font-size:11px;font-weight:750}
-.xuan-rank-tabs button.active{background:#1d5d9c;border-color:#1d5d9c;color:white}
-.xuan-ranking-list{display:grid;gap:5px}
-.xuan-rank-row{display:grid;grid-template-columns:25px minmax(0,1fr) auto;align-items:center;gap:9px;padding:8px 7px;border-bottom:1px solid #edf2f7}
-.xuan-rank-number{display:grid;place-items:center;width:23px;height:23px;border-radius:8px;background:#eff4fa;color:#60758e;font-size:10px;font-weight:850}
-.xuan-rank-row:nth-child(-n+3) .xuan-rank-number{background:#e5f1ff;color:#1d5d9c}
-.xuan-rank-station{min-width:0}.xuan-rank-station b{display:block;color:#29415f;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.xuan-rank-station small{display:block;color:#91a0b3;font-size:10px;margin-top:3px}
-.xuan-rank-value{color:#1c4772;font-size:14px;font-weight:850;white-space:nowrap;font-variant-numeric:tabular-nums}
-.xuan-region-list{display:grid;gap:13px}
-.xuan-region-row{display:grid;grid-template-columns:48px minmax(0,1fr) 55px;align-items:center;gap:8px}
-.xuan-region-name{color:#526982;font-size:11px;font-weight:750}
-.xuan-region-track{height:9px;border-radius:999px;background:#edf3f9;overflow:hidden}
-.xuan-region-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#56a9dc,#2873b8)}
-.xuan-region-value{text-align:right;color:#294b70;font-size:12px;font-weight:850}
-.xuan-insight-note{margin:14px 0 0;color:#8a9bb0;font-size:10px;line-height:1.6}
-.xuan-weather-brief{display:grid;gap:9px}
-.xuan-brief-item{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:12px;background:#f5f8fc;color:#536a83;font-size:11px;line-height:1.6}
-.xuan-brief-item strong{color:#24496f}.xuan-brief-icon{font-size:16px;line-height:1.3}
-.xuan-data-coverage{margin-top:12px;padding-top:10px;border-top:1px solid #eaf0f6;color:#8495aa;font-size:10px;line-height:1.6}
-.xuan-insight-empty{padding:16px;border-radius:12px;background:#f6f9fd;color:#8a9bb0;font-size:11px}
-body:not(.light) .xuan-insight-card{background:#122238;border-color:#29415e;color:#e7f0fb}
-body:not(.light) .xuan-insight-title b,body:not(.light) .xuan-rank-station b,body:not(.light) .xuan-rank-value,body:not(.light) .xuan-region-value{color:#e7f0fb}
-body:not(.light) .xuan-insight-title small,body:not(.light) .xuan-rank-station small,body:not(.light) .xuan-insight-note,body:not(.light) .xuan-data-coverage{color:#9aadc5}
-body:not(.light) .xuan-rank-row{border-color:#293f58}
-body:not(.light) .xuan-rank-number,body:not(.light) .xuan-mini-tag{background:#1b3553;color:#c5def8}
-body:not(.light) .xuan-rank-tabs button{background:#172b44;border-color:#304963;color:#c3d3e5}
-body:not(.light) .xuan-rank-tabs button.active{background:#28649c;border-color:#28649c;color:#fff}
-body:not(.light) .xuan-region-track{background:#263d57}
-body:not(.light) .xuan-brief-item,body:not(.light) .xuan-insight-empty{background:#172b44;color:#bdcde0}
-body:not(.light) .xuan-brief-item strong{color:#d8eaff}
-@media(max-width:1000px){.xuan-insight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.xuan-insight-card:first-child{grid-column:1/-1}}
-@media(max-width:600px){.xuan-insight-grid{grid-template-columns:1fr}.xuan-insight-card:first-child{grid-column:auto}.xuan-insight-card{padding:15px}.xuan-rank-row{padding:8px 3px}}
 body:not(.light){background:#091525;color:#e7f0fb}
 body:not(.light) header{background:rgba(9,21,37,.9)!important;border-color:#263a52!important}
 body:not(.light) .brand strong{color:#e6f0fc}
@@ -444,6 +402,23 @@ body:not(.light) .tag{background:#1b3553!important;border-color:#315273!importan
 body:not(.light) .foot{border-color:#263a52;color:#8498b2!important}
 </style>
 
+<style id="xuan-live-insights-style">
+
+/* Live ranking and regional analysis */
+.xuan-insights{margin:24px 0 28px}.xuan-insight-grid{display:grid;grid-template-columns:minmax(0,1.35fr) repeat(2,minmax(0,1fr));gap:14px}
+.xuan-insight-card{min-width:0;padding:19px;border:1px solid #e0e9f4;border-radius:20px;background:#fff;box-shadow:0 10px 28px #132d4e0e}
+.xuan-insight-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.xuan-insight-title b{display:block;color:#1b3556;font-size:15px}.xuan-insight-title small{display:block;color:#8291a5;font-size:10px;margin-top:4px}
+.xuan-mini-tag{padding:5px 8px;border-radius:999px;background:#eff6ff;color:#4773a4;font-size:9px;font-weight:800;white-space:nowrap}
+.xuan-rank-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px}.xuan-rank-tabs button{flex:0 0 auto;border:1px solid #dce6f1;border-radius:999px;background:#f7faff;color:#60758e;padding:7px 11px;font-size:11px;font-weight:750}.xuan-rank-tabs button.active{background:#1d5d9c;border-color:#1d5d9c;color:#fff}
+.xuan-ranking-list,.xuan-region-list,.xuan-weather-brief{display:grid;gap:7px}.xuan-rank-row{display:grid;grid-template-columns:25px minmax(0,1fr) auto;align-items:center;gap:9px;padding:8px 7px;border-bottom:1px solid #edf2f7}.xuan-rank-number{display:grid;place-items:center;width:23px;height:23px;border-radius:8px;background:#eff4fa;color:#60758e;font-size:10px;font-weight:850}.xuan-rank-row:nth-child(-n+3) .xuan-rank-number{background:#e5f1ff;color:#1d5d9c}
+.xuan-rank-station{min-width:0}.xuan-rank-station b{display:block;color:#29415f;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.xuan-rank-station small{display:block;color:#91a0b3;font-size:10px;margin-top:3px}.xuan-rank-value{color:#1c4772;font-size:14px;font-weight:850;white-space:nowrap;font-variant-numeric:tabular-nums}
+.xuan-region-row{display:grid;grid-template-columns:48px minmax(0,1fr) 55px;align-items:center;gap:8px}.xuan-region-name{color:#526982;font-size:11px;font-weight:750}.xuan-region-track{height:9px;border-radius:999px;background:#edf3f9;overflow:hidden}.xuan-region-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#56a9dc,#2873b8)}.xuan-region-value{text-align:right;color:#294b70;font-size:12px;font-weight:850}
+.xuan-insight-note{margin:14px 0 0;color:#8a9bb0;font-size:10px;line-height:1.6}.xuan-brief-item{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:12px;background:#f5f8fc;color:#536a83;font-size:11px;line-height:1.6}.xuan-brief-item strong{color:#24496f}
+.xuan-data-coverage{margin-top:12px;padding-top:10px;border-top:1px solid #eaf0f6;color:#8495aa;font-size:10px;line-height:1.6}
+body:not(.light) .xuan-insight-card{background:#122238;border-color:#29415e;color:#e7f0fb}body:not(.light) .xuan-insight-title b,body:not(.light) .xuan-rank-station b,body:not(.light) .xuan-rank-value,body:not(.light) .xuan-region-value{color:#e7f0fb}body:not(.light) .xuan-insight-title small,body:not(.light) .xuan-rank-station small,body:not(.light) .xuan-insight-note,body:not(.light) .xuan-data-coverage{color:#9aadc5}body:not(.light) .xuan-rank-row{border-color:#293f58}body:not(.light) .xuan-rank-number,body:not(.light) .xuan-mini-tag{background:#1b3553;color:#c5def8}body:not(.light) .xuan-rank-tabs button{background:#172b44;border-color:#304963;color:#c3d3e5}body:not(.light) .xuan-rank-tabs button.active{background:#28649c;border-color:#28649c;color:#fff}body:not(.light) .xuan-region-track{background:#263d57}body:not(.light) .xuan-brief-item{background:#172b44;color:#bdcde0}body:not(.light) .xuan-brief-item strong{color:#d8eaff}
+@media(max-width:1000px){.xuan-insight-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.xuan-insight-card:first-child{grid-column:1/-1}}@media(max-width:600px){.xuan-insight-grid{grid-template-columns:1fr}.xuan-insight-card:first-child{grid-column:auto}.xuan-insight-card{padding:15px}.xuan-rank-row{padding:8px 3px}}
+
+</style>
 </head>
 
 <body>
@@ -670,31 +645,19 @@ body:not(.light) .foot{border-color:#263a52;color:#8498b2!important}
     </div>
   </section>
 
-  <section class="xuan-insights" id="live-rankings" aria-label="全台即時氣象分析">
-    <div class="xuan-section-heading">
-      <div><span class="xuan-kicker">LIVE WEATHER INTELLIGENCE</span><h2>即時氣象排行與區域分析</h2><p>依測站最新有效觀測值排序；不是日累積或預報值</p></div>
-      <span class="xuan-live-pill"><i></i> 測站即時統計</span>
-    </div>
-    <div class="xuan-insight-grid">
-      <article class="xuan-insight-card">
-        <div class="xuan-insight-title"><div><b>🏆 全台即時排行榜</b><small>Top 10 測站</small></div><span class="xuan-mini-tag">觀測值</span></div>
-        <div class="xuan-rank-tabs" role="group" aria-label="選擇排行榜">
-          <button type="button" class="active" data-rank="hot">高溫</button><button type="button" data-rank="cold">低溫</button><button type="button" data-rank="gust">陣風</button><button type="button" data-rank="rain">瞬時雨量</button><button type="button" data-rank="wind">風速</button>
-        </div>
-        <div id="xuan-ranking-list" class="xuan-ranking-list" aria-live="polite"><div class="xuan-insight-empty">等待測站資料載入</div></div>
-      </article>
-      <article class="xuan-insight-card">
-        <div class="xuan-insight-title"><div><b>🧭 全台區域觀測</b><small>各區有效測站平均氣溫</small></div><span class="xuan-mini-tag">即時平均</span></div>
-        <div id="xuan-region-list" class="xuan-region-list"><div class="xuan-insight-empty">等待測站資料載入</div></div>
-        <p class="xuan-insight-note">區域平均僅計入具有有效氣溫數值的測站。</p>
-      </article>
-      <article class="xuan-insight-card xuan-brief-card">
-        <div class="xuan-insight-title"><div><b>📡 自動觀測快報</b><small>由最新測站數據自動整理</small></div><span class="xuan-mini-tag">資料驅動</span></div>
-        <div id="xuan-weather-brief" class="xuan-weather-brief"><div class="xuan-insight-empty">等待測站資料載入</div></div>
-        <div class="xuan-data-coverage" id="xuan-data-coverage">資料涵蓋率：等待計算</div>
-      </article>
-    </div>
-  </section>
+
+<section class="xuan-insights" id="live-rankings" aria-label="全台即時氣象分析">
+  <div class="xuan-section-heading"><div><span class="xuan-kicker">LIVE WEATHER INTELLIGENCE</span><h2>即時氣象排行與區域分析</h2><p>依測站最新有效觀測值排序；非日累積或預報值</p></div><span class="xuan-live-pill"><i></i> 測站即時統計</span></div>
+  <div class="xuan-insight-grid">
+    <article class="xuan-insight-card"><div class="xuan-insight-title"><div><b>🏆 全台即時排行榜</b><small>Top 10 測站</small></div><span class="xuan-mini-tag">觀測值</span></div>
+      <div class="xuan-rank-tabs" role="group" aria-label="選擇排行榜">
+        <button type="button" class="active" data-rank="hot">高溫</button><button type="button" data-rank="cold">低溫</button><button type="button" data-rank="gust">陣風</button><button type="button" data-rank="rain">雨量</button><button type="button" data-rank="wind">風速</button>
+      </div><div id="xuan-ranking-list" class="xuan-ranking-list">等待測站資料載入</div>
+    </article>
+    <article class="xuan-insight-card"><div class="xuan-insight-title"><div><b>🧭 全台區域觀測</b><small>各區有效測站平均氣溫</small></div><span class="xuan-mini-tag">即時平均</span></div><div id="xuan-region-list" class="xuan-region-list">等待測站資料載入</div><p class="xuan-insight-note">區域平均僅計入具有有效氣溫數值的測站。</p></article>
+    <article class="xuan-insight-card"><div class="xuan-insight-title"><div><b>📡 自動觀測快報</b><small>由最新測站數據自動整理</small></div><span class="xuan-mini-tag">資料驅動</span></div><div id="xuan-weather-brief" class="xuan-weather-brief">等待測站資料載入</div><div class="xuan-data-coverage" id="xuan-data-coverage">資料涵蓋率：等待計算</div></article>
+  </div>
+</section>
 
   <!-- =====================================
        監測圖資入口
@@ -933,6 +896,10 @@ body:not(.light) .foot{border-color:#263a52;color:#8498b2!important}
 
     此頁即時數值與圖資以官方資料串接結果為準。
 
+    <br>
+
+    地圖資料來源：OpenStreetMap contributors；衛星影像：Esri、Maxar、Earthstar Geographics。
+
   </div>
 
 </main>
@@ -954,6 +921,7 @@ let gpsPosition = null;
 let weatherMap = null;
 let stationMarkers = null;
 let gpsMarker = null;
+let gpsAccuracyCircle = null;
 let mapMetric = 'temperature';
 let locating = false;
 let markerClusterReady = false;
@@ -1136,6 +1104,82 @@ function ensureMapStyles() {
     /* A 風格：灰白清爽底圖，只柔化淺色底圖，不影響測站標記與其他圖層 */
     #xuan-map .xuan-light-gray-base {
       filter:brightness(1.055) saturate(.82) contrast(.94);
+    }
+
+    /* 地圖圖層控制移至左下；右下新增全螢幕按鈕。 */
+    .xuan-fullscreen-control { border:0 !important; box-shadow:none !important; background:transparent !important; }
+    .xuan-fullscreen-button {
+      display:grid !important; place-items:center; width:44px !important; height:44px !important;
+      border:1px solid #d7dee8 !important; border-radius:8px !important; background:#fff !important;
+      color:#34445a !important; font-size:29px !important; font-weight:600; line-height:1 !important;
+      text-decoration:none !important; box-shadow:0 1px 5px rgba(0,0,0,.25);
+    }
+    .xuan-fullscreen-button:hover { background:#f4f7fb !important; color:#1d4f83 !important; }
+    #xuan-map:fullscreen, #xuan-map.xuan-map-fullscreen,
+    body.xuan-map-fullscreen-active #xuan-map {
+      position:fixed !important;
+      top:0 !important; right:0 !important; bottom:0 !important; left:0 !important;
+      inset:0 !important;
+      width:100vw !important; width:100dvw !important;
+      min-width:100vw !important; max-width:none !important;
+      height:100vh !important; height:100dvh !important;
+      min-height:0 !important; max-height:none !important;
+      margin:0 !important; padding:0 !important; border:0 !important;
+      border-radius:0 !important; box-sizing:border-box !important;
+      transform:none !important; z-index:99999 !important;
+    }
+    body.xuan-map-fullscreen-active {
+      overflow:hidden !important; padding:0 !important; margin:0 !important;
+    }
+    #xuan-map:fullscreen .xuan-fullscreen-button,
+    #xuan-map.xuan-map-fullscreen .xuan-fullscreen-button { margin:10px; }
+    body:not(.light) .xuan-fullscreen-button { background:#fff !important; color:#26364b !important; }
+
+    /* DPIP 風格 GPS 定位點與實際精度範圍 */
+    .xuan-gps-marker-wrap{background:transparent!important;border:0!important}
+    .xuan-gps-marker{position:relative;width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+    .xuan-gps-dot{position:relative;width:14px;height:14px;border-radius:50%;background:#4285f4;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.55);z-index:2}
+    .xuan-gps-pulse{position:absolute;width:28px;height:28px;border-radius:50%;background:rgba(66,133,244,.20);border:1px solid rgba(66,133,244,.45);animation:xuanGpsPulse 1.8s ease-out infinite;z-index:1}
+    @keyframes xuanGpsPulse{0%{transform:scale(.65);opacity:.75}70%{transform:scale(1.45);opacity:.18}100%{transform:scale(1.6);opacity:0}}
+    .xuan-gps-accuracy-breath{animation:xuanGpsAccuracyBreath 2.2s ease-in-out infinite}
+    @keyframes xuanGpsAccuracyBreath{0%,100%{stroke-opacity:.48;fill-opacity:.07}50%{stroke-opacity:1;fill-opacity:.19}}
+    @media(prefers-reduced-motion:reduce){.xuan-gps-pulse,.xuan-gps-accuracy-breath{animation:none!important}}
+
+    /* 測站標籤：名稱在上、目前圖層數值在下；放大地圖後顯示以避免全臺視圖過度重疊。 */
+    .xuan-station-tooltip {
+      background:transparent !important;
+      border:0 !important;
+      box-shadow:none !important;
+      padding:0 !important;
+      margin:0 !important;
+      color:#fff !important;
+      text-align:center;
+      white-space:nowrap;
+      pointer-events:none !important;
+    }
+    .xuan-station-tooltip::before { display:none !important; }
+    .xuan-station-label-name,
+    .xuan-station-label-value {
+      display:block;
+      width:max-content;
+      max-width:112px;
+      margin:0 auto;
+      padding:1px 4px;
+      border-radius:3px;
+      color:#fff;
+      font-size:10px;
+      font-weight:800;
+      line-height:1.25;
+      text-shadow:-1px -1px 2px #263342,1px -1px 2px #263342,-1px 1px 2px #263342,1px 1px 2px #263342,0 1px 4px #172536;
+    }
+    .xuan-station-label-value { font-size:10px; font-weight:900; }
+    #xuan-map .xuan-station-tooltip { display:none !important; }
+    #xuan-map.xuan-show-station-labels .xuan-station-tooltip {
+      display:block !important;
+      visibility:visible;
+    }
+    #xuan-map.xuan-show-station-labels .xuan-station-tooltip.xuan-label-overlap {
+      visibility:hidden !important;
     }
 
     /* 地圖右上角懸浮圖例 */
@@ -1542,7 +1586,9 @@ function initMap() {
 
   weatherMap = L.map('xuan-map', {
     scrollWheelZoom:false,
-    preferCanvas:true
+    preferCanvas:true,
+    attributionControl:false,
+    zoomControl:false
   }).setView([23.7,120.9],7);
 
   // 保留原本 OpenStreetMap 作為預設底圖，另提供 CartoDB 淺色簡約底圖切換。
@@ -1575,12 +1621,113 @@ function initMap() {
     null,
     {
       collapsed:true,
-      position:'bottomright'
+      position:'bottomleft'
     }
   ).addTo(weatherMap);
 
+  // 全螢幕控制：支援原生 Fullscreen API；不支援時使用 CSS 全螢幕備援。
+  const fullscreenControl = L.control({position:'bottomright'});
+  fullscreenControl.onAdd = function() {
+    const container = L.DomUtil.create('div','leaflet-bar xuan-fullscreen-control');
+    const button = L.DomUtil.create('a','xuan-fullscreen-button',container);
+    button.href = '#';
+    button.setAttribute('role','button');
+    button.setAttribute('aria-label','開啟全螢幕');
+    button.setAttribute('title','開啟全螢幕');
+    button.textContent = '⛶';
+    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.on(button,'click',async function(event) {
+      L.DomEvent.preventDefault(event);
+      const mapElement = document.getElementById('xuan-map');
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else if (mapElement.classList.contains('xuan-map-fullscreen')) {
+          mapElement.classList.remove('xuan-map-fullscreen');
+          document.body.classList.remove('xuan-map-fullscreen-active');
+        } else if (mapElement.requestFullscreen) {
+          await mapElement.requestFullscreen();
+        } else {
+          mapElement.classList.add('xuan-map-fullscreen');
+          document.body.classList.add('xuan-map-fullscreen-active');
+        }
+      } catch (error) {
+        mapElement.classList.toggle('xuan-map-fullscreen');
+        document.body.classList.toggle('xuan-map-fullscreen-active',mapElement.classList.contains('xuan-map-fullscreen'));
+      }
+      const active = Boolean(document.fullscreenElement) || mapElement.classList.contains('xuan-map-fullscreen');
+      button.textContent = active ? '↙' : '⛶';
+      button.setAttribute('aria-label',active ? '退出全螢幕' : '開啟全螢幕');
+      button.setAttribute('title',active ? '退出全螢幕' : '開啟全螢幕');
+      setTimeout(() => weatherMap.invalidateSize(),180);
+    });
+    document.addEventListener('fullscreenchange',() => {
+      const active = Boolean(document.fullscreenElement) || document.getElementById('xuan-map')?.classList.contains('xuan-map-fullscreen');
+      button.textContent = active ? '↙' : '⛶';
+      button.setAttribute('aria-label',active ? '退出全螢幕' : '開啟全螢幕');
+      button.setAttribute('title',active ? '退出全螢幕' : '開啟全螢幕');
+      setTimeout(() => weatherMap.invalidateSize(),180);
+    });
+    return container;
+  };
+  fullscreenControl.addTo(weatherMap);
+
+  // Leaflet 右下角控制項依加入順序排列；縮放最後加入，顯示在全螢幕按鈕上方。
+  L.control.zoom({position:'bottomright'}).addTo(weatherMap);
+
+  // 衛星影像底圖行政區界線：鄉鎮市區淺灰細線、縣市外圍白色粗線。
+  // 圖資來源：內政部國土測繪中心開放資料。
+  let townshipBoundaryLayer = null;
+  let countyBoundaryLayer = null;
+  let boundaryLoading = false;
+  let boundaryLoaded = false;
+
+  const boundaryPane = weatherMap.createPane('xuanAdminBoundaryPane');
+  boundaryPane.style.zIndex = '350';
+  boundaryPane.style.pointerEvents = 'none';
+
+  async function toggleSatelliteBoundaries(show) {
+    if (!show) {
+      if (townshipBoundaryLayer && weatherMap.hasLayer(townshipBoundaryLayer)) weatherMap.removeLayer(townshipBoundaryLayer);
+      if (countyBoundaryLayer && weatherMap.hasLayer(countyBoundaryLayer)) weatherMap.removeLayer(countyBoundaryLayer);
+      return;
+    }
+    if (!boundaryLoaded && !boundaryLoading) {
+      boundaryLoading = true;
+      try {
+        const [townResponse, countyResponse] = await Promise.all([
+          fetch('https://geo.maderaojen.me/datasets/tw-townships/releases/v1/2026-07-04.1/data.geojson'),
+          fetch('https://geo.maderaojen.me/datasets/tw-counties/releases/v1/2026-08-07.1/data.geojson')
+        ]);
+        if (!townResponse.ok || !countyResponse.ok) throw new Error('行政區界線圖資載入失敗');
+        const [townGeoJson, countyGeoJson] = await Promise.all([townResponse.json(), countyResponse.json()]);
+        townshipBoundaryLayer = L.geoJSON(townGeoJson, {
+          pane:'xuanAdminBoundaryPane', interactive:false,
+          style:() => ({color:'#d5dce5',weight:0.75,opacity:0.92,fill:false,fillOpacity:0})
+        });
+        countyBoundaryLayer = L.geoJSON(countyGeoJson, {
+          pane:'xuanAdminBoundaryPane', interactive:false,
+          style:() => ({color:'#ffffff',weight:2.5,opacity:0.98,fill:false,fillOpacity:0})
+        });
+        boundaryLoaded = true;
+      } catch (error) {
+        console.warn('Xuan Weather 行政區界線載入失敗：', error);
+      } finally {
+        boundaryLoading = false;
+      }
+    }
+    if (boundaryLoaded) {
+      if (townshipBoundaryLayer && !weatherMap.hasLayer(townshipBoundaryLayer)) townshipBoundaryLayer.addTo(weatherMap);
+      if (countyBoundaryLayer && !weatherMap.hasLayer(countyBoundaryLayer)) countyBoundaryLayer.addTo(weatherMap);
+    }
+  }
+
+  weatherMap.on('baselayerchange', event => {
+    toggleSatelliteBoundaries(event.layer === esriSatelliteBaseLayer);
+  });
+
   // 右上角懸浮圖例，會依目前選取的地圖圖層同步更新
-  const legendControl = L.control({ position:'topright' });
+  const legendControl = L.control({ position:'topleft' });
   legendControl.onAdd = function() {
     const container = L.DomUtil.create('div', 'xuan-floating-legend');
     container.id = 'xuan-floating-legend';
@@ -1590,6 +1737,48 @@ function initMap() {
   };
   legendControl.addTo(weatherMap);
   updateMapLegend();
+
+  // 全臺總覽時先隱藏密集標籤；從初始第 7 級開始，需放大約 4 級至第 11 級才顯示。
+  function syncStationLabelVisibility() {
+    const mapElement = document.getElementById('xuan-map');
+    if (!mapElement) return;
+    const show = weatherMap.getZoom() >= 11;
+    mapElement.classList.toggle('xuan-show-station-labels',show);
+    if (!show) {
+      mapElement.querySelectorAll('.xuan-station-tooltip').forEach(el => el.classList.remove('xuan-label-overlap'));
+      return;
+    }
+    // 等待 Leaflet 完成標籤排版，再逐一避開已顯示標籤的範圍。
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const mapRect = mapElement.getBoundingClientRect();
+      const labels = Array.from(mapElement.querySelectorAll('.xuan-station-tooltip'));
+      labels.forEach(el => el.classList.remove('xuan-label-overlap'));
+      const centerX = mapRect.left + mapRect.width / 2;
+      const centerY = mapRect.top + mapRect.height / 2;
+      labels.sort((a,b) => {
+        const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        const pa = a.dataset.selected === '1' ? -1e9 : Math.hypot((ra.left+ra.right)/2-centerX,(ra.top+ra.bottom)/2-centerY);
+        const pb = b.dataset.selected === '1' ? -1e9 : Math.hypot((rb.left+rb.right)/2-centerX,(rb.top+rb.bottom)/2-centerY);
+        return pa-pb;
+      });
+      const accepted = [];
+      labels.forEach(el => {
+        const r = el.getBoundingClientRect();
+        const box = {left:r.left-3,right:r.right+3,top:r.top-2,bottom:r.bottom+2};
+        const overlaps = accepted.some(a => !(box.right <= a.left || box.left >= a.right || box.bottom <= a.top || box.top >= a.bottom));
+        if (overlaps) {
+          el.classList.add('xuan-label-overlap');
+        } else if (r.width && r.height && r.right > mapRect.left && r.left < mapRect.right && r.bottom > mapRect.top && r.top < mapRect.bottom) {
+          accepted.push(box);
+        } else {
+          el.classList.add('xuan-label-overlap');
+        }
+      });
+    }));
+  }
+  weatherMap.on('zoomend moveend',syncStationLabelVisibility);
+  window.addEventListener('resize',syncStationLabelVisibility);
+  syncStationLabelVisibility();
 
   // 直接顯示每個測站，不進行群聚
 stationMarkers = L.layerGroup();
@@ -1645,6 +1834,24 @@ function drawMarkers() {
         bubblingMouseEvents: false
       }
     );
+
+    const metricUnit = mapMetric === 'rain' ? 'mm' : (mapMetric === 'wind' ? 'm/s' : '°C');
+    const metricValue = value === null ? '--' : `${fmt(value,1)} ${metricUnit}`;
+    marker.bindTooltip(`
+      <span class="xuan-station-label-name">${safe(station.name)}</span>
+      <span class="xuan-station-label-value">${safe(metricValue)}</span>
+    `, {
+      permanent:true,
+      direction:'bottom',
+      offset:[0,7],
+      opacity:1,
+      className:'xuan-station-tooltip'
+    });
+    marker.on('tooltipopen', event => {
+      if (event.tooltip && event.tooltip.getElement()) {
+        event.tooltip.getElement().dataset.selected = selected ? '1' : '0';
+      }
+    });
 
     marker.bindPopup(`
       <div style="min-width:175px;line-height:1.8">
@@ -1809,7 +2016,8 @@ function locateUser() {
 
       gpsPosition = {
         lat:position.coords.latitude,
-        lon:position.coords.longitude
+        lon:position.coords.longitude,
+        accuracy:Math.max(1,position.coords.accuracy || 0)
       };
 
       const nearest = findNearest(
@@ -1825,16 +2033,39 @@ function locateUser() {
       updateLocal(nearest);
 
       if (weatherMap) {
-        if (gpsMarker) gpsMarker.remove();
+        if (gpsMarker) weatherMap.removeLayer(gpsMarker);
+        if (gpsAccuracyCircle) weatherMap.removeLayer(gpsAccuracyCircle);
 
-        gpsMarker = L.marker([
-          gpsPosition.lat,gpsPosition.lon
-        ]).addTo(weatherMap)
-          .bindPopup('📍 你的 GPS 位置')
+        gpsAccuracyCircle = L.circle(
+          [gpsPosition.lat,gpsPosition.lon],
+          {
+            radius:gpsPosition.accuracy,
+            className:'xuan-gps-accuracy-breath',
+            color:'#4285f4',
+            weight:2,
+            fillColor:'#4285f4',
+            fillOpacity:.14,
+            interactive:false
+          }
+        ).addTo(weatherMap);
+
+        gpsMarker = L.marker(
+          [gpsPosition.lat,gpsPosition.lon],
+          {
+            icon:L.divIcon({
+              className:'xuan-gps-marker-wrap',
+              html:'<div class="xuan-gps-marker"><span class="xuan-gps-pulse"></span><span class="xuan-gps-dot"></span></div>',
+              iconSize:[28,28],
+              iconAnchor:[14,14]
+            }),
+            zIndexOffset:10000
+          }
+        ).addTo(weatherMap)
+          .bindPopup(`📍 你的 GPS 位置<br>定位精度：約 ${Math.round(gpsPosition.accuracy)} 公尺`)
           .openPopup();
 
         weatherMap.setView(
-          [gpsPosition.lat,gpsPosition.lon],9
+          [gpsPosition.lat,gpsPosition.lon],Math.max(weatherMap.getZoom(),9)
         );
       }
     },
@@ -1963,48 +2194,38 @@ function renderXuanHighlights() {
   set('xuan-max-rain','xuan-max-rain-station',rain[0],'rain','mm');
 }
 
-/* 即時排行、區域比較與自動觀測快報：只使用目前已載入的測站資料 */
-let currentRanking = 'hot';
-const XUAN_REGIONS = [
+
+/* Live rankings, regional comparison and observation briefing */
+let currentRanking='hot';
+const XUAN_REGIONS=[
   {name:'北部',counties:['臺北市','台北市','新北市','基隆市','桃園市','新竹市','新竹縣','宜蘭縣']},
   {name:'中部',counties:['苗栗縣','臺中市','台中市','彰化縣','南投縣','雲林縣']},
   {name:'南部',counties:['嘉義市','嘉義縣','臺南市','台南市','高雄市','屏東縣']},
   {name:'東部',counties:['花蓮縣','臺東縣','台東縣']},
   {name:'離島',counties:['澎湖縣','金門縣','連江縣']}
 ];
-const XUAN_RANK_CONFIG = {
-  hot:{key:'temperature',unit:'°C',digits:1,descending:true},
-  cold:{key:'temperature',unit:'°C',digits:1,descending:false},
-  gust:{key:'gust',unit:'m/s',digits:1,descending:true},
-  rain:{key:'rain',unit:'mm',digits:1,descending:true},
-  wind:{key:'wind',unit:'m/s',digits:1,descending:true}
-};
-function renderLiveRankings() {
-  const host=document.getElementById('xuan-ranking-list'); if(!host)return;
+const XUAN_RANK_CONFIG={hot:{key:'temperature',unit:'°C',descending:true},cold:{key:'temperature',unit:'°C',descending:false},gust:{key:'gust',unit:'m/s',descending:true},rain:{key:'rain',unit:'mm',descending:true},wind:{key:'wind',unit:'m/s',descending:true}};
+function renderLiveRankings(){
+  const host=document.getElementById('xuan-ranking-list');if(!host)return;
   const cfg=XUAN_RANK_CONFIG[currentRanking]||XUAN_RANK_CONFIG.hot;
   const rows=stations.filter(x=>Number.isFinite(x[cfg.key])).sort((a,b)=>cfg.descending?b[cfg.key]-a[cfg.key]:a[cfg.key]-b[cfg.key]).slice(0,10);
-  host.innerHTML=rows.length?rows.map((x,i)=>`<div class="xuan-rank-row"><span class="xuan-rank-number">${i+1}</span><div class="xuan-rank-station"><b>${safe(x.name)}</b><small>${safe(x.county)} ${safe(x.town)}</small></div><span class="xuan-rank-value">${fmt(x[cfg.key],cfg.digits)} ${cfg.unit}</span></div>`).join(''):'<div class="xuan-insight-empty">目前沒有可用的有效觀測值</div>';
+  host.innerHTML=rows.length?rows.map((x,i)=>'<div class="xuan-rank-row"><span class="xuan-rank-number">'+(i+1)+'</span><div class="xuan-rank-station"><b>'+safe(x.name)+'</b><small>'+safe(x.county)+' '+safe(x.town)+'</small></div><span class="xuan-rank-value">'+fmt(x[cfg.key],1)+' '+cfg.unit+'</span></div>').join(''):'<div>目前沒有可用的有效觀測值</div>';
   document.querySelectorAll('[data-rank]').forEach(b=>{const active=b.dataset.rank===currentRanking;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
 }
-function renderRegionalComparison() {
+function renderRegionalComparison(){
   const host=document.getElementById('xuan-region-list');if(!host)return;
   const rows=XUAN_REGIONS.map(region=>{const members=stations.filter(x=>region.counties.includes(x.county)&&Number.isFinite(x.temperature));return {...region,count:members.length,average:members.length?members.reduce((a,x)=>a+x.temperature,0)/members.length:null};}).filter(x=>x.count);
-  if(!rows.length){host.innerHTML='<div class="xuan-insight-empty">目前沒有足夠的區域氣溫資料</div>';return;}
+  if(!rows.length){host.textContent='目前沒有足夠的區域氣溫資料';return;}
   const vals=rows.map(x=>x.average),min=Math.min(...vals),span=Math.max(1,Math.max(...vals)-min);
-  host.innerHTML=rows.map(x=>`<div class="xuan-region-row"><span class="xuan-region-name">${x.name}</span><div class="xuan-region-track" role="img" aria-label="${x.name}平均氣溫 ${x.average.toFixed(1)} 度"><div class="xuan-region-fill" style="width:${18+(x.average-min)/span*82}%"></div></div><span class="xuan-region-value">${x.average.toFixed(1)}°C</span></div>`).join('');
+  host.innerHTML=rows.map(x=>'<div class="xuan-region-row"><span class="xuan-region-name">'+x.name+'</span><div class="xuan-region-track"><div class="xuan-region-fill" style="width:'+(18+(x.average-min)/span*82)+'%"></div></div><span class="xuan-region-value">'+x.average.toFixed(1)+'°C</span></div>').join('');
 }
-function renderWeatherBrief() {
+function renderWeatherBrief(){
   const host=document.getElementById('xuan-weather-brief');if(!host)return;
   const t=stations.filter(x=>Number.isFinite(x.temperature)),g=stations.filter(x=>Number.isFinite(x.gust)),r=stations.filter(x=>Number.isFinite(x.rain));
   const hot=[...t].sort((a,b)=>b.temperature-a.temperature)[0],cold=[...t].sort((a,b)=>a.temperature-b.temperature)[0],gust=[...g].sort((a,b)=>b.gust-a.gust)[0],rain=[...r].sort((a,b)=>b.rain-a.rain)[0];
-  const items=[];
-  if(hot)items.push(['🌡️','目前最高氣溫',`${hot.county} ${hot.name} ${fmt(hot.temperature)}°C`]);
-  if(cold)items.push(['❄️','目前最低氣溫',`${cold.county} ${cold.name} ${fmt(cold.temperature)}°C`]);
-  if(gust)items.push(['💨','目前最大陣風',`${gust.county} ${gust.name} ${fmt(gust.gust)} m/s`]);
-  if(rain)items.push(['🌧️','目前最大瞬時雨量',`${rain.county} ${rain.name} ${fmt(rain.rain)} mm`]);
-  host.innerHTML=items.length?items.map(([icon,label,value])=>`<div class="xuan-brief-item"><span class="xuan-brief-icon">${icon}</span><div><strong>${label}</strong><br>${safe(value)}</div></div>`).join(''):'<div class="xuan-insight-empty">目前沒有足夠資料產生觀測快報</div>';
-  const coverage=document.getElementById('xuan-data-coverage');
-  if(coverage)coverage.textContent=`資料概況：整合測站 ${stations.length.toLocaleString('zh-TW')} 站｜氣溫有效 ${t.length} 站｜陣風有效 ${g.length} 站｜雨量有效 ${r.length} 站`;
+  const items=[];if(hot)items.push(['🌡️','目前最高氣溫',hot.county+' '+hot.name+' '+fmt(hot.temperature)+'°C']);if(cold)items.push(['❄️','目前最低氣溫',cold.county+' '+cold.name+' '+fmt(cold.temperature)+'°C']);if(gust)items.push(['💨','目前最大陣風',gust.county+' '+gust.name+' '+fmt(gust.gust)+' m/s']);if(rain)items.push(['🌧️','目前最大瞬時雨量',rain.county+' '+rain.name+' '+fmt(rain.rain)+' mm']);
+  host.innerHTML=items.map(([icon,label,value])=>'<div class="xuan-brief-item"><span>'+icon+'</span><div><strong>'+label+'</strong><br>'+safe(value)+'</div></div>').join('')||'目前沒有足夠資料產生觀測快報';
+  const coverage=document.getElementById('xuan-data-coverage');if(coverage)coverage.textContent='資料概況：整合測站 '+stations.length+' 站｜氣溫有效 '+t.length+' 站｜陣風有效 '+g.length+' 站｜雨量有效 '+r.length+' 站';
 }
 function renderWeatherInsights(){renderLiveRankings();renderRegionalComparison();renderWeatherBrief();}
 document.addEventListener('click',event=>{const button=event.target.closest('[data-rank]');if(!button)return;currentRanking=button.dataset.rank;renderLiveRankings();});
