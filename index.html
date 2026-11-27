@@ -81,6 +81,39 @@ button { cursor: pointer; }
 }
 .xw-header-dock > * { pointer-events: auto; }
 
+.xw-menu-trigger {
+  width:40px; min-width:40px; height:40px; padding:0;
+  display:grid; place-items:center; flex:0 0 40px;
+  border:1px solid var(--line); border-radius:14px;
+  color:var(--text); background:var(--bg-glass);
+  backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  box-shadow:var(--shadow); cursor:pointer;
+  transition:background .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.xw-menu-trigger:hover { background:var(--accent-soft); }
+.xw-menu-trigger:active { transform:scale(.94); }
+.xw-menu-trigger svg { width:21px;height:21px;stroke:currentColor;stroke-width:2.2;fill:none;stroke-linecap:round; }
+.xw-menu-panel {
+  position:fixed; top:calc(max(10px, env(safe-area-inset-top)) + 50px);
+  left:max(10px, env(safe-area-inset-left));
+  width:min(270px, calc(100vw - 28px)); padding:9px;
+  border:1px solid var(--line); border-radius:18px;
+  background:var(--bg-glass-strong); backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px); box-shadow:var(--shadow);
+  display:none; flex-direction:column; gap:4px; z-index:930;
+}
+.xw-menu-panel.open { display:flex; animation:xwMenuIn .16s ease-out; }
+.xw-menu-heading { padding:7px 10px 8px; color:var(--muted); font-size:10px; font-weight:800; letter-spacing:.08em; }
+.xw-menu-item {
+  width:100%; min-height:42px; padding:0 11px; border:0; border-radius:11px;
+  display:flex; align-items:center; gap:10px; text-align:left;
+  color:var(--text); background:transparent; font-size:13px; font-weight:750; cursor:pointer;
+}
+.xw-menu-item:hover,.xw-menu-item:focus-visible { background:var(--accent-soft); outline:none; }
+.xw-menu-item .menu-icon { width:22px; text-align:center; font-size:16px; }
+.xw-menu-divider { height:1px; margin:4px 6px; background:var(--line); }
+@keyframes xwMenuIn { from { opacity:0; transform:translateY(-5px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+
 .xw-brand-pill {
   height: 42px;
   padding: 0 12px 0 8px;
@@ -640,6 +673,9 @@ body:not(.light) .xw-layer-bar button.active {
 
   <!-- 頂部精簡單行導覽膠囊 -->
   <div class="xw-header-dock">
+    <button class="xw-menu-trigger" id="xw-menu-trigger" type="button" aria-label="開啟功能選單" aria-expanded="false" aria-controls="xw-menu-panel" title="功能選單">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
     <div class="xw-glass xw-brand-pill">
       <div class="xw-logo">🌦️</div>
       <div class="xw-brand-text">
@@ -659,6 +695,20 @@ body:not(.light) .xw-layer-bar button.active {
       <button class="xw-icon-btn primary-pill" id="xw-drawer-toggle" type="button" aria-expanded="false">🏆 排行</button>
     </div>
   </div>
+
+  <nav class="xw-menu-panel" id="xw-menu-panel" aria-label="網站功能選單">
+    <div class="xw-menu-heading">XUAN WEATHER · 功能導覽</div>
+    <button class="xw-menu-item" type="button" data-menu-action="map"><span class="menu-icon">🗺️</span>全台氣象地圖</button>
+    <button class="xw-menu-item" type="button" data-menu-action="rankings"><span class="menu-icon">🏆</span>即時氣象排行</button>
+    <button class="xw-menu-item" type="button" data-menu-action="regions"><span class="menu-icon">🧭</span>區域分析</button>
+    <button class="xw-menu-item" type="button" data-menu-action="stations"><span class="menu-icon">📡</span>測站查詢</button>
+    <button class="xw-menu-item" type="button" data-menu-action="local"><span class="menu-icon">📍</span>所在地天氣</button>
+    <div class="xw-menu-divider"></div>
+    <div class="xw-menu-heading">氣象圖層</div>
+    <button class="xw-menu-item" type="button" data-menu-action="temperature"><span class="menu-icon">🌡️</span>氣溫監測</button>
+    <button class="xw-menu-item" type="button" data-menu-action="rain"><span class="menu-icon">🌧️</span>雨量監測</button>
+    <button class="xw-menu-item" type="button" data-menu-action="wind"><span class="menu-icon">💨</span>風速監測</button>
+  </nav>
 
   <!-- 第二排：預設收合的所在地迷你膠囊 + 桌機版圖層切換 -->
   <div class="xw-sub-dock">
@@ -1601,6 +1651,53 @@ async function startWeather() {
 }
 
 startWeather();
+
+// 左上角三橫功能選單
+const xwMenuButton = document.getElementById('xw-menu-trigger');
+const xwMenuPanel = document.getElementById('xw-menu-panel');
+function closeXuanMenu() {
+  xwMenuPanel?.classList.remove('open');
+  xwMenuButton?.setAttribute('aria-expanded', 'false');
+}
+xwMenuButton?.addEventListener('click', event => {
+  event.stopPropagation();
+  const open = xwMenuPanel?.classList.toggle('open') || false;
+  xwMenuButton.setAttribute('aria-expanded', String(open));
+});
+xwMenuPanel?.addEventListener('click', event => {
+  const item = event.target.closest('[data-menu-action]');
+  if (!item) return;
+  const action = item.dataset.menuAction;
+  if (action === 'map') {
+    document.getElementById('xw-drawer')?.classList.remove('open');
+    document.getElementById('xw-local-wrap')?.classList.remove('expanded');
+  } else if (['rankings', 'regions', 'stations'].includes(action)) {
+    const drawer = document.getElementById('xw-drawer');
+    const drawerButton = document.getElementById('xw-drawer-toggle');
+    drawer?.classList.add('open');
+    drawerButton?.setAttribute('aria-expanded', 'true');
+    document.querySelectorAll('.xw-drawer-tabs [data-tab]').forEach(tab => {
+      const active = tab.dataset.tab === action;
+      tab.classList.toggle('active', active);
+      if (active) tab.click();
+    });
+  } else if (action === 'local') {
+    const wrap = document.getElementById('xw-local-wrap');
+    const localButton = document.getElementById('xw-local-toggle');
+    wrap?.classList.add('expanded');
+    localButton?.setAttribute('aria-expanded', 'true');
+  } else if (['temperature', 'rain', 'wind'].includes(action)) {
+    document.querySelector('.xw-layer-bar [data-map="' + action + '"]')?.click();
+  }
+  closeXuanMenu();
+});
+document.addEventListener('click', event => {
+  if (!xwMenuPanel?.classList.contains('open')) return;
+  if (!xwMenuPanel.contains(event.target) && !xwMenuButton?.contains(event.target)) closeXuanMenu();
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') closeXuanMenu();
+});
 
 // 所在地迷你膠囊展開 / 收合
 document.getElementById('xw-local-toggle')?.addEventListener('click', () => {
