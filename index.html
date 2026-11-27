@@ -554,127 +554,6 @@ body:not(.light) .xw-layer-bar button.active {
 .xuan-floating-legend-swatch { width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; }
 
 
-/* 沉浸式地圖下方資訊入口與滑出資訊面板 */
-.xw-map-info-toggle {
-  position: fixed;
-  left: 50%;
-  bottom: calc(max(10px, env(safe-area-inset-bottom)) + 43px);
-  transform: translateX(-50%);
-  z-index: 910;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  min-height: 32px;
-  padding: 5px 14px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--bg-glass-strong);
-  color: var(--ink);
-  box-shadow: var(--shadow);
-  font-size: 11px;
-  font-weight: 850;
-  white-space: nowrap;
-  transition: bottom .25s ease, transform .25s ease;
-}
-.xw-map-info-toggle .arrow {
-  display: inline-block;
-  font-size: 15px;
-  line-height: 1;
-  transition: transform .25s ease;
-}
-.xw-map-info-toggle[aria-expanded="true"] .arrow { transform: rotate(180deg); }
-
-.xw-map-info-panel {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 908;
-  height: min(48dvh, 420px);
-  padding: 10px max(14px, env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
-  border: 1px solid var(--line);
-  border-bottom: 0;
-  border-radius: 22px 22px 0 0;
-  background: var(--bg-glass-strong);
-  box-shadow: 0 -12px 36px rgba(15, 37, 68, .2);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  transform: translateY(105%);
-  visibility: hidden;
-  transition: transform .28s ease, visibility .28s ease;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-.xw-map-info-panel.open {
-  transform: translateY(0);
-  visibility: visible;
-}
-.xw-map-info-grabber {
-  width: 38px;
-  height: 4px;
-  margin: 0 auto 10px;
-  border-radius: 99px;
-  background: var(--muted);
-  opacity: .45;
-}
-.xw-map-info-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin: 2px 0 10px;
-}
-.xw-map-info-heading strong { font-size: 14px; font-weight: 900; }
-.xw-map-info-close {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--ink);
-  font-size: 16px;
-}
-.xw-map-info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-.xw-map-info-card {
-  min-width: 0;
-  padding: 10px 11px;
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  background: rgba(128, 155, 190, .09);
-}
-.xw-map-info-card span {
-  display: block;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 650;
-}
-.xw-map-info-card strong {
-  display: block;
-  margin-top: 3px;
-  font-size: 17px;
-  font-weight: 900;
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-.xw-map-info-note {
-  margin: 10px 2px 0;
-  color: var(--muted);
-  font-size: 10px;
-  line-height: 1.6;
-}
-body.xw-info-open .xw-map-info-toggle {
-  bottom: calc(min(48dvh, 420px) + 8px);
-}
-body.xw-info-open .xw-bottom-bar { opacity: .12; pointer-events: none; }
-@media (prefers-reduced-motion: reduce) {
-  .xw-map-info-toggle, .xw-map-info-toggle .arrow, .xw-map-info-panel { transition: none; }
-}
-
 /* 手機專屬最佳化：圖層膠囊移至底部極值條上方，讓出整個台灣視野 */
 @media (max-width: 760px) {
   .xw-map-info-toggle {
@@ -798,34 +677,6 @@ body.xw-info-open .xw-bottom-bar { opacity: .12; pointer-events: none; }
     <span class="xw-ticker-item">💨 陣風 <strong id="xuan-max-gust">--<em>m/s</em></strong> <em id="xuan-max-gust-station">--</em></span>
     <span class="xw-ticker-item">🌧️ 雨量 <strong id="xuan-max-rain">--<em>mm</em></strong> <em id="xuan-max-rain-station">--</em></span>
   </div>
-
-  <!-- 地圖下滑資訊入口：點擊箭頭展開即時資訊 -->
-  <button type="button" class="xw-map-info-toggle" id="xw-map-info-toggle"
-          aria-expanded="false" aria-controls="xw-map-info-panel">
-    <span class="arrow" aria-hidden="true">⌄</span>
-    <span id="xw-map-info-toggle-label">向下滑動｜更多氣象資訊</span>
-  </button>
-
-  <section class="xw-map-info-panel" id="xw-map-info-panel"
-           role="region" aria-label="更多即時氣象資訊" aria-hidden="true">
-    <div class="xw-map-info-grabber" aria-hidden="true"></div>
-    <div class="xw-map-info-heading">
-      <strong>📊 全台即時氣象資訊</strong>
-      <button type="button" class="xw-map-info-close" id="xw-map-info-close"
-              aria-label="收合資訊面板">×</button>
-    </div>
-    <div class="xw-map-info-grid">
-      <div class="xw-map-info-card"><span>目前整合測站</span><strong id="xw-info-station-count">-- 站</strong></div>
-      <div class="xw-map-info-card"><span>全台平均氣溫</span><strong id="xw-info-avg-temp">-- °C</strong></div>
-      <div class="xw-map-info-card"><span>目前最高氣溫</span><strong id="xw-info-high-temp">-- °C</strong></div>
-      <div class="xw-map-info-card"><span>目前最低氣溫</span><strong id="xw-info-low-temp">-- °C</strong></div>
-      <div class="xw-map-info-card"><span>最大陣風</span><strong id="xw-info-max-gust">-- m/s</strong></div>
-      <div class="xw-map-info-card"><span>最大觀測雨量</span><strong id="xw-info-max-rain">-- mm</strong></div>
-    </div>
-    <p class="xw-map-info-note" id="xw-info-updated">
-      資訊依目前載入的氣象測站觀測資料更新；點選地圖測站可查看該站詳細觀測。
-    </p>
-  </section>
 
 <script>
 'use strict';
@@ -1695,39 +1546,6 @@ document.querySelectorAll('.xw-drawer-tabs [data-tab]').forEach(tabBtn => {
     document.querySelectorAll('.xw-tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + target));
   });
 });
-
-// 地圖下方資訊面板展開／收合
-const mapInfoToggle = document.getElementById('xw-map-info-toggle');
-const mapInfoPanel = document.getElementById('xw-map-info-panel');
-const mapInfoClose = document.getElementById('xw-map-info-close');
-
-function setMapInfoOpen(open) {
-  if (!mapInfoToggle || !mapInfoPanel) return;
-  document.body.classList.toggle('xw-info-open', open);
-  mapInfoToggle.setAttribute('aria-expanded', String(open));
-  mapInfoPanel.setAttribute('aria-hidden', String(!open));
-  mapInfoToggle.querySelector('.arrow')?.replaceChildren(document.createTextNode(open ? '⌃' : '⌄'));
-  const label = document.getElementById('xw-map-info-toggle-label');
-  if (label) label.textContent = open ? '收合氣象資訊' : '向下滑動｜更多氣象資訊';
-  mapInfoPanel.classList.toggle('open', open);
-}
-
-mapInfoToggle?.addEventListener('click', () => {
-  setMapInfoOpen(mapInfoToggle.getAttribute('aria-expanded') !== 'true');
-});
-mapInfoClose?.addEventListener('click', () => setMapInfoOpen(false));
-
-let mapInfoTouchStartY = null;
-mapInfoPanel?.addEventListener('touchstart', event => {
-  mapInfoTouchStartY = event.touches[0]?.clientY ?? null;
-}, { passive: true });
-mapInfoPanel?.addEventListener('touchend', event => {
-  const endY = event.changedTouches[0]?.clientY;
-  if (mapInfoTouchStartY !== null && Number.isFinite(endY) && endY - mapInfoTouchStartY > 70 && mapInfoPanel.scrollTop <= 0) {
-    setMapInfoOpen(false);
-  }
-  mapInfoTouchStartY = null;
-}, { passive: true });
 
 // 手動重新整理
 document.getElementById('refresh-weather')?.addEventListener('click', async () => {
