@@ -961,10 +961,24 @@ function getCwaTemperatureColor(value) {
 function getColor(value) {
   if (value === null || value === undefined || !Number.isFinite(Number(value))) return '#8993a3';
   if (mapMetric === 'rain') {
-    if (value >= 20) return '#8438bf';
-    if (value >= 10) return '#2867cf';
-    if (value > 0) return '#35a7d8';
-    return '#78b98b';
+    // 參照中央氣象署 QPE Plus 累積雨量級距；HEX 為依官方色彩示意近似取色
+    if (value >= 300) return '#F4A6C9';
+    if (value >= 200) return '#E66BB0';
+    if (value >= 150) return '#A51E79';
+    if (value >= 130) return '#C72A9A';
+    if (value >= 110) return '#A7192D';
+    if (value >= 90) return '#E52B2B';
+    if (value >= 70) return '#F0642B';
+    if (value >= 50) return '#F39A24';
+    if (value >= 40) return '#F5D52A';
+    if (value >= 30) return '#D8E33A';
+    if (value >= 20) return '#68BE45';
+    if (value >= 15) return '#168B50';
+    if (value >= 10) return '#176CC2';
+    if (value >= 6) return '#49B9E5';
+    if (value >= 2) return '#27C5D5';
+    if (value >= 1) return '#A6E5E7';
+    return '#AEB8C2';
   }
   if (mapMetric === 'wind') {
     if (value >= 10) return '#983db5';
@@ -980,12 +994,25 @@ function updateMapLegend() {
   if (!legend) return;
   if (mapMetric === 'rain') {
     legend.innerHTML = `
-      <div class="xuan-floating-legend-title">🌧️ 雨量（mm）</div>
-      <div class="xuan-floating-legend-rows">
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#78b98b"></i>無雨／0</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#35a7d8"></i>0～10</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#2867cf"></i>10～20</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#8438bf"></i>20 以上</div>
+      <div class="xuan-floating-legend-title">🌧️ 雨量（mm）｜CWA級距</div>
+      <div class="xuan-floating-legend-rows" style="grid-template-columns:repeat(2,minmax(0,1fr));column-gap:10px;row-gap:4px;min-width:178px">
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#AEB8C2"></i>0 無雨</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A6E5E7"></i>1 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#27C5D5"></i>2 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#49B9E5"></i>6 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#176CC2"></i>10 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#168B50"></i>15 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#68BE45"></i>20 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#D8E33A"></i>30 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F5D52A"></i>40 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F39A24"></i>50 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F0642B"></i>70 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#E52B2B"></i>90 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A7192D"></i>110 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#C72A9A"></i>130 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A51E79"></i>150 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#E66BB0"></i>200 mm</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F4A6C9"></i>300 mm</div>
       </div>`;
   } else if (mapMetric === 'wind') {
     legend.innerHTML = `
