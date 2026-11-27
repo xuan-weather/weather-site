@@ -150,51 +150,56 @@ body:not(.light) .updated[data-state="connected"] { color: #4ade80; }
 /* Xuan Weather 專屬重新整理按鈕 */
 .xw-icon-btn.xw-refresh-btn {
   position:relative; isolation:isolate; overflow:visible;
-  width:38px; min-width:38px; height:38px; padding:0;
+  width:40px; min-width:40px; height:40px; padding:0;
   display:flex; align-items:center; justify-content:center;
-  border-radius:50%; color:#087fc2;
-  background:radial-gradient(circle at 32% 24%,#fff 0%,#f4fbff 48%,#d9f0fa 100%);
-  border:1px solid rgba(255,255,255,.96);
-  box-shadow:0 3px 10px rgba(24,92,132,.18),inset 0 1px 3px rgba(255,255,255,.98),inset 0 -2px 4px rgba(64,151,190,.12);
+  border-radius:50%; color:#fff;
+  background:
+    radial-gradient(ellipse at 31% 20%,rgba(255,255,255,.92) 0%,rgba(255,255,255,.24) 23%,transparent 43%),
+    linear-gradient(145deg,#8cecff 0%,#27b9f0 28%,#0879d8 68%,#064aab 100%);
+  border:1px solid rgba(232,251,255,.98);
+  box-shadow:
+    0 3px 9px rgba(5,66,128,.28),
+    inset 0 2px 3px rgba(255,255,255,.85),
+    inset 0 -4px 7px rgba(0,35,112,.36),
+    0 0 0 2px rgba(51,178,235,.18);
   transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;
 }
 .xw-icon-btn.xw-refresh-btn::before {
-  content:""; position:absolute; inset:-4px; z-index:-1;
-  border:1.5px dashed rgba(28,174,220,.72); border-radius:50%;
-  pointer-events:none; opacity:.72;
-  animation:xwRefreshOrbit 8s linear infinite;
+  content:""; position:absolute; inset:-3px; z-index:-1;
+  border-radius:50%; border:1px solid rgba(79,205,255,.55);
+  box-shadow:0 0 8px rgba(41,173,255,.3);
+  pointer-events:none; opacity:.8;
+  animation:xwRefreshRim 3.6s ease-in-out infinite;
 }
 .xw-icon-btn.xw-refresh-btn::after {
-  content:""; position:absolute; inset:-2px; z-index:-2;
-  border-radius:50%; background:rgba(48,190,224,.2);
-  filter:blur(5px); opacity:.42;
-  animation:xwRefreshGlow 2.4s ease-in-out infinite;
+  content:""; position:absolute; inset:4px; z-index:0;
+  border-radius:50%; pointer-events:none;
+  border-top:1px solid rgba(255,255,255,.65);
+  border-left:1px solid rgba(255,255,255,.25);
 }
 .xw-icon-btn.xw-refresh-btn:hover {
-  color:#056cae; filter:brightness(1.035);
-  box-shadow:0 5px 13px rgba(24,92,132,.24),inset 0 1px 3px #fff,inset 0 -2px 4px rgba(64,151,190,.16);
-  transform:translateY(-1px);
+  color:#fff; filter:brightness(1.08);
+  box-shadow:0 5px 13px rgba(5,66,128,.34),inset 0 2px 4px rgba(255,255,255,.9),inset 0 -4px 7px rgba(0,35,112,.4),0 0 0 3px rgba(51,178,235,.2);
+  transform:translateY(-1px) scale(1.03);
 }
 .xw-refresh-icon {
   position:relative; z-index:1;
-  width:23px;height:23px;display:block;fill:none;
+  width:24px;height:24px;display:block;fill:none;
   stroke:currentColor;stroke-width:2.7;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 1px 1px rgba(0,48,120,.38));
   transform-origin:50% 50%;
 }
-.xw-refresh-btn.is-loading::before { animation:xwRefreshOrbit 1.15s linear infinite; border-style:solid; }
-.xw-refresh-btn.is-loading::after { animation:xwRefreshGlow .65s ease-in-out infinite; opacity:.8; }
-.xw-refresh-btn.is-loading .xw-refresh-icon { animation:xwRefreshSpin .65s linear infinite; }
-.xw-refresh-btn:active { transform:scale(.93); }
-.xw-refresh-btn:focus-visible { outline:3px solid rgba(42,177,222,.34);outline-offset:3px; }
-@keyframes xwRefreshOrbit { to { transform:rotate(360deg); } }
-@keyframes xwRefreshGlow {
-  0%,100% { transform:scale(.9); opacity:.22; }
-  50% { transform:scale(1.12); opacity:.58; }
+.xw-refresh-btn.is-loading::before { animation:xwRefreshRim .65s ease-in-out infinite; }
+.xw-refresh-btn.is-loading .xw-refresh-icon { animation:xwRefreshSpin .62s linear infinite; }
+.xw-refresh-btn:active { transform:scale(.92); }
+.xw-refresh-btn:focus-visible { outline:3px solid rgba(42,177,222,.34);outline-offset:4px; }
+@keyframes xwRefreshRim {
+  0%,100% { opacity:.45; transform:scale(.98); }
+  50% { opacity:1; transform:scale(1.055); }
 }
 @keyframes xwRefreshSpin { to { transform:rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .xw-icon-btn.xw-refresh-btn::before,
-  .xw-icon-btn.xw-refresh-btn::after,
   .xw-refresh-btn.is-loading .xw-refresh-icon { animation:none !important; }
 }
 .xw-icon-btn:disabled { opacity: .55; cursor: wait; }
