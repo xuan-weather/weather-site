@@ -475,6 +475,24 @@ body:not(.light) .xw-layer-bar button.active {
 .xw-station-region-tabs button.active {
   color:#fff; background:#1d5d9c; border-color:#1d5d9c;
 }
+.xw-station-county-wrap, .xw-station-town-wrap {
+  margin:0 0 8px; padding:8px; border:1px solid var(--line);
+  border-radius:11px; background:rgba(128,155,190,.055);
+}
+.xw-station-filter-title {
+  margin:0 0 7px; color:var(--muted); font-size:10px; font-weight:750;
+}
+.xw-station-county-tabs, .xw-station-town-tabs {
+  display:flex; flex-wrap:wrap; gap:5px;
+}
+.xw-station-county-tabs button, .xw-station-town-tabs button {
+  border:1px solid var(--line); border-radius:999px; padding:5px 9px;
+  background:var(--bg-glass); color:var(--text); font-size:10px;
+  font-weight:700; white-space:nowrap;
+}
+.xw-station-county-tabs button.active, .xw-station-town-tabs button.active {
+  color:#fff; background:#1d5d9c; border-color:#1d5d9c;
+}
 .xw-station-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
 .xw-station-card {
   padding: 9px; border-radius: 11px; border: 1px solid var(--line);
@@ -1371,6 +1389,8 @@ function renderStations() {
 
   const keyword = ($('#station-search')?.value || '').trim().toLowerCase();
   const activeRegion = panel.dataset.stationRegion || 'all';
+  const activeCounty = panel.dataset.stationCounty || 'all';
+  const activeTown = panel.dataset.stationTown || 'all';
   const regionGroups = {
     north: ['基隆市', '臺北市', '新北市', '桃園市', '新竹市', '新竹縣', '宜蘭縣'],
     central: ['苗栗縣', '臺中市', '彰化縣', '南投縣', '雲林縣'],
@@ -1386,31 +1406,70 @@ function renderStations() {
     ['east', '東部'],
     ['islands', '離島']
   ];
-  const normalizeCounty = value => String(value || '').trim().replace(/^台/, '臺');
+  const normalizePlace = value => String(value || '').trim().replace(/^台/, '臺');
   const getRegion = station => {
-    const county = normalizeCounty(station.county);
+    const county = normalizePlace(station.county);
     return Object.keys(regionGroups).find(key => regionGroups[key].includes(county)) || 'other';
   };
-  const counts = Object.fromEntries(regionLabels.map(([key]) => [
+  const getCountyStations = region => stations.filter(s =>
+    region === 'all' || getRegion(s) === region
+  );
+  const regionCounts = Object.fromEntries(regionLabels.map(([key]) => [
     key, key === 'all' ? stations.length : stations.filter(s => getRegion(s) === key).length
   ]));
-  const filtered = stations.filter(s => {
-    const matchesRegion = activeRegion === 'all' || getRegion(s) === activeRegion;
-    const matchesKeyword = `${s.name || ''} ${s.county || ''} ${s.town || ''}`.toLowerCase().includes(keyword);
-    return matchesRegion && matchesKeyword;
+  const countyOrder = activeRegion === 'all'
+    ? [...regionGroups.north, ...regionGroups.central, ...regionGroups.south, ...regionGroups.east, ...regionGroups.islands]
+    : (regionGroups[activeRegion] || []);
+  const countyStations = getCountyStations(activeRegion);
+  const counties = [...new Set(countyStations.map(s => normalizePlace(s.county)).filter(Boolean))]
+    .sort((a, b) => {
+      const ai = countyOrder.indexOf(a), bi = countyOrder.indexOf(b);
+      if (ai >= 0 || bi >= 0) return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
+      return a.localeCompare(b, 'zh-TW');
+    });
+  const selectedCountyStations = activeCounty === 'all'
+    ? countyStations
+    : countyStations.filter(s => normalizePlace(s.county) === activeCounty);
+  const towns = [...new Set(selectedCountyStations.map(s => String(s.town || '').trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, 'zh-TW'));
+  const filtered = selectedCountyStations.filter(s => {
+    const town = String(s.town || '').trim();
+    const matchesTown = activeTown === 'all' || town === activeTown;
+    const matchesKeyword = `${s.name || ''} ${s.county || ''} ${town}`.toLowerCase().includes(keyword);
+    return matchesTown && matchesKeyword;
   });
 
   panel.innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:11px;color:var(--muted)">
       <span>點擊測站可飛躍定位</span>
-      <span>${filtered.length.toLocaleString('zh-TW')} / ${counts[activeRegion]?.toLocaleString('zh-TW') || 0} 站</span>
+      <span>${filtered.length.toLocaleString('zh-TW')} 站</span>
     </div>
     <input id="station-search" type="search" placeholder="搜尋縣市、鄉鎮或測站名稱" value="${safe(keyword)}">
     <div class="xw-station-region-tabs" role="group" aria-label="測站區域分類">
       ${regionLabels.map(([key, label]) => `
-        <button type="button" data-station-region="${key}" class="${activeRegion === key ? 'active' : ''}">${label} ${counts[key].toLocaleString('zh-TW')}</button>
+        <button type="button" data-station-region="${key}" class="${activeRegion === key ? 'active' : ''}">${label} ${regionCounts[key].toLocaleString('zh-TW')}</button>
       `).join('')}
     </div>
+    <div class="xw-station-county-wrap">
+      <div class="xw-station-filter-title">📍 選擇縣市</div>
+      <div class="xw-station-county-tabs" role="group" aria-label="縣市分類">
+        <button type="button" data-station-county="all" class="${activeCounty === 'all' ? 'active' : ''}">全部縣市</button>
+        ${counties.map(county => `
+          <button type="button" data-station-county="${safe(county)}" class="${activeCounty === county ? 'active' : ''}">${safe(county)}</button>
+        `).join('')}
+      </div>
+    </div>
+    ${activeCounty !== 'all' ? `
+      <div class="xw-station-town-wrap">
+        <div class="xw-station-filter-title">🏘️ ${safe(activeCounty)}・鄉鎮市區</div>
+        <div class="xw-station-town-tabs" role="group" aria-label="鄉鎮市區分類">
+          <button type="button" data-station-town="all" class="${activeTown === 'all' ? 'active' : ''}">全部鄉鎮</button>
+          ${towns.map(town => `
+            <button type="button" data-station-town="${safe(town)}" class="${activeTown === town ? 'active' : ''}">${safe(town)}</button>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
     <div class="xw-station-grid">
       ${filtered.slice(0, 120).map(s => `
         <button type="button" class="xw-station-card" data-lat="${s.lat ?? ''}" data-lon="${s.lon ?? ''}">
@@ -1421,13 +1480,28 @@ function renderStations() {
         </button>
       `).join('')}
     </div>
-    ${filtered.length > 120 ? '<div style="padding:8px 2px;color:var(--muted);font-size:10px;text-align:center">目前顯示前 120 站，請使用搜尋縮小範圍</div>' : ''}
+    ${filtered.length > 120 ? '<div style="padding:8px 2px;color:var(--muted);font-size:10px;text-align:center">目前顯示前 120 站，請使用鄉鎮或測站搜尋縮小範圍</div>' : ''}
     ${filtered.length === 0 ? '<div style="padding:18px 4px;color:var(--muted);font-size:12px;text-align:center">此分類沒有符合的測站</div>' : ''}
   `;
 
   panel.querySelectorAll('[data-station-region]').forEach(button => {
     button.addEventListener('click', () => {
       panel.dataset.stationRegion = button.dataset.stationRegion;
+      panel.dataset.stationCounty = 'all';
+      panel.dataset.stationTown = 'all';
+      renderStations();
+    });
+  });
+  panel.querySelectorAll('[data-station-county]').forEach(button => {
+    button.addEventListener('click', () => {
+      panel.dataset.stationCounty = button.dataset.stationCounty;
+      panel.dataset.stationTown = 'all';
+      renderStations();
+    });
+  });
+  panel.querySelectorAll('[data-station-town]').forEach(button => {
+    button.addEventListener('click', () => {
+      panel.dataset.stationTown = button.dataset.stationTown;
       renderStations();
     });
   });
@@ -1455,7 +1529,6 @@ function renderStations() {
     });
   });
 }
-
 function setDataConnectionStatus(state, message) {
   const element = $('.updated');
   if (!element) return;
