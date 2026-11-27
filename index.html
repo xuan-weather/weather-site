@@ -462,6 +462,19 @@ body:not(.light) .xw-layer-bar button.active {
   width: 100%; padding: 8px 11px; border-radius: 10px; border: 1px solid var(--line);
   background: var(--bg-glass); font-size: 12px; margin-bottom: 8px;
 }
+.xw-station-region-tabs {
+  display:flex; gap:6px; overflow-x:auto; padding:2px 0 9px;
+  margin:0 0 2px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+}
+.xw-station-region-tabs::-webkit-scrollbar { display:none; }
+.xw-station-region-tabs button {
+  flex:0 0 auto; border:1px solid var(--line); border-radius:999px;
+  padding:6px 10px; background:var(--bg-glass); color:var(--text);
+  font-size:11px; font-weight:750; white-space:nowrap;
+}
+.xw-station-region-tabs button.active {
+  color:#fff; background:#1d5d9c; border-color:#1d5d9c;
+}
 .xw-station-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
 .xw-station-card {
   padding: 9px; border-radius: 11px; border: 1px solid var(--line);
@@ -1355,14 +1368,49 @@ function locateUser() {
 function renderStations() {
   const panel = $('#station-live-list');
   if (!panel) return;
+
   const keyword = ($('#station-search')?.value || '').trim().toLowerCase();
-  const filtered = stations.filter(s => `${s.name} ${s.county} ${s.town}`.toLowerCase().includes(keyword));
+  const activeRegion = panel.dataset.stationRegion || 'all';
+  const regionGroups = {
+    north: ['基隆市', '臺北市', '新北市', '桃園市', '新竹市', '新竹縣', '宜蘭縣'],
+    central: ['苗栗縣', '臺中市', '彰化縣', '南投縣', '雲林縣'],
+    south: ['嘉義市', '嘉義縣', '臺南市', '高雄市', '屏東縣'],
+    east: ['花蓮縣', '臺東縣'],
+    islands: ['澎湖縣', '金門縣', '連江縣']
+  };
+  const regionLabels = [
+    ['all', '全部'],
+    ['north', '北部'],
+    ['central', '中部'],
+    ['south', '南部'],
+    ['east', '東部'],
+    ['islands', '離島']
+  ];
+  const normalizeCounty = value => String(value || '').trim().replace(/^台/, '臺');
+  const getRegion = station => {
+    const county = normalizeCounty(station.county);
+    return Object.keys(regionGroups).find(key => regionGroups[key].includes(county)) || 'other';
+  };
+  const counts = Object.fromEntries(regionLabels.map(([key]) => [
+    key, key === 'all' ? stations.length : stations.filter(s => getRegion(s) === key).length
+  ]));
+  const filtered = stations.filter(s => {
+    const matchesRegion = activeRegion === 'all' || getRegion(s) === activeRegion;
+    const matchesKeyword = `${s.name || ''} ${s.county || ''} ${s.town || ''}`.toLowerCase().includes(keyword);
+    return matchesRegion && matchesKeyword;
+  });
+
   panel.innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:11px;color:var(--muted)">
       <span>點擊測站可飛躍定位</span>
-      <span>${filtered.length.toLocaleString('zh-TW')} 站</span>
+      <span>${filtered.length.toLocaleString('zh-TW')} / ${counts[activeRegion]?.toLocaleString('zh-TW') || 0} 站</span>
     </div>
     <input id="station-search" type="search" placeholder="搜尋縣市、鄉鎮或測站名稱" value="${safe(keyword)}">
+    <div class="xw-station-region-tabs" role="group" aria-label="測站區域分類">
+      ${regionLabels.map(([key, label]) => `
+        <button type="button" data-station-region="${key}" class="${activeRegion === key ? 'active' : ''}">${label} ${counts[key].toLocaleString('zh-TW')}</button>
+      `).join('')}
+    </div>
     <div class="xw-station-grid">
       ${filtered.slice(0, 120).map(s => `
         <button type="button" class="xw-station-card" data-lat="${s.lat ?? ''}" data-lon="${s.lon ?? ''}">
@@ -1373,7 +1421,17 @@ function renderStations() {
         </button>
       `).join('')}
     </div>
+    ${filtered.length > 120 ? '<div style="padding:8px 2px;color:var(--muted);font-size:10px;text-align:center">目前顯示前 120 站，請使用搜尋縮小範圍</div>' : ''}
+    ${filtered.length === 0 ? '<div style="padding:18px 4px;color:var(--muted);font-size:12px;text-align:center">此分類沒有符合的測站</div>' : ''}
   `;
+
+  panel.querySelectorAll('[data-station-region]').forEach(button => {
+    button.addEventListener('click', () => {
+      panel.dataset.stationRegion = button.dataset.stationRegion;
+      renderStations();
+    });
+  });
+
   const input = $('#station-search');
   if (input) {
     input.addEventListener('input', () => {
