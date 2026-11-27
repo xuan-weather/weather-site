@@ -149,6 +149,7 @@ body:not(.light) .updated[data-state="connected"] { color: #4ade80; }
 .xw-icon-btn:hover { background: var(--accent-soft); }
 /* Xuan Weather 專屬重新整理按鈕 */
 .xw-icon-btn.xw-refresh-btn {
+  position:relative; isolation:isolate; overflow:visible;
   width:36px; min-width:36px; height:36px; padding:0;
   justify-content:center; border-radius:11px;
   color:#fff;
@@ -157,6 +158,12 @@ body:not(.light) .updated[data-state="connected"] { color: #4ade80; }
   box-shadow:0 3px 9px rgba(7,31,58,.32),inset 0 1px 0 rgba(255,255,255,.28),inset 0 -2px 3px rgba(0,0,0,.18);
   transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
 }
+.xw-icon-btn.xw-refresh-btn::before {
+  content:""; position:absolute; inset:-4px; z-index:-1; pointer-events:none;
+  border:1px solid rgba(76,183,255,.52); border-radius:14px;
+  opacity:0; transform:scale(.82);
+  animation:xwRefreshHalo 2.8s ease-out infinite;
+}
 .xw-icon-btn.xw-refresh-btn:hover {
   color:#fff;
   background:linear-gradient(155deg,#2e6398 0%,#174575 58%,#10345d 100%);
@@ -164,13 +171,30 @@ body:not(.light) .updated[data-state="connected"] { color: #4ade80; }
   transform:translateY(-1px);
 }
 .xw-refresh-icon {
+  position:relative; z-index:1;
   width:23px;height:23px;display:block;fill:none;
   stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
+  transform-origin:50% 50%;
+  animation:xwRefreshIdle 3.2s ease-in-out infinite;
 }
-.xw-refresh-btn.is-loading .xw-refresh-icon { animation:xwRefreshSpin .8s linear infinite; }
+.xw-refresh-btn.is-loading::before { animation:xwRefreshHalo .75s ease-out infinite; }
+.xw-refresh-btn.is-loading .xw-refresh-icon { animation:xwRefreshSpin .72s linear infinite; }
 .xw-refresh-btn:active { transform:scale(.94); }
 .xw-refresh-btn:focus-visible { outline:3px solid rgba(56,158,230,.35);outline-offset:2px; }
+@keyframes xwRefreshIdle {
+  0%,100% { transform:rotate(-8deg) scale(.96); }
+  50% { transform:rotate(8deg) scale(1.04); }
+}
+@keyframes xwRefreshHalo {
+  0% { opacity:.72; transform:scale(.82); }
+  75%,100% { opacity:0; transform:scale(1.32); }
+}
 @keyframes xwRefreshSpin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .xw-icon-btn.xw-refresh-btn::before,
+  .xw-refresh-icon,
+  .xw-refresh-btn.is-loading .xw-refresh-icon { animation:none !important; }
+}
 .xw-icon-btn:disabled { opacity: .55; cursor: wait; }
 .xw-icon-btn.primary-pill {
   background: #1d5d9c;
