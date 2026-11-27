@@ -512,6 +512,34 @@ body:not(.light) .xw-layer-bar button.active {
 .xuan-legend-content { margin-top:4px; }
 .xuan-legend-content[hidden] { display:none !important; }
 .xuan-floating-legend.is-collapsed { padding-top:7px; padding-bottom:7px; }
+/* 圖例改為左側箭頭控制，展開內容向右顯示 */
+.xuan-floating-legend {
+  display:flex; align-items:flex-start; gap:6px;
+  min-width:0; max-width:none; padding:0;
+  border:0; border-radius:0; background:transparent;
+  box-shadow:none; overflow:visible;
+}
+.xuan-floating-legend-toggle {
+  flex:0 0 28px; width:28px; height:36px; min-height:36px;
+  display:flex; align-items:center; justify-content:center;
+  padding:0; border:1px solid var(--line); border-radius:10px;
+  background:var(--bg-glass-strong); color:var(--ink);
+  box-shadow:var(--shadow); cursor:pointer;
+}
+.xuan-floating-legend-toggle-icon {
+  width:auto; height:auto; border-radius:0; background:transparent;
+  color:var(--ink); font-size:24px; font-weight:800; line-height:1;
+}
+.xuan-legend-panel {
+  min-width:102px; max-width:128px; padding:7px 9px;
+  border:1px solid var(--line); border-radius:12px;
+  background:var(--bg-glass-strong); color:var(--ink);
+  box-shadow:var(--shadow); font-size:10px; line-height:1.4;
+}
+.xuan-legend-panel[hidden] { display:none !important; }
+.xuan-floating-legend.is-collapsed { gap:0; }
+.xuan-floating-legend.is-collapsed .xuan-floating-legend-toggle { height:38px; }
+
 
 .xuan-floating-legend-bar { height: 7px; width: 100%; margin: 3px 0 4px; border-radius: 8px; }
 .xuan-floating-legend-labels { display: flex; justify-content: space-between; gap: 4px; font-size: 9px; font-weight: 700; color: var(--muted); }
@@ -1061,7 +1089,6 @@ function updateMapLegend() {
   }
   const titleNode = legend.querySelector('.xuan-floating-legend-title');
   if (titleNode) {
-    const title = titleNode.textContent;
     const body = document.createElement('div');
     body.className = 'xuan-legend-content';
     body.hidden = mapLegendCollapsed;
@@ -1069,30 +1096,36 @@ function updateMapLegend() {
       if (node !== titleNode) body.appendChild(node);
     });
 
+    const panel = document.createElement('div');
+    panel.className = 'xuan-legend-panel';
+    panel.append(titleNode, body);
+
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = 'xuan-floating-legend-toggle';
     toggle.setAttribute('aria-expanded', String(!mapLegendCollapsed));
     toggle.setAttribute('aria-label', mapLegendCollapsed ? '展開圖例' : '收合圖例');
+    toggle.setAttribute('title', mapLegendCollapsed ? '展開圖例' : '收合圖例');
 
-    const label = document.createElement('span');
-    label.textContent = title;
     const icon = document.createElement('span');
     icon.className = 'xuan-floating-legend-toggle-icon';
     icon.setAttribute('aria-hidden', 'true');
-    icon.textContent = mapLegendCollapsed ? '+' : '−';
-    toggle.append(label, icon);
+    icon.textContent = mapLegendCollapsed ? '›' : '‹';
+    toggle.append(icon);
 
-    legend.replaceChildren(toggle, body);
+    legend.replaceChildren(toggle, panel);
     legend.classList.toggle('is-collapsed', mapLegendCollapsed);
     toggle.addEventListener('click', () => {
       mapLegendCollapsed = !mapLegendCollapsed;
       body.hidden = mapLegendCollapsed;
+      panel.hidden = mapLegendCollapsed;
       legend.classList.toggle('is-collapsed', mapLegendCollapsed);
       toggle.setAttribute('aria-expanded', String(!mapLegendCollapsed));
       toggle.setAttribute('aria-label', mapLegendCollapsed ? '展開圖例' : '收合圖例');
-      icon.textContent = mapLegendCollapsed ? '+' : '−';
+      toggle.setAttribute('title', mapLegendCollapsed ? '展開圖例' : '收合圖例');
+      icon.textContent = mapLegendCollapsed ? '›' : '‹';
     });
+    panel.hidden = mapLegendCollapsed;
   }
 }
 
