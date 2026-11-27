@@ -1122,7 +1122,13 @@ function drawMarkers() {
     s.lat !== null && s.lon !== null &&
     s.lat >= 20 && s.lat <= 27 &&
     s.lon >= 117 && s.lon <= 123 &&
-    (mapMetric !== 'temperature' || (s.temperature !== null && !/儀器\s*(故障|調校)|故障|調校/.test(String(s.weather || ''))))
+    (mapMetric === 'temperature'
+      ? (s.temperature !== null && !/儀器\s*(故障|調校)|故障|調校/.test(String(s.weather || '')))
+      : mapMetric === 'rain'
+        ? s.rain !== null
+        : mapMetric === 'wind'
+          ? s.wind !== null
+          : true)
   );
 
   valid.forEach(station => {
