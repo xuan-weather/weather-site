@@ -1390,7 +1390,6 @@ function renderStations() {
   const keyword = ($('#station-search')?.value || '').trim().toLowerCase();
   const activeRegion = panel.dataset.stationRegion || 'all';
   const activeCounty = panel.dataset.stationCounty || 'all';
-  const activeTown = panel.dataset.stationTown || 'all';
   const regionGroups = {
     north: ['基隆市', '臺北市', '新北市', '桃園市', '新竹市', '新竹縣', '宜蘭縣'],
     central: ['苗栗縣', '臺中市', '彰化縣', '南投縣', '雲林縣'],
@@ -1411,8 +1410,8 @@ function renderStations() {
     const county = normalizePlace(station.county);
     return Object.keys(regionGroups).find(key => regionGroups[key].includes(county)) || 'other';
   };
-  const getCountyStations = region => stations.filter(s =>
-    region === 'all' || getRegion(s) === region
+  const countyStations = stations.filter(s =>
+    activeRegion === 'all' || getRegion(s) === activeRegion
   );
   const regionCounts = Object.fromEntries(regionLabels.map(([key]) => [
     key, key === 'all' ? stations.length : stations.filter(s => getRegion(s) === key).length
@@ -1420,7 +1419,6 @@ function renderStations() {
   const countyOrder = activeRegion === 'all'
     ? [...regionGroups.north, ...regionGroups.central, ...regionGroups.south, ...regionGroups.east, ...regionGroups.islands]
     : (regionGroups[activeRegion] || []);
-  const countyStations = getCountyStations(activeRegion);
   const counties = [...new Set(countyStations.map(s => normalizePlace(s.county)).filter(Boolean))]
     .sort((a, b) => {
       const ai = countyOrder.indexOf(a), bi = countyOrder.indexOf(b);
@@ -1430,14 +1428,12 @@ function renderStations() {
   const selectedCountyStations = activeCounty === 'all'
     ? countyStations
     : countyStations.filter(s => normalizePlace(s.county) === activeCounty);
-  const towns = [...new Set(selectedCountyStations.map(s => String(s.town || '').trim()).filter(Boolean))]
-    .sort((a, b) => a.localeCompare(b, 'zh-TW'));
-  const filtered = selectedCountyStations.filter(s => {
-    const town = String(s.town || '').trim();
-    const matchesTown = activeTown === 'all' || town === activeTown;
-    const matchesKeyword = `${s.name || ''} ${s.county || ''} ${town}`.toLowerCase().includes(keyword);
-    return matchesTown && matchesKeyword;
-  });
+  const filtered = selectedCountyStations.filter(s =>
+    `${s.name || ''} ${s.county || ''} ${s.town || ''}`.toLowerCase().includes(keyword)
+  );
+
+  // 選擇縣市後，直接列出該縣市所有鄉鎮市區的測站資料卡片，不再提供鄉鎮篩選層。
+  const visibleStations = activeCounty === 'all' ? filtered.slice(0, 120) : filtered;
 
   panel.innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:11px;color:var(--muted)">
@@ -1459,19 +1455,8 @@ function renderStations() {
         `).join('')}
       </div>
     </div>
-    ${activeCounty !== 'all' ? `
-      <div class="xw-station-town-wrap">
-        <div class="xw-station-filter-title">🏘️ ${safe(activeCounty)}・鄉鎮市區</div>
-        <div class="xw-station-town-tabs" role="group" aria-label="鄉鎮市區分類">
-          <button type="button" data-station-town="all" class="${activeTown === 'all' ? 'active' : ''}">全部鄉鎮</button>
-          ${towns.map(town => `
-            <button type="button" data-station-town="${safe(town)}" class="${activeTown === town ? 'active' : ''}">${safe(town)}</button>
-          `).join('')}
-        </div>
-      </div>
-    ` : ''}
     <div class="xw-station-grid">
-      ${filtered.slice(0, 120).map(s => `
+      ${visibleStations.map(s => `
         <button type="button" class="xw-station-card" data-lat="${s.lat ?? ''}" data-lon="${s.lon ?? ''}">
           <strong>${safe(s.name)}</strong>
           <small>${safe(s.county)} ${safe(s.town)}</small>
@@ -1480,7 +1465,7 @@ function renderStations() {
         </button>
       `).join('')}
     </div>
-    ${filtered.length > 120 ? '<div style="padding:8px 2px;color:var(--muted);font-size:10px;text-align:center">目前顯示前 120 站，請使用鄉鎮或測站搜尋縮小範圍</div>' : ''}
+    ${activeCounty === 'all' && filtered.length > 120 ? '<div style="padding:8px 2px;color:var(--muted);font-size:10px;text-align:center">目前顯示前 120 站，請選擇縣市或使用搜尋縮小範圍</div>' : ''}
     ${filtered.length === 0 ? '<div style="padding:18px 4px;color:var(--muted);font-size:12px;text-align:center">此分類沒有符合的測站</div>' : ''}
   `;
 
@@ -1488,20 +1473,12 @@ function renderStations() {
     button.addEventListener('click', () => {
       panel.dataset.stationRegion = button.dataset.stationRegion;
       panel.dataset.stationCounty = 'all';
-      panel.dataset.stationTown = 'all';
       renderStations();
     });
   });
   panel.querySelectorAll('[data-station-county]').forEach(button => {
     button.addEventListener('click', () => {
       panel.dataset.stationCounty = button.dataset.stationCounty;
-      panel.dataset.stationTown = 'all';
-      renderStations();
-    });
-  });
-  panel.querySelectorAll('[data-station-town]').forEach(button => {
-    button.addEventListener('click', () => {
-      panel.dataset.stationTown = button.dataset.stationTown;
       renderStations();
     });
   });
