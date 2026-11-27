@@ -683,13 +683,14 @@ body:not(.light) .xw-layer-bar button.active {
       <div class="xw-tab-pane active" id="tab-rankings">
         <div class="xuan-rank-tabs" role="group" aria-label="選擇排行榜">
           <button type="button" class="active" data-rank="hot">高溫</button>
+          <button type="button" data-rank="lowland-cold">平地低溫</button>
           <button type="button" data-rank="cold">低溫</button>
           <button type="button" data-rank="gust">陣風</button>
           <button type="button" data-rank="rain">雨量</button>
           <button type="button" data-rank="wind">風速</button>
         </div>
         <div id="xuan-ranking-list" class="xuan-ranking-list">等待測站資料載入</div>
-        <p class="xuan-insight-note">依測站最新有效觀測值排序；非日累積或預報值。</p>
+        <p class="xuan-insight-note" id="xuan-ranking-note">依測站最新有效觀測值排序；非日累積或預報值。</p>
       </div>
 
       <div class="xw-tab-pane" id="tab-regions">
@@ -784,6 +785,7 @@ function parseStation(raw) {
     town: raw.GeoInfo?.TownName || '',
     lat: number(coord?.StationLatitude),
     lon: number(coord?.StationLongitude),
+    altitude: number(raw.GeoInfo?.StationAltitude ?? raw.StationAltitude ?? coord?.StationAltitude),
     time: raw.ObsTime?.DateTime || '',
     weather: w.Weather || '無資料',
     temperature: number(w.AirTemperature),
@@ -1403,6 +1405,11 @@ const XUAN_REGIONS = [
 ];
 const XUAN_RANK_CONFIG = {
   hot: { key: 'temperature', unit: '°C', descending: true },
+  'lowland-cold': {
+    key: 'temperature', unit: '°C', descending: false,
+    filter: station => Number.isFinite(station.altitude) && station.altitude <= 200,
+    showAltitude: true
+  },
   cold: { key: 'temperature', unit: '°C', descending: false },
   gust: { key: 'gust', unit: 'm/s', descending: true },
   rain: { key: 'rain', unit: 'mm', descending: true },
@@ -1413,12 +1420,20 @@ function renderLiveRankings() {
   const host = document.getElementById('xuan-ranking-list');
   if (!host) return;
   const cfg = XUAN_RANK_CONFIG[currentRanking] || XUAN_RANK_CONFIG.hot;
-  const rows = stations.filter(x => Number.isFinite(x[cfg.key]))
+  const rows = stations.filter(x => Number.isFinite(x[cfg.key]) && (!cfg.filter || cfg.filter(x)))
     .sort((a, b) => cfg.descending ? b[cfg.key] - a[cfg.key] : a[cfg.key] - b[cfg.key])
     .slice(0, 10);
   host.innerHTML = rows.length
-    ? rows.map((x, i) => `<div class="xuan-rank-row"><span class="xuan-rank-number">${i + 1}</span><div class="xuan-rank-station"><b>${safe(x.name)}</b><small>${safe(x.county)} ${safe(x.town)}</small></div><span class="xuan-rank-value">${fmt(x[cfg.key], 1)} ${cfg.unit}</span></div>`).join('')
-    : '<div>目前沒有可用的有效觀測值</div>';
+    ? rows.map((x, i) => {
+        const location = `${safe(x.county)} ${safe(x.town)}`;
+        const altitudeLabel = cfg.showAltitude ? ` · 海拔 ${fmt(x.altitude, 0)} 公尺` : '';
+        return `<div class="xuan-rank-row"><span class="xuan-rank-number">${i + 1}</span><div class="xuan-rank-station"><b>${safe(x.name)}</b><small>${location}${altitudeLabel}</small></div><span class="xuan-rank-value">${fmt(x[cfg.key], 1)} ${cfg.unit}</span></div>`;
+      }).join('')
+    : '<div>目前沒有符合條件且具有效氣溫資料的測站</div>';
+  const note = document.getElementById('xuan-ranking-note');
+  if (note) note.textContent = cfg.showAltitude
+    ? '平地低溫排行：僅列入具有效氣溫資料且海拔 ≤ 200 公尺的測站；依最新觀測值排序。'
+    : '依測站最新有效觀測值排序；非日累積或預報值。';
   document.querySelectorAll('[data-rank]').forEach(b => b.classList.toggle('active', b.dataset.rank === currentRanking));
 }
 
