@@ -539,6 +539,13 @@ body:not(.light) .xw-layer-bar button.active {
 .xuan-legend-panel[hidden] { display:none !important; }
 .xuan-floating-legend.is-collapsed { gap:0; }
 .xuan-floating-legend.is-collapsed .xuan-floating-legend-toggle { height:38px; }
+/* 展開時將收合箭頭移至圖例卡片右側；收合時仍留在左側 */
+.xuan-floating-legend.is-expanded { align-items:center; }
+.xuan-floating-legend.is-expanded .xuan-legend-panel { order:1; }
+.xuan-floating-legend.is-expanded .xuan-floating-legend-toggle {
+  order:2; align-self:center; flex-basis:28px; margin-left:0;
+}
+
 
 
 .xuan-floating-legend-bar { height: 7px; width: 100%; margin: 3px 0 4px; border-radius: 8px; }
@@ -1115,11 +1122,13 @@ function updateMapLegend() {
 
     legend.replaceChildren(toggle, panel);
     legend.classList.toggle('is-collapsed', mapLegendCollapsed);
+    legend.classList.toggle('is-expanded', !mapLegendCollapsed);
     toggle.addEventListener('click', () => {
       mapLegendCollapsed = !mapLegendCollapsed;
       body.hidden = mapLegendCollapsed;
       panel.hidden = mapLegendCollapsed;
       legend.classList.toggle('is-collapsed', mapLegendCollapsed);
+      legend.classList.toggle('is-expanded', !mapLegendCollapsed);
       toggle.setAttribute('aria-expanded', String(!mapLegendCollapsed));
       toggle.setAttribute('aria-label', mapLegendCollapsed ? '展開圖例' : '收合圖例');
       toggle.setAttribute('title', mapLegendCollapsed ? '展開圖例' : '收合圖例');
