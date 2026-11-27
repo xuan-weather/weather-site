@@ -527,10 +527,12 @@ body:not(.light) .xw-layer-bar button.active {
 }
 .xuan-legend-panel[hidden] { display:none !important; }
 .xuan-floating-legend-handle {
-  display:block; flex:0 0 18px; width:18px; height:38px;
+  display:flex; flex:0 0 34px; width:34px; height:42px;
+  align-items:center; justify-content:center;
   margin:0; padding:0; border:1px solid var(--line);
-  border-radius:9px; background:var(--bg-glass-strong);
-  box-shadow:var(--shadow); cursor:pointer;
+  border-radius:11px; background:var(--bg-glass-strong);
+  color:var(--ink); box-shadow:var(--shadow);
+  cursor:pointer; font-size:25px; line-height:1; font-weight:900;
 }
 .xuan-floating-legend.is-collapsed { gap:0; }
 .xuan-floating-legend.is-expanded { cursor:default; }
@@ -1102,7 +1104,8 @@ function updateMapLegend() {
     handle.type = 'button';
     handle.className = 'xuan-floating-legend-handle';
     handle.setAttribute('aria-label', mapLegendCollapsed ? '展開圖例' : '圖例已展開；點擊地圖空白處收合');
-    handle.setAttribute('title', mapLegendCollapsed ? '點擊展開圖例' : '點擊地圖空白處收合圖例');
+    handle.setAttribute('title', mapLegendCollapsed ? '點擊箭頭展開圖例' : '點擊地圖空白處收合圖例');
+    handle.textContent = mapLegendCollapsed ? '›' : '';
 
     legend.replaceChildren();
     if (mapLegendCollapsed) legend.append(handle, panel);
