@@ -1077,13 +1077,27 @@ function updateMapLegend() {
   } else {
     legend.innerHTML = `
       <div class="xuan-floating-legend-title">🌡️ 氣溫（°C）</div>
-      <div class="xuan-temp-legend-vertical">
-        <div class="xuan-temp-legend-bar" style="background:linear-gradient(to top,
-          #08798A 0%,#16899A 10%,#2999A9 15%,#48AAB6 20%,#70C0CA 25%,#A1DCE0 30%,
-          #078F55 35%,#149E5C 40%,#2EAA61 45%,#55B96B 50%,#7BC978 55%,#A0D985 60%,
-          #C1E694 65%,#E5EEA0 70%,#F6E18A 75%,#F5C05D 80%,#F49A30 85%,#EE4C50 90%,
-          #A60026 95%,#7D2691 100%)"></div>
-        <div class="xuan-temp-legend-labels"><span>38°</span><span>30</span><span>20</span><span>10</span><span>0</span></div>
+      <div class="xuan-floating-legend-rows" style="grid-template-columns:1fr;column-gap:0;row-gap:3px;min-width:0;width:100%">
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#7D2691"></i>38°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A60026"></i>36°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#EE4C50"></i>34°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F49A30"></i>32°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F5C05D"></i>30°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F6E18A"></i>28°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#E5EEA0"></i>26°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#C1E694"></i>24°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A0D985"></i>22°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#7BC978"></i>20°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#55B96B"></i>18°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#2EAA61"></i>16°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#149E5C"></i>14°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#078F55"></i>12°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A1DCE0"></i>10°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#70C0CA"></i>8°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#48AAB6"></i>6°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#2999A9"></i>4°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#16899A"></i>2°C</div>
+        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#08798A"></i>0°C</div>
       </div>`;
   }
   const titleNode = legend.querySelector('.xuan-floating-legend-title');
