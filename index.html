@@ -359,8 +359,9 @@ body:not(.light) .xw-layer-bar button.active {
   position: fixed;
   top: calc(max(10px, env(safe-area-inset-top)) + 50px);
   right: max(10px, env(safe-area-inset-right));
-  bottom: calc(max(10px, env(safe-area-inset-bottom)) + 48px);
-  width: min(390px, calc(100vw - 20px));
+  bottom: auto;
+  width: min(390px, calc(100vw - 28px));
+  max-height: min(68vh, 620px);
   z-index: 915;
   border-radius: 20px;
   background: var(--bg-glass-strong);
@@ -373,6 +374,19 @@ body:not(.light) .xw-layer-bar button.active {
   overflow: hidden;
 }
 .xw-drawer.open { display: flex; }
+.xw-drawer-body {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px;
+}
+.xuan-ranking-list {
+  max-height: min(48vh, 440px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 2px;
+}
 .xw-drawer-tabs {
   display: flex;
   gap: 4px;
@@ -586,6 +600,18 @@ body:not(.light) .xw-layer-bar button.active {
 
 /* 手機專屬最佳化：圖層膠囊移至底部極值條上方，讓出整個台灣視野 */
 @media (max-width: 760px) {
+  .xw-drawer {
+    top: calc(max(8px, env(safe-area-inset-top)) + 48px);
+    right: 10px;
+    width: min(390px, calc(100vw - 20px));
+    max-height: 60vh;
+    border-radius: 18px;
+  }
+  .xw-drawer-tabs { padding: 7px 8px; gap: 5px; }
+  .xw-drawer-tabs button { padding: 6px 5px; font-size: 10px; }
+  .xw-drawer-body { padding: 9px; }
+  .xuan-ranking-list { max-height: 43vh; }
+  .xuan-rank-row { padding: 5px 3px; gap: 7px; }
   .xw-map-info-toggle {
     bottom: calc(max(10px, env(safe-area-inset-bottom)) + 92px);
   }
