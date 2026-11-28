@@ -431,6 +431,38 @@
 
     <div class="fixed bottom-3 left-3 z-20 hidden sm:flex flex-col glass-panel rounded-xl p-1 gap-1"><button onclick="map.zoomIn()" title="放大地圖" class="w-8 h-8 rounded-lg hover:bg-slate-700/70 text-slate-200 flex items-center justify-center"><i data-lucide="plus" class="w-3.5 h-3.5"></i></button><div class="h-px bg-slate-700/80 mx-1"></div><button onclick="map.zoomOut()" title="縮小地圖" class="w-8 h-8 rounded-lg hover:bg-slate-700/70 text-slate-200 flex items-center justify-center"><i data-lucide="minus" class="w-3.5 h-3.5"></i></button></div>
 
+    <!-- CWA 與環境部資料來源說明 -->
+    <div id="api-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-panel rounded-2xl max-w-xl w-full overflow-hidden border border-sky-500/40">
+            <div class="px-5 py-4 border-b border-slate-700/70 flex items-center justify-between bg-slate-800/60">
+                <h3 class="font-bold text-white text-base">官方氣象與環境資料來源</h3>
+                <button onclick="closeApiModal()" class="text-slate-400 hover:text-white p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-5 space-y-3 text-xs text-slate-300 leading-relaxed max-h-[72vh] overflow-y-auto custom-scrollbar">
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                    <div class="font-bold text-sky-300 mb-1">中央氣象署即時測站觀測</div>
+                    <p class="text-slate-400">沿用既有 O-A0001-001、O-A0002-001、O-A0003-001 資料整合流程，每 5 分鐘更新。既有工作流程不變。</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                    <div class="font-bold text-sky-300 mb-1">未來 24 小時及 7 日鄉鎮預報（F-D0047-093）</div>
+                    <p class="text-slate-400">中央氣象署全臺鄉鎮預報，包含未來 1 日逐時、未來 3 日逐 3 小時及未來 7 日逐 12 小時等預報欄位，約每 6 小時更新。</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                    <div class="font-bold text-sky-300 mb-1">空氣品質 AQI（AQX_P_432）</div>
+                    <p class="text-slate-400">環境部全臺空氣品質監測站資料，約每小時更新；依測站座標顯示最近監測站數值。</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                    <div class="font-bold text-sky-300 mb-1">即時紫外線（UV_S_01）</div>
+                    <p class="text-slate-400">環境部全臺紫外線監測站資料，約每小時更新；顯示 UVI、測站名稱與資料時間。</p>
+                </div>
+                <p class="text-[11px] text-slate-500">資料金鑰僅由 GitHub Actions 於伺服端讀取 GitHub Secrets，前端不會取得 API 金鑰。官方雷達回波已移除，衛星雲圖不載入。</p>
+            </div>
+            <div class="px-5 py-3 bg-slate-800/50 border-t border-slate-700/70 flex justify-end">
+                <button onclick="closeApiModal()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold">關閉</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 系統狀態提示 Toast -->
     <div id="toast-box" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300">
         <div class="glass-panel border-sky-400/50 text-sky-200 px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2">
