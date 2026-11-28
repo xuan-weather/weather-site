@@ -665,6 +665,31 @@ body:not(.light) .xw-layer-bar button.active {
   }
 }
 
+/* 子工具列作為地圖內全尺寸定位層，圖層按鈕固定在地圖下緣而非頁面上方 */
+.xw-map-stage .xw-sub-dock {
+  position:absolute;
+  inset:0;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  width:100%;
+  height:100%;
+  display:block;
+  pointer-events:none;
+}
+.xw-map-stage .xw-sub-dock > * { pointer-events:auto; }
+.xw-map-stage .xw-local-wrap {
+  position:absolute;
+  top:calc(max(10px, env(safe-area-inset-top)) + 50px);
+  left:max(10px, env(safe-area-inset-left));
+}
+.xw-map-stage .xw-layer-bar {
+  position:absolute;
+  left:50%;
+  bottom:calc(max(10px, env(safe-area-inset-bottom)) + 48px);
+  transform:translateX(-50%);
+}
 /* 沉浸式地圖改為頁面上半部，整頁可向下捲動 */
 html, body { height:auto !important; min-height:100%; overflow-x:hidden !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch; }
 body { min-height:100dvh; }
