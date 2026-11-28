@@ -735,6 +735,17 @@ body:not(.light) .xw-dashboard-region span { color:#9aadc5; }
   .xw-map-stage .xw-bottom-bar { max-width:calc(100vw - 20px); padding:5px 11px; gap:9px; font-size:10px; }
   .xw-dashboard-heading h2 { font-size:18px; }
 }
+
+/* 確保子工具列覆蓋整個地圖區，定位基準不偏移 */
+.xw-map-stage .xw-sub-dock {
+  position:absolute;
+  inset:0;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  height:100%;
+}
 </style>
 </head>
 <body>
