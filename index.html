@@ -664,9 +664,56 @@ body:not(.light) .xw-layer-bar button.active {
     bottom: 78px !important;
   }
 }
+
+/* 沉浸式地圖改為頁面上半部，整頁可向下捲動 */
+html, body { height:auto !important; min-height:100%; overflow-x:hidden !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch; }
+body { min-height:100dvh; }
+.xw-map-stage { position:relative; isolation:isolate; width:100%; height:100vh; height:100dvh; min-height:600px; overflow:hidden; background:#dfe9f3; }
+#xuan-map { position:absolute !important; inset:0 !important; width:100% !important; height:100% !important; }
+.xw-map-stage .xw-header-dock, .xw-map-stage .xw-sub-dock, .xw-map-stage .xw-drawer, .xw-map-stage .xw-bottom-bar { position:absolute; }
+.xw-map-stage .xw-header-dock { top:max(10px, env(safe-area-inset-top)); }
+.xw-map-stage .xw-sub-dock { top:calc(max(10px, env(safe-area-inset-top)) + 50px); }
+.xw-map-stage .xw-drawer { top:calc(max(10px, env(safe-area-inset-top)) + 50px); max-height:min(68vh, 620px); }
+.xw-map-stage .xw-bottom-bar { bottom:max(10px, env(safe-area-inset-bottom)); }
+.xw-map-stage .xw-layer-bar { position:absolute; left:50%; bottom:calc(max(10px, env(safe-area-inset-bottom)) + 48px); transform:translateX(-50%); z-index:905; }
+.xw-below-dashboard { position:relative; z-index:2; padding:22px 14px calc(28px + env(safe-area-inset-bottom)); background:linear-gradient(180deg,#edf4fa 0%,#f5f8fc 100%); color:#14243a; }
+body:not(.light) .xw-below-dashboard { background:linear-gradient(180deg,#101d30 0%,#0b1425 100%); color:#e7f0fb; }
+.xw-scroll-cue { display:flex; justify-content:center; align-items:center; gap:8px; margin:0 auto 18px; width:max-content; max-width:100%; padding:9px 16px; border:1px solid rgba(125,151,183,.28); border-radius:999px; background:rgba(255,255,255,.82); color:#1d5d9c; font-size:12px; font-weight:850; box-shadow:0 5px 18px rgba(15,37,68,.08); }
+body:not(.light) .xw-scroll-cue { background:rgba(18,34,56,.92); color:#7dd3fc; border-color:rgba(130,162,198,.24); }
+.xw-dashboard-heading, .xw-dashboard-block { max-width:1100px; margin-left:auto; margin-right:auto; }
+.xw-dashboard-heading { margin-bottom:14px; }
+.xw-dashboard-heading h2 { margin:0; font-size:20px; font-weight:900; }
+.xw-dashboard-heading p { margin:5px 0 0; color:#64758c; font-size:12px; }
+body:not(.light) .xw-dashboard-heading p { color:#9aadc5; }
+.xw-dashboard-block { margin-bottom:22px; }
+.xw-dashboard-block h3 { margin:0 0 10px; font-size:14px; font-weight:850; }
+.xw-dashboard-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+.xw-dashboard-card { min-width:0; padding:13px; border:1px solid rgba(125,151,183,.24); border-radius:16px; background:rgba(255,255,255,.88); box-shadow:0 5px 18px rgba(15,37,68,.06); }
+body:not(.light) .xw-dashboard-card { background:rgba(18,34,56,.9); border-color:rgba(130,162,198,.22); box-shadow:0 5px 18px rgba(0,0,0,.15); }
+.xw-dashboard-card .card-label { color:#64758c; font-size:11px; font-weight:700; }
+body:not(.light) .xw-dashboard-card .card-label { color:#9aadc5; }
+.xw-dashboard-card .card-value { margin-top:5px; font-size:22px; line-height:1.2; font-weight:900; font-variant-numeric:tabular-nums; }
+.xw-dashboard-card .card-note { margin-top:4px; color:#64758c; font-size:10px; line-height:1.45; }
+body:not(.light) .xw-dashboard-card .card-note { color:#9aadc5; }
+.xw-dashboard-card.station-card .card-value { font-size:16px; overflow-wrap:anywhere; }
+.xw-dashboard-card.station-card .card-note strong { color:#1d5d9c; font-weight:850; }
+body:not(.light) .xw-dashboard-card.station-card .card-note strong { color:#7dd3fc; }
+.xw-dashboard-regions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.xw-dashboard-region { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.xw-dashboard-region strong { font-size:15px; font-weight:900; }
+.xw-dashboard-region span { color:#64758c; font-size:10px; }
+body:not(.light) .xw-dashboard-region span { color:#9aadc5; }
+@media (min-width:760px) { .xw-dashboard-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } .xw-dashboard-regions { grid-template-columns:repeat(5,minmax(0,1fr)); } .xw-below-dashboard { padding-left:clamp(20px,5vw,72px); padding-right:clamp(20px,5vw,72px); } }
+@media (max-width:760px) {
+  .xw-map-stage .xw-drawer { top:calc(max(8px, env(safe-area-inset-top)) + 48px); max-height:60vh; }
+  .xw-map-stage .xw-layer-bar { position:absolute; bottom:calc(max(10px, env(safe-area-inset-bottom)) + 48px); left:50%; transform:translateX(-50%); }
+  .xw-map-stage .xw-bottom-bar { max-width:calc(100vw - 20px); padding:5px 11px; gap:9px; font-size:10px; }
+  .xw-dashboard-heading h2 { font-size:18px; }
+}
 </style>
 </head>
 <body>
+  <section class="xw-map-stage" id="xw-map-stage" aria-label="沉浸式即時氣象地圖">
   <div id="xuan-map" role="application" aria-label="台灣即時氣象監測地圖"></div>
 
   <!-- 頂部精簡單行導覽膠囊 -->
@@ -770,6 +817,34 @@ body:not(.light) .xw-layer-bar button.active {
     <span class="xw-ticker-item">💨 陣風 <strong id="xuan-max-gust">--<em>m/s</em></strong> <em id="xuan-max-gust-station">--</em></span>
     <span class="xw-ticker-item">🌧️ 雨量 <strong id="xuan-max-rain">--<em>mm</em></strong> <em id="xuan-max-rain-station">--</em></span>
   </div>
+
+  </section>
+
+  <!-- 地圖下方可捲動的即時氣象資訊卡片 -->
+  <section class="xw-below-dashboard" id="xw-below-dashboard" aria-label="地圖下方即時氣象資訊">
+    <button class="xw-scroll-cue" id="xw-scroll-cue" type="button">↓ 向下查看即時氣象資訊</button>
+    <header class="xw-dashboard-heading">
+      <h2>即時氣象資訊</h2>
+      <p>全台測站最新觀測摘要，往下滑動即可查看完整資訊</p>
+    </header>
+    <div class="xw-dashboard-block">
+      <h3>📊 全台觀測概況</h3>
+      <div class="xw-dashboard-grid" id="xw-dashboard-overview">
+        <div class="xw-dashboard-card"><div class="card-label">全台平均氣溫</div><div class="card-value">--°C</div></div>
+        <div class="xw-dashboard-card"><div class="card-label">有效氣溫測站</div><div class="card-value">-- 站</div></div>
+        <div class="xw-dashboard-card"><div class="card-label">有效雨量測站</div><div class="card-value">-- 站</div></div>
+        <div class="xw-dashboard-card"><div class="card-label">有效風速測站</div><div class="card-value">-- 站</div></div>
+      </div>
+    </div>
+    <div class="xw-dashboard-block">
+      <h3>🌡️ 全台即時極值</h3>
+      <div class="xw-dashboard-grid" id="xw-dashboard-extremes"><div class="xw-dashboard-card">等待測站資料載入</div></div>
+    </div>
+    <div class="xw-dashboard-block">
+      <h3>🧭 各區平均氣溫</h3>
+      <div class="xw-dashboard-grid xw-dashboard-regions" id="xw-dashboard-regions"><div class="xw-dashboard-card">等待測站資料載入</div></div>
+    </div>
+  </section>
 
 <script>
 'use strict';
@@ -1513,6 +1588,49 @@ function setDataConnectionStatus(state, message) {
   element.textContent = message;
 }
 
+function renderBelowDashboard() {
+  const overview = document.getElementById('xw-dashboard-overview');
+  const extremes = document.getElementById('xw-dashboard-extremes');
+  const regionsHost = document.getElementById('xw-dashboard-regions');
+  if (!overview || !extremes || !regionsHost) return;
+
+  const valid = key => stations.filter(s => Number.isFinite(s[key]));
+  const temps = valid('temperature'), rains = valid('rain'), winds = valid('wind'), gusts = valid('gust');
+  const avgTemp = temps.length ? temps.reduce((sum, s) => sum + s.temperature, 0) / temps.length : null;
+  const overviewCards = [
+    ['🌡️ 全台平均氣溫', avgTemp === null ? '--°C' : avgTemp.toFixed(1) + '°C', '有效氣溫觀測 ' + temps.length.toLocaleString('zh-TW') + ' 站'],
+    ['📍 有效氣溫測站', temps.length.toLocaleString('zh-TW') + ' 站', '總測站 ' + stations.length.toLocaleString('zh-TW') + ' 站'],
+    ['🌧️ 有效雨量測站', rains.length.toLocaleString('zh-TW') + ' 站', '僅統計有有效雨量數值的測站'],
+    ['💨 有效風速測站', winds.length.toLocaleString('zh-TW') + ' 站', '僅統計有有效風速數值的測站']
+  ];
+  overview.innerHTML = overviewCards.map(([label, value, note]) =>
+    '<article class="xw-dashboard-card"><div class="card-label">' + label + '</div><div class="card-value">' + value + '</div><div class="card-note">' + note + '</div></article>'
+  ).join('');
+
+  const pick = (items, key, descending) => [...items].sort((a, b) => descending ? b[key] - a[key] : a[key] - b[key])[0] || null;
+  const low = pick(temps, 'temperature', false);
+  const items = [
+    ['🔥 最高氣溫', pick(temps, 'temperature', true), 'temperature', '°C'],
+    ['❄️ 最低氣溫', low, 'temperature', '°C'],
+    ['💨 最大陣風', pick(gusts, 'gust', true), 'gust', 'm/s'],
+    ['🌧️ 最大雨量', pick(rains, 'rain', true), 'rain', 'mm']
+  ];
+  extremes.innerHTML = items.map(([label, station, key, unit]) => {
+    if (!station) return '<article class="xw-dashboard-card station-card"><div class="card-label">' + label + '</div><div class="card-value">暫無有效資料</div></article>';
+    const place = [station.county, station.town].filter(Boolean).join(' ');
+    return '<article class="xw-dashboard-card station-card"><div class="card-label">' + label + '</div><div class="card-value">' + fmt(station[key]) + ' ' + unit + '</div><div class="card-note"><strong>' + safe(station.name) + '</strong><br>' + safe(place) + '</div></article>';
+  }).join('');
+
+  const regionRows = XUAN_REGIONS.map(region => {
+    const members = temps.filter(s => region.counties.includes(s.county) || region.counties.includes(String(s.county).replace(/^臺/, '台')));
+    const averageTemp = members.length ? members.reduce((sum, s) => sum + s.temperature, 0) / members.length : null;
+    return { name: region.name, count: members.length, average: averageTemp };
+  });
+  regionsHost.innerHTML = regionRows.map(region =>
+    '<article class="xw-dashboard-card xw-dashboard-region"><div><div class="card-label">' + region.name + '</div><span>' + region.count.toLocaleString('zh-TW') + ' 站</span></div><strong>' + (region.average === null ? '--°C' : region.average.toFixed(1) + '°C') + '</strong></article>'
+  ).join('');
+}
+
 function renderXuanHighlights() {
   const valid = stations.filter(s => s && s.name);
   const pick = key => valid.filter(s => Number.isFinite(s[key])).sort((a, b) => b[key] - a[key]);
@@ -1651,6 +1769,7 @@ async function loadWeatherData() {
     const countBadge = $('#xw-station-count');
     if (countBadge) countBadge.textContent = stations.length.toLocaleString('zh-TW');
     renderXuanHighlights();
+    renderBelowDashboard();
     renderWeatherInsights();
     renderMapInfoPanel(data.updatedAt);
 
@@ -1709,6 +1828,11 @@ async function startWeather() {
 }
 
 startWeather();
+
+// 地圖下方資訊區快速捲動入口
+document.getElementById('xw-scroll-cue')?.addEventListener('click', () => {
+  document.getElementById('xw-below-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
 
 // 所在地迷你膠囊展開 / 收合
 document.getElementById('xw-local-toggle')?.addEventListener('click', () => {
