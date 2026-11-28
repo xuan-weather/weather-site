@@ -1,1913 +1,1027 @@
-<!doctype html>
-<html lang="zh-Hant">
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1425">
-<meta name="description" content="Xuan Weather 台灣氣象監測中心｜全螢幕即時氣象觀測地圖">
-<title>Xuan Weather｜台灣氣象監測中心</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg-glass: rgba(255, 255, 255, 0.90);
-  --bg-glass-strong: rgba(255, 255, 255, 0.96);
-  --ink: #14243a;
-  --muted: #64758c;
-  --line: rgba(125, 151, 183, 0.25);
-  --accent: #1d5d9c;
-  --accent-soft: #e8f1ff;
-  --shadow: 0 10px 28px rgba(15, 37, 68, 0.16);
-}
-body:not(.light) {
-  --bg-glass: rgba(14, 27, 46, 0.88);
-  --bg-glass-strong: rgba(18, 34, 56, 0.96);
-  --ink: #e7f0fb;
-  --muted: #9aadc5;
-  --line: rgba(130, 162, 198, 0.24);
-  --accent: #38bdf8;
-  --accent-soft: rgba(56, 189, 248, 0.16);
-  --shadow: 0 10px 28px rgba(3, 10, 22, 0.45);
-}
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-  font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
-  color: var(--ink);
-  background: #0b1425;
-}
-button, input { font: inherit; color: inherit; }
-button { cursor: pointer; }
-
-#xuan-map {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  z-index: 1;
-  background: #dfe9f3;
-}
-#xuan-map .xuan-light-gray-base {
-  filter: brightness(1.055) saturate(.82) contrast(.94);
-}
-
-.xw-glass {
-  background: var(--bg-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
-}
-
-/* 頂部統一單行工具列：不與右上角重疊、不擋地圖 */
-.xw-header-dock {
-  position: fixed;
-  top: max(10px, env(safe-area-inset-top));
-  left: max(10px, env(safe-area-inset-left));
-  right: max(10px, env(safe-area-inset-right));
-  z-index: 920;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  pointer-events: none;
-}
-.xw-header-dock > * { pointer-events: auto; }
-
-.xw-brand-pill {
-  height: 42px;
-  padding: 0 12px 0 8px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-.xw-logo {
-  width: 28px;
-  height: 28px;
-  flex: 0 0 28px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 15px;
-  background: linear-gradient(145deg, #1d4ed8, #38bdf8);
-}
-.xw-brand-text {
-  min-width: 0;
-  line-height: 1.15;
-}
-.xw-brand-text strong {
-  display: block;
-  font-size: 13px;
-  font-weight: 850;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.xw-brand-text .updated {
-  display: block;
-  font-size: 10px;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.updated[data-state="connected"] { color: #15803d; font-weight: 700; }
-body:not(.light) .updated[data-state="connected"] { color: #4ade80; }
-.updated[data-state="error"] { color: #dc2626; font-weight: 700; }
-
-.xw-actions-pill {
-  height: 42px;
-  padding: 0 6px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-.xw-icon-btn {
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 0;
-  background: transparent;
-  font-size: 12px;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-.xw-icon-btn:hover { background: var(--accent-soft); }
-/* Xuan Weather 專屬重新整理按鈕 */
-.xw-icon-btn.xw-refresh-btn {
-  position:relative; isolation:isolate;
-  width:38px; min-width:38px; height:38px; padding:0;
-  display:flex; align-items:center; justify-content:center;
-  border-radius:13px; color:#176ca8;
-  background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(235,246,252,.96));
-  border:1px solid rgba(178,211,230,.9);
-  box-shadow:0 2px 6px rgba(30,79,111,.12),inset 0 1px 0 rgba(255,255,255,1);
-  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
-}
-.xw-icon-btn.xw-refresh-btn:hover {
-  color:#075b98;
-  background:linear-gradient(180deg,#fff,#e5f4fc);
-  border-color:#8fc7e7;
-  box-shadow:0 3px 9px rgba(30,105,153,.18),inset 0 1px 0 #fff;
-  transform:translateY(-1px);
-}
-.xw-refresh-icon {
-  width:22px;height:22px;display:block;fill:none;
-  stroke:currentColor;stroke-width:2.45;stroke-linecap:round;stroke-linejoin:round;
-  transform-origin:50% 50%;
-}
-.xw-refresh-btn.is-loading .xw-refresh-icon { animation:xwRefreshSpin .72s cubic-bezier(.45,.05,.55,.95) infinite; }
-.xw-refresh-btn:active { transform:scale(.94); }
-.xw-refresh-btn:focus-visible { outline:3px solid rgba(42,145,205,.28);outline-offset:3px; }
-@keyframes xwRefreshSpin { to { transform:rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) {
-  .xw-refresh-btn.is-loading .xw-refresh-icon { animation:none !important; }
-}
-.xw-icon-btn:disabled { opacity: .55; cursor: wait; }
-.xw-icon-btn.primary-pill {
-  background: #1d5d9c;
-  color: #fff;
-}
-body:not(.light) .xw-icon-btn.primary-pill {
-  background: #0284c7;
-  color: #fff;
-}
-
-/* 第二排：左側「所在地迷你膠囊」 + 中間「圖層切換」（桌機並列，手機輕量化） */
-.xw-sub-dock {
-  position: fixed;
-  top: calc(max(10px, env(safe-area-inset-top)) + 50px);
-  left: max(10px, env(safe-area-inset-left));
-  right: max(10px, env(safe-area-inset-right));
-  z-index: 900;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-  pointer-events: none;
-}
-.xw-sub-dock > * { pointer-events: auto; }
-
-/* 所在地天氣：預設收合成單行迷你膠囊，點擊才展開詳細卡片 */
-.xw-local-wrap {
-  width: min(320px, calc(100vw - 20px));
-}
-.xw-local-chip {
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  font-weight: 800;
-  max-width: 100%;
-}
-.xw-local-chip span.chip-place {
-  color: var(--muted);
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 135px;
-}
-.xw-local-chip span.chip-temp {
-  color: var(--accent);
-  font-weight: 900;
-  font-variant-numeric: tabular-nums;
-}
-.xw-local-chip span.chip-caret {
-  font-size: 10px;
-  color: var(--muted);
-  transition: transform .2s ease;
-}
-.xw-local-wrap.expanded .xw-local-chip span.chip-caret {
-  transform: rotate(180deg);
-}
-
-.xw-local-card {
-  display: none;
-  margin-top: 8px;
-  padding: 12px 14px;
-  border-radius: 18px;
-}
-.xw-local-wrap.expanded .xw-local-card {
-  display: block;
-}
-.location.xuan-location-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.xuan-location-title {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
-  font-size: 12px;
-}
-.xuan-location-title b { font-size: 13px; white-space: nowrap; }
-#location-label {
-  color: var(--muted);
-  font-size: 11px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-#gps-button {
-  height: 28px;
-  padding: 0 11px;
-  border-radius: 999px;
-  border: 1px solid var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.xuan-gps-status {
-  margin-top: 4px;
-  font-size: 10px;
-  color: var(--muted);
-}
-.xuan-gps-status[data-state="error"] { color: #dc2626; }
-.weather-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 8px;
-}
-.temperature {
-  font-size: 32px;
-  font-weight: 900;
-  letter-spacing: -1.5px;
-  line-height: 1;
-}
-.temperature small {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0;
-  margin-left: 2px;
-  vertical-align: top;
-}
-.condition { font-size: 11px; font-weight: 750; margin-top: 3px; }
-.feels { font-size: 10px; color: var(--muted); margin-top: 1px; }
-.weather-icon { font-size: 32px; line-height: 1; }
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 5px;
-  margin-top: 8px;
-}
-.metric {
-  padding: 6px 4px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: rgba(128, 155, 190, 0.08);
-  text-align: center;
-}
-.metric label { display: block; font-size: 9px; color: var(--muted); }
-.metric strong { display: block; font-size: 12px; font-weight: 850; margin-top: 1px; }
-.metric em { font-style: normal; font-size: 9px; color: var(--muted); }
-
-/* 圖層切換器（氣溫 / 雨量 / 風速） */
-.xw-layer-bar {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 999px;
-}
-.xw-layer-bar button {
-  border: 0;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 750;
-  background: transparent;
-  white-space: nowrap;
-  transition: .18s ease;
-}
-.xw-layer-bar button.active {
-  background: #1d5d9c;
-  color: #fff;
-}
-body:not(.light) .xw-layer-bar button.active {
-  background: #0284c7;
-  color: #fff;
-}
-
-/* 右側滑出式抽屜 */
-.xw-drawer {
-  position: fixed;
-  top: calc(max(10px, env(safe-area-inset-top)) + 50px);
-  right: max(10px, env(safe-area-inset-right));
-  bottom: auto;
-  width: min(390px, calc(100vw - 28px));
-  max-height: min(68vh, 620px);
-  z-index: 915;
-  border-radius: 20px;
-  background: var(--bg-glass-strong);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-}
-.xw-drawer.open { display: flex; }
-.xw-drawer-body {
-  flex: 0 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 10px;
-}
-.xuan-ranking-list {
-  max-height: min(48vh, 440px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: 2px;
-}
-.xw-drawer-tabs {
-  display: flex;
-  gap: 4px;
-  padding: 9px 10px;
-  border-bottom: 1px solid var(--line);
-}
-.xw-drawer-tabs button {
-  flex: 1;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 6px 8px;
-  font-size: 11px;
-  font-weight: 750;
-  background: transparent;
-}
-.xw-drawer-tabs button.active {
-  background: #1d5d9c;
-  border-color: #1d5d9c;
-  color: #fff;
-}
-.xw-drawer-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px;
-}
-.xw-tab-pane { display: none; }
-.xw-tab-pane.active { display: block; }
-
-.xuan-rank-tabs {
-  display: flex;
-  gap: 5px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-.xuan-rank-tabs button {
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 750;
-  background: transparent;
-}
-.xuan-rank-tabs button.active {
-  background: #1d5d9c;
-  border-color: #1d5d9c;
-  color: #fff;
-}
-.xuan-ranking-list, .xuan-region-list, .xuan-weather-brief { display: grid; gap: 6px; }
-.xuan-rank-row {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 4px;
-  border-bottom: 1px solid var(--line);
-}
-.xuan-rank-number {
-  width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center;
-  font-size: 10px; font-weight: 850; background: var(--accent-soft); color: var(--accent);
-}
-.xuan-rank-station b { display: block; font-size: 12px; }
-.xuan-rank-station small { display: block; font-size: 10px; color: var(--muted); }
-.xuan-rank-value { font-size: 12px; font-weight: 850; font-variant-numeric: tabular-nums; }
-.xuan-region-row {
-  display: grid; grid-template-columns: 40px minmax(0, 1fr) 50px; align-items: center; gap: 8px; font-size: 11px;
-}
-.xuan-region-track { height: 7px; border-radius: 999px; background: rgba(128, 155, 190, 0.18); overflow: hidden; }
-.xuan-region-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #38bdf8, #1d5d9c); }
-.xuan-region-value { text-align: right; font-weight: 800; }
-.xuan-insight-note, .xuan-data-coverage { margin-top: 8px; font-size: 10px; color: var(--muted); line-height: 1.5; }
-.xuan-brief-item { display: flex; gap: 8px; padding: 8px 10px; border-radius: 10px; background: rgba(128, 155, 190, 0.1); font-size: 11px; line-height: 1.45; }
-#station-search {
-  width: 100%; padding: 8px 11px; border-radius: 10px; border: 1px solid var(--line);
-  background: var(--bg-glass); font-size: 12px; margin-bottom: 8px;
-}
-.xw-station-region-tabs {
-  display:flex; gap:6px; overflow-x:auto; padding:2px 0 9px;
-  margin:0 0 2px; scrollbar-width:none; -webkit-overflow-scrolling:touch;
-}
-.xw-station-region-tabs::-webkit-scrollbar { display:none; }
-.xw-station-region-tabs button {
-  flex:0 0 auto; border:1px solid var(--line); border-radius:999px;
-  padding:6px 10px; background:var(--bg-glass); color:var(--text);
-  font-size:11px; font-weight:750; white-space:nowrap;
-}
-.xw-station-region-tabs button.active {
-  color:#fff; background:#1d5d9c; border-color:#1d5d9c;
-}
-.xw-station-county-wrap, .xw-station-town-wrap {
-  margin:0 0 8px; padding:8px; border:1px solid var(--line);
-  border-radius:11px; background:rgba(128,155,190,.055);
-}
-.xw-station-filter-title {
-  margin:0 0 7px; color:var(--muted); font-size:10px; font-weight:750;
-}
-.xw-station-county-tabs, .xw-station-town-tabs {
-  display:flex; flex-wrap:wrap; gap:5px;
-}
-.xw-station-county-tabs button, .xw-station-town-tabs button {
-  border:1px solid var(--line); border-radius:999px; padding:5px 9px;
-  background:var(--bg-glass); color:var(--text); font-size:10px;
-  font-weight:700; white-space:nowrap;
-}
-.xw-station-county-tabs button.active, .xw-station-town-tabs button.active {
-  color:#fff; background:#1d5d9c; border-color:#1d5d9c;
-}
-.xw-station-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-.xw-station-card {
-  padding: 9px; border-radius: 11px; border: 1px solid var(--line);
-  background: rgba(128, 155, 190, 0.06); text-align: left;
-}
-.xw-station-card:hover { border-color: var(--accent); }
-.xw-station-card strong { display: block; font-size: 12px; }
-.xw-station-card small { display: block; font-size: 10px; color: var(--muted); }
-.xw-station-card .temp { font-size: 17px; font-weight: 900; margin: 3px 0; }
-.xw-station-card .meta { font-size: 10px; color: var(--muted); line-height: 1.4; }
-
-/* 底部精簡極值橫條 */
-.xw-bottom-bar {
-  position: fixed;
-  bottom: max(10px, env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 900;
-  max-width: calc(100vw - 110px);
-  padding: 6px 14px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 11px;
-  white-space: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.xw-bottom-bar::-webkit-scrollbar { display: none; }
-.xw-ticker-item { display: inline-flex; align-items: center; gap: 4px; }
-.xw-ticker-item strong { font-weight: 850; font-variant-numeric: tabular-nums; }
-.xw-ticker-item em { font-style: normal; color: var(--muted); font-size: 10px; }
-
-/* Leaflet 原生控制項微調 */
-.xuan-fullscreen-control { border: 0 !important; box-shadow: none !important; background: transparent !important; }
-.xuan-fullscreen-button {
-  display: grid !important; place-items: center; width: 34px !important; height: 34px !important;
-  border: 1px solid var(--line) !important; border-radius: 9px !important;
-  background: var(--bg-glass-strong) !important; color: var(--ink) !important;
-  font-size: 19px !important; font-weight: 600; line-height: 1 !important;
-  text-decoration: none !important; box-shadow: var(--shadow);
-}
-.leaflet-control-zoom a {
-  width: 34px !important; height: 34px !important; line-height: 32px !important;
-  background: var(--bg-glass-strong) !important; color: var(--ink) !important; border-color: var(--line) !important;
-}
-.leaflet-control-layers {
-  background: var(--bg-glass-strong) !important; color: var(--ink) !important;
-  border: 1px solid var(--line) !important; border-radius: 12px !important; box-shadow: var(--shadow) !important;
-}
-.xuan-gps-marker-wrap { background: transparent !important; border: 0 !important; }
-.xuan-gps-marker { position: relative; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
-.xuan-gps-dot { position: relative; width: 14px; height: 14px; border-radius: 50%; background: #4285f4; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.55); z-index: 2; }
-.xuan-gps-pulse { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: rgba(66,133,244,.22); border: 1px solid rgba(66,133,244,.48); animation: xuanGpsPulse 1.8s ease-out infinite; z-index: 1; }
-@keyframes xuanGpsPulse { 0% { transform: scale(.65); opacity: .75; } 70% { transform: scale(1.45); opacity: .18; } 100% { transform: scale(1.6); opacity: 0; } }
-.xuan-gps-accuracy-breath { animation: xuanGpsAccuracyBreath 2.2s ease-in-out infinite; }
-@keyframes xuanGpsAccuracyBreath { 0%,100% { stroke-opacity: .48; fill-opacity: .07; } 50% { stroke-opacity: 1; fill-opacity: .19; } }
-.xuan-station-tooltip {
-  background: transparent !important; border: 0 !important; box-shadow: none !important;
-  padding: 0 !important; margin: 0 !important; color: #fff !important;
-  text-align: center; white-space: nowrap; pointer-events: none !important;
-}
-.xuan-station-tooltip::before { display: none !important; }
-.xuan-station-label-name, .xuan-station-label-value {
-  display: block; width: max-content; max-width: 112px; margin: 0 auto; padding: 1px 4px;
-  border-radius: 3px; color: #fff; font-size: 10px; font-weight: 800; line-height: 1.25;
-  text-shadow: -1px -1px 2px #263342, 1px -1px 2px #263342, -1px 1px 2px #263342, 1px 1px 2px #263342, 0 1px 4px #172536;
-}
-#xuan-map .xuan-station-tooltip { display: none !important; }
-#xuan-map.xuan-show-station-labels .xuan-station-tooltip { display: block !important; visibility: visible; }
-#xuan-map.xuan-show-station-labels .xuan-station-tooltip.xuan-label-overlap { visibility: hidden !important; }
-.xuan-floating-legend {
-  min-width: 102px; max-width: 128px; padding: 7px 9px;
-  border: 1px solid var(--line); border-radius: 12px;
-  background: var(--bg-glass-strong); color: var(--ink);
-  box-shadow: var(--shadow); font-size: 10px; line-height: 1.4;
-}
-.xuan-floating-legend-title { margin-bottom: 4px; font-size: 11px; font-weight: 800; }
-.xuan-floating-legend-toggle {
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  width:100%; min-height:22px; margin:0; padding:0;
-  border:0; border-radius:0; background:transparent; color:inherit;
-  font-size:11px; font-weight:850; line-height:1.35; text-align:left;
-}
-.xuan-floating-legend-toggle:focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:4px; }
-.xuan-floating-legend-toggle-icon {
-  flex:0 0 16px; width:16px; height:16px; display:inline-flex;
-  align-items:center; justify-content:center; border-radius:50%;
-  background:var(--accent-soft); color:var(--accent); font-size:13px; line-height:1;
-}
-.xuan-legend-content { margin-top:4px; }
-.xuan-legend-content[hidden] { display:none !important; }
-.xuan-floating-legend.is-collapsed { padding-top:7px; padding-bottom:7px; }
-/* 圖例改為空白地圖點擊收合，不顯示箭頭 */
-.xuan-floating-legend {
-  display:flex; align-items:flex-start; gap:0;
-  min-width:0; max-width:none; padding:0;
-  border:0; border-radius:0; background:transparent;
-  box-shadow:none; overflow:visible;
-}
-.xuan-legend-panel {
-  min-width:102px; max-width:128px; padding:7px 9px;
-  border:1px solid var(--line); border-radius:12px;
-  background:var(--bg-glass-strong); color:var(--ink);
-  box-shadow:var(--shadow); font-size:10px; line-height:1.4;
-}
-.xuan-legend-panel[hidden] { display:none !important; }
-.xuan-floating-legend-handle {
-  display:flex; flex:0 0 34px; width:34px; height:42px;
-  align-items:center; justify-content:center;
-  margin:0; padding:0; border:1px solid var(--line);
-  border-radius:11px; background:var(--bg-glass-strong);
-  color:var(--ink); box-shadow:var(--shadow);
-  cursor:pointer; font-size:25px; line-height:1; font-weight:900;
-}
-.xuan-floating-legend.is-collapsed { gap:0; }
-.xuan-floating-legend.is-expanded { cursor:default; }
-.xuan-floating-legend.is-expanded .xuan-legend-panel { cursor:default; }
-
-
-
-.xuan-floating-legend-bar { height: 7px; width: 100%; margin: 3px 0 4px; border-radius: 8px; }
-.xuan-floating-legend-labels { display: flex; justify-content: space-between; gap: 4px; font-size: 9px; font-weight: 700; color: var(--muted); }
-.xuan-temp-legend-vertical { display:flex; align-items:stretch; gap:8px; height:148px; padding:3px 2px 2px; }
-.xuan-temp-legend-bar { width:10px; min-width:10px; height:100%; border-radius:8px; }
-.xuan-temp-legend-labels { display:flex; flex-direction:column; justify-content:space-between; font-size:9px; line-height:1; font-weight:700; color:var(--muted); }
-
-.xuan-floating-legend-rows { display: grid; gap: 4px; }
-.xuan-floating-legend-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.xuan-floating-legend-rows .xuan-floating-legend-row { min-width: 0; white-space: nowrap; }
-.xuan-floating-legend-rows .xuan-floating-legend-swatch { flex: 0 0 9px; }
-
-.xuan-floating-legend-swatch { width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; }
-
-
-/* 手機專屬最佳化：圖層膠囊移至底部極值條上方，讓出整個台灣視野 */
-@media (max-width: 760px) {
-  .xw-drawer {
-    top: calc(max(8px, env(safe-area-inset-top)) + 48px);
-    right: 10px;
-    width: min(390px, calc(100vw - 20px));
-    max-height: 60vh;
-    border-radius: 18px;
-  }
-  .xw-drawer-tabs { padding: 7px 8px; gap: 5px; }
-  .xw-drawer-tabs button { padding: 6px 5px; font-size: 10px; }
-  .xw-drawer-body { padding: 9px; }
-  .xuan-ranking-list { max-height: 43vh; }
-  .xuan-rank-row { padding: 5px 3px; gap: 7px; }
-  .xw-map-info-toggle {
-    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 92px);
-  }
-  .xw-layer-bar {
-    position: fixed;
-    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 38px);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 905;
-  }
-  .xw-bottom-bar {
-    max-width: calc(100vw - 20px);
-    padding: 5px 11px;
-    gap: 9px;
-    font-size: 10px;
-  }
-  .leaflet-bottom.leaflet-right,
-  .leaflet-bottom.leaflet-left {
-    bottom: 78px !important;
-  }
-}
-
-/* 子工具列作為地圖內全尺寸定位層，圖層按鈕固定在地圖下緣而非頁面上方 */
-.xw-map-stage .xw-sub-dock {
-  position:absolute;
-  inset:0;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  width:100%;
-  height:100%;
-  display:block;
-  pointer-events:none;
-}
-.xw-map-stage .xw-sub-dock > * { pointer-events:auto; }
-.xw-map-stage .xw-local-wrap {
-  position:absolute;
-  top:calc(max(10px, env(safe-area-inset-top)) + 50px);
-  left:max(10px, env(safe-area-inset-left));
-}
-.xw-map-stage .xw-layer-bar {
-  position:absolute;
-  left:50%;
-  bottom:calc(max(10px, env(safe-area-inset-bottom)) + 48px);
-  transform:translateX(-50%);
-}
-/* 沉浸式地圖改為頁面上半部，整頁可向下捲動 */
-html, body { height:auto !important; min-height:100%; overflow-x:hidden !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch; }
-body { min-height:100dvh; }
-.xw-map-stage { position:relative; isolation:isolate; width:100%; height:100vh; height:100dvh; min-height:600px; overflow:hidden; background:#dfe9f3; }
-#xuan-map { position:absolute !important; inset:0 !important; width:100% !important; height:100% !important; }
-.xw-map-stage .xw-header-dock, .xw-map-stage .xw-sub-dock, .xw-map-stage .xw-drawer, .xw-map-stage .xw-bottom-bar { position:absolute; }
-.xw-map-stage .xw-header-dock { top:max(10px, env(safe-area-inset-top)); }
-.xw-map-stage .xw-sub-dock { top:calc(max(10px, env(safe-area-inset-top)) + 50px); }
-.xw-map-stage .xw-drawer { top:calc(max(10px, env(safe-area-inset-top)) + 50px); max-height:min(68vh, 620px); }
-.xw-map-stage .xw-bottom-bar { bottom:max(10px, env(safe-area-inset-bottom)); }
-.xw-map-stage .xw-layer-bar { position:absolute; left:50%; bottom:calc(max(10px, env(safe-area-inset-bottom)) + 48px); transform:translateX(-50%); z-index:905; }
-.xw-below-dashboard { position:relative; z-index:2; padding:22px 14px calc(28px + env(safe-area-inset-bottom)); background:linear-gradient(180deg,#edf4fa 0%,#f5f8fc 100%); color:#14243a; }
-body:not(.light) .xw-below-dashboard { background:linear-gradient(180deg,#101d30 0%,#0b1425 100%); color:#e7f0fb; }
-.xw-scroll-cue { display:flex; justify-content:center; align-items:center; gap:8px; margin:0 auto 18px; width:max-content; max-width:100%; padding:9px 16px; border:1px solid rgba(125,151,183,.28); border-radius:999px; background:rgba(255,255,255,.82); color:#1d5d9c; font-size:12px; font-weight:850; box-shadow:0 5px 18px rgba(15,37,68,.08); }
-body:not(.light) .xw-scroll-cue { background:rgba(18,34,56,.92); color:#7dd3fc; border-color:rgba(130,162,198,.24); }
-.xw-dashboard-heading, .xw-dashboard-block { max-width:1100px; margin-left:auto; margin-right:auto; }
-.xw-dashboard-heading { margin-bottom:14px; }
-.xw-dashboard-heading h2 { margin:0; font-size:20px; font-weight:900; }
-.xw-dashboard-heading p { margin:5px 0 0; color:#64758c; font-size:12px; }
-body:not(.light) .xw-dashboard-heading p { color:#9aadc5; }
-.xw-dashboard-block { margin-bottom:22px; }
-.xw-dashboard-block h3 { margin:0 0 10px; font-size:14px; font-weight:850; }
-.xw-dashboard-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
-.xw-dashboard-card { min-width:0; padding:13px; border:1px solid rgba(125,151,183,.24); border-radius:16px; background:rgba(255,255,255,.88); box-shadow:0 5px 18px rgba(15,37,68,.06); }
-body:not(.light) .xw-dashboard-card { background:rgba(18,34,56,.9); border-color:rgba(130,162,198,.22); box-shadow:0 5px 18px rgba(0,0,0,.15); }
-.xw-dashboard-card .card-label { color:#64758c; font-size:11px; font-weight:700; }
-body:not(.light) .xw-dashboard-card .card-label { color:#9aadc5; }
-.xw-dashboard-card .card-value { margin-top:5px; font-size:22px; line-height:1.2; font-weight:900; font-variant-numeric:tabular-nums; }
-.xw-dashboard-card .card-note { margin-top:4px; color:#64758c; font-size:10px; line-height:1.45; }
-body:not(.light) .xw-dashboard-card .card-note { color:#9aadc5; }
-.xw-dashboard-card.station-card .card-value { font-size:16px; overflow-wrap:anywhere; }
-.xw-dashboard-card.station-card .card-note strong { color:#1d5d9c; font-weight:850; }
-body:not(.light) .xw-dashboard-card.station-card .card-note strong { color:#7dd3fc; }
-.xw-dashboard-regions { grid-template-columns:repeat(2,minmax(0,1fr)); }
-.xw-dashboard-region { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-.xw-dashboard-region strong { font-size:15px; font-weight:900; }
-.xw-dashboard-region span { color:#64758c; font-size:10px; }
-body:not(.light) .xw-dashboard-region span { color:#9aadc5; }
-@media (min-width:760px) { .xw-dashboard-grid { grid-template-columns:repeat(4,minmax(0,1fr)); } .xw-dashboard-regions { grid-template-columns:repeat(5,minmax(0,1fr)); } .xw-below-dashboard { padding-left:clamp(20px,5vw,72px); padding-right:clamp(20px,5vw,72px); } }
-@media (max-width:760px) {
-  .xw-map-stage .xw-drawer { top:calc(max(8px, env(safe-area-inset-top)) + 48px); max-height:60vh; }
-  .xw-map-stage .xw-layer-bar { position:absolute; bottom:calc(max(10px, env(safe-area-inset-bottom)) + 48px); left:50%; transform:translateX(-50%); }
-  .xw-map-stage .xw-bottom-bar { max-width:calc(100vw - 20px); padding:5px 11px; gap:9px; font-size:10px; }
-  .xw-dashboard-heading h2 { font-size:18px; }
-}
-
-/* 確保子工具列覆蓋整個地圖區，定位基準不偏移 */
-.xw-map-stage .xw-sub-dock {
-  position:absolute;
-  inset:0;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  height:100%;
-}
-</style>
-</head>
-<body>
-  <section class="xw-map-stage" id="xw-map-stage" aria-label="沉浸式即時氣象地圖">
-  <div id="xuan-map" role="application" aria-label="台灣即時氣象監測地圖"></div>
-
-  <!-- 頂部精簡單行導覽膠囊 -->
-  <div class="xw-header-dock">
-    <div class="xw-glass xw-brand-pill">
-      <div class="xw-logo">🌦️</div>
-      <div class="xw-brand-text">
-        <strong>Xuan Weather</strong>
-        <span class="updated" role="status" aria-live="polite">● 正在連線</span>
-      </div>
-    </div>
-
-    <div class="xw-glass xw-actions-pill">
-      <button class="xw-icon-btn xw-refresh-btn" id="refresh-weather" type="button" title="重新整理" aria-label="重新整理天氣資料">
-        <svg class="xw-refresh-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <path d="M20 7v5h-5M4 17v-5h5"/>
-          <path d="M5.6 9A7 7 0 0 1 18 6.5L20 12M4 12l2 5.5A7 7 0 0 0 18.4 15"/>
-        </svg>
-      </button>
-      <button class="xw-icon-btn" id="theme" type="button" title="切換主題">☼</button>
-      <button class="xw-icon-btn primary-pill" id="xw-drawer-toggle" type="button" aria-expanded="false">🏆 排行</button>
-    </div>
-  </div>
-
-  <!-- 第二排：預設收合的所在地迷你膠囊 + 桌機版圖層切換 -->
-  <div class="xw-sub-dock">
-    <div class="xw-local-wrap" id="xw-local-wrap">
-      <button type="button" class="xw-glass xw-local-chip" id="xw-local-toggle" aria-expanded="false">
-        <span>📍</span>
-        <span class="chip-place" id="chip-place">所在地天氣</span>
-        <span class="chip-temp" id="chip-temp">--°C</span>
-        <span class="chip-caret">▾</span>
-      </button>
-
-      <section class="xw-glass xw-local-card" id="xw-local-card">
-        <div class="location">
-          📍 <b>所在地天氣</b> 臺灣・位置待選
-        </div>
-        <div class="weather-summary">
-          <div>
-            <div class="temperature">--<small>°C</small></div>
-            <div class="condition">等待官方觀測資料</div>
-            <div class="feels">體感溫度 -- ｜ 觀測時間 --</div>
-          </div>
-          <div class="weather-icon">🌤️</div>
-        </div>
-        <div class="metrics">
-          <div class="metric"><label>濕度</label><strong>--<em>%</em></strong></div>
-          <div class="metric"><label>風速</label><strong>--<em>m/s</em></strong></div>
-          <div class="metric"><label>陣風</label><strong>--<em>m/s</em></strong></div>
-          <div class="metric"><label>雨量</label><strong>--<em>mm</em></strong></div>
-        </div>
-      </section>
-    </div>
-
-    <div class="xw-glass xw-layer-bar" role="group" aria-label="地圖氣象圖層">
-      <button type="button" data-map="temperature" class="active">🌡️ 氣溫</button>
-      <button type="button" data-map="rain">🌧️ 雨量</button>
-      <button type="button" data-map="wind">💨 風速</button>
-    </div>
-  </div>
-
-  <!-- 右側滑出式抽屜 -->
-  <aside class="xw-drawer" id="xw-drawer" aria-label="即時氣象排行與測站面板">
-    <div class="xw-drawer-tabs" role="tablist">
-      <button type="button" class="active" data-tab="rankings">🏆 即時排行</button>
-      <button type="button" data-tab="regions">🧭 區域分析</button>
-      <button type="button" data-tab="stations">🔍 測站 (<span id="xw-station-count">--</span>)</button>
-    </div>
-    <div class="xw-drawer-body">
-      <div class="xw-tab-pane active" id="tab-rankings">
-        <div class="xuan-rank-tabs" role="group" aria-label="選擇排行榜">
-          <button type="button" class="active" data-rank="hot">高溫</button>
-          <button type="button" data-rank="lowland-cold">平地低溫</button>
-          <button type="button" data-rank="cold">低溫</button>
-          <button type="button" data-rank="gust">陣風</button>
-          <button type="button" data-rank="rain">雨量</button>
-          <button type="button" data-rank="wind">風速</button>
-        </div>
-        <div id="xuan-ranking-list" class="xuan-ranking-list">等待測站資料載入</div>
-        <p class="xuan-insight-note" id="xuan-ranking-note">依測站最新有效觀測值排序；非日累積或預報值。</p>
-      </div>
-
-      <div class="xw-tab-pane" id="tab-regions">
-        <div id="xuan-region-list" class="xuan-region-list">等待測站資料載入</div>
-        <p class="xuan-insight-note">區域平均僅計入具有有效氣溫數值的測站。</p>
-        <div id="xuan-weather-brief" class="xuan-weather-brief" style="margin-top:10px">等待測站資料載入</div>
-        <div class="xuan-data-coverage" id="xuan-data-coverage">資料涵蓋率：等待計算</div>
-      </div>
-
-      <div class="xw-tab-pane" id="tab-stations">
-        <div id="station-live-list"></div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- 底部精簡極值橫條 -->
-  <div class="xw-glass xw-bottom-bar" id="live-highlights" aria-label="全台即時觀測極值">
-    <span class="xw-ticker-item">🌡️ 最高 <strong id="xuan-high-temp">--<em>°C</em></strong> <em id="xuan-high-temp-station">--</em></span>
-    <span class="xw-ticker-item">❄️ 最低 <strong id="xuan-low-temp">--<em>°C</em></strong> <em id="xuan-low-temp-station">--</em></span>
-    <span class="xw-ticker-item">💨 陣風 <strong id="xuan-max-gust">--<em>m/s</em></strong> <em id="xuan-max-gust-station">--</em></span>
-    <span class="xw-ticker-item">🌧️ 雨量 <strong id="xuan-max-rain">--<em>mm</em></strong> <em id="xuan-max-rain-station">--</em></span>
-  </div>
-
-  </section>
-
-  <!-- 地圖下方可捲動的即時氣象資訊卡片 -->
-  <section class="xw-below-dashboard" id="xw-below-dashboard" aria-label="地圖下方即時氣象資訊">
-    <button class="xw-scroll-cue" id="xw-scroll-cue" type="button">↓ 向下查看即時氣象資訊</button>
-    <header class="xw-dashboard-heading">
-      <h2>即時氣象資訊</h2>
-      <p>全台測站最新觀測摘要，往下滑動即可查看完整資訊</p>
-    </header>
-    <div class="xw-dashboard-block">
-      <h3>📊 全台觀測概況</h3>
-      <div class="xw-dashboard-grid" id="xw-dashboard-overview">
-        <div class="xw-dashboard-card"><div class="card-label">全台平均氣溫</div><div class="card-value">--°C</div></div>
-        <div class="xw-dashboard-card"><div class="card-label">有效氣溫測站</div><div class="card-value">-- 站</div></div>
-        <div class="xw-dashboard-card"><div class="card-label">有效雨量測站</div><div class="card-value">-- 站</div></div>
-        <div class="xw-dashboard-card"><div class="card-label">有效風速測站</div><div class="card-value">-- 站</div></div>
-      </div>
-    </div>
-    <div class="xw-dashboard-block">
-      <h3>🌡️ 全台即時極值</h3>
-      <div class="xw-dashboard-grid" id="xw-dashboard-extremes"><div class="xw-dashboard-card">等待測站資料載入</div></div>
-    </div>
-    <div class="xw-dashboard-block">
-      <h3>🧭 各區平均氣溫</h3>
-      <div class="xw-dashboard-grid xw-dashboard-regions" id="xw-dashboard-regions"><div class="xw-dashboard-card">等待測站資料載入</div></div>
-    </div>
-  </section>
-
-<script>
-'use strict';
-
-const DATA_URL = './data/cwa-observations.json';
-const REFRESH_MS = 5 * 60 * 1000;
-
-let stations = [];
-let selectedId = null;
-let gpsPosition = null;
-let weatherMap = null;
-let stationMarkers = null;
-let gpsMarker = null;
-let gpsAccuracyCircle = null;
-let mapMetric = 'temperature';
-let mapLegendCollapsed = false;
-let locating = false;
-
-const $ = selector => document.querySelector(selector);
-
-function number(value) {
-  if (value === null || value === undefined || value === '') return null;
-  const n = Number(value);
-  return Number.isFinite(n) && n > -90 ? n : null;
-}
-
-function fmt(value, digits = 1) {
-  const n = number(value);
-  return n === null ? '--' : n.toFixed(digits);
-}
-
-function safe(value) {
-  return String(value ?? '').replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;',
-    '"': '&quot;', "'": '&#39;'
-  })[c]);
-}
-
-function formatTime(value) {
-  if (!value) return '--';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return '--';
-  return d.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-}
-
-let theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-
-function applyTheme() {
-  document.body.classList.toggle('light', theme === 'light');
-  const button = $('#theme');
-  if (button) {
-    button.textContent = theme === 'light' ? '☾' : '☼';
-    button.title = theme === 'light' ? '切換深色主題' : '切換淺色主題';
-  }
-}
-applyTheme();
-
-$('#theme')?.addEventListener('click', () => {
-  theme = theme === 'light' ? 'dark' : 'light';
-  applyTheme();
-});
-
-function parseStation(raw) {
-  const w = raw.WeatherElement || {};
-  const coord = raw.GeoInfo?.Coordinates?.find(item => item.CoordinateName === 'WGS84');
-  return {
-    id: raw.StationId || '',
-    name: raw.StationName || '未知測站',
-    county: raw.GeoInfo?.CountyName || '',
-    town: raw.GeoInfo?.TownName || '',
-    lat: number(coord?.StationLatitude),
-    lon: number(coord?.StationLongitude),
-    altitude: number(raw.GeoInfo?.StationAltitude ?? raw.StationAltitude ?? coord?.StationAltitude),
-    time: raw.ObsTime?.DateTime || '',
-    weather: w.Weather || '無資料',
-    temperature: number(w.AirTemperature),
-    humidity: number(w.RelativeHumidity),
-    wind: number(w.WindSpeed),
-    gust: number(w.GustInfo?.PeakGustSpeed),
-    rain: number(w.Now?.Precipitation)
-  };
-}
-
-function average(key) {
-  const values = stations.map(s => s[key]).filter(v => v !== null);
-  return values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
-}
-
-function maximum(key) {
-  const values = stations.map(s => s[key]).filter(v => v !== null);
-  return values.length ? Math.max(...values) : null;
-}
-
-function setupLocation() {
-  const box = $('.location');
-  if (!box) return;
-  box.classList.add('xuan-location-head');
-  box.innerHTML = `
-    <div class="xuan-location-title">
-      <b>所在地天氣</b>
-      <span id="location-label">尚未定位</span>
-    </div>
-    <button id="gps-button" type="button">重新定位</button>
-  `;
-  $('#gps-button')?.addEventListener('click', locateUser);
-
-  if (!$('#gps-status')) {
-    const status = document.createElement('div');
-    status.id = 'gps-status';
-    status.className = 'xuan-gps-status';
-    status.textContent = '按「重新定位」取得最近測站';
-    box.insertAdjacentElement('afterend', status);
-  }
-}
-
-function setupMap() {
-  document.querySelectorAll('.xw-layer-bar [data-map]').forEach(button => {
-    button.addEventListener('click', () => {
-      mapMetric = button.dataset.map;
-      updateMapLegend();
-      document.querySelectorAll('.xw-layer-bar [data-map]').forEach(b => {
-        b.classList.toggle('active', b === button);
-      });
-      drawMarkers();
-    });
-  });
-}
-
-function loadCss(id, url) {
-  return new Promise(resolve => {
-    if ($('#' + id)) { resolve(); return; }
-    const link = document.createElement('link');
-    link.id = id; link.rel = 'stylesheet'; link.href = url;
-    link.onload = resolve; link.onerror = resolve;
-    document.head.appendChild(link);
-  });
-}
-
-function loadScript(id, url) {
-  return new Promise((resolve, reject) => {
-    if ($('#' + id)) {
-      if (window.L) resolve();
-      else {
-        const existing = $('#' + id);
-        existing.addEventListener('load', resolve, { once: true });
-        existing.addEventListener('error', reject, { once: true });
-      }
-      return;
-    }
-    const script = document.createElement('script');
-    script.id = id; script.src = url;
-    script.onload = resolve;
-    script.onerror = () => reject(new Error('程式載入失敗：' + url));
-    document.head.appendChild(script);
-  });
-}
-
-async function loadLeaflet() {
-  await loadCss('xuan-leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
-  await loadScript('xuan-leaflet-js', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js');
-}
-
-function getMapValue(station) {
-  if (mapMetric === 'rain') return station.rain;
-  if (mapMetric === 'wind') return station.wind;
-  return station.temperature;
-}
-
-const CWA_TEMP_COLOR_STOPS = [
-  [0, '#08798A'], [2, '#16899A'], [4, '#2999A9'], [6, '#48AAB6'],
-  [8, '#70C0CA'], [10, '#A1DCE0'], [12, '#078F55'], [14, '#149E5C'],
-  [16, '#2EAA61'], [18, '#55B96B'], [20, '#7BC978'], [22, '#A0D985'],
-  [24, '#C1E694'], [26, '#E5EEA0'], [28, '#F6E18A'], [30, '#F5C05D'],
-  [32, '#F49A30'], [34, '#EE4C50'], [36, '#A60026'], [38, '#7D2691']
-];
-
-function getCwaTemperatureColor(value) {
-  const temperature = Number(value);
-  if (!Number.isFinite(temperature)) return '#8993a3';
-  const level = Math.max(0, Math.min(38, Math.round(temperature / 2) * 2));
-  const stop = CWA_TEMP_COLOR_STOPS.find(item => item[0] === level);
-  return stop ? stop[1] : '#8993a3';
-}
-
-function getColor(value) {
-  if (value === null || value === undefined || !Number.isFinite(Number(value))) return '#8993a3';
-  if (mapMetric === 'rain') {
-    // 參照中央氣象署 QPE Plus 累積雨量級距；HEX 為依官方色彩示意近似取色
-    if (value >= 300) return '#F4A6C9';
-    if (value >= 200) return '#E66BB0';
-    if (value >= 150) return '#A51E79';
-    if (value >= 130) return '#C72A9A';
-    if (value >= 110) return '#A7192D';
-    if (value >= 90) return '#E52B2B';
-    if (value >= 70) return '#F0642B';
-    if (value >= 50) return '#F39A24';
-    if (value >= 40) return '#F5D52A';
-    if (value >= 30) return '#D8E33A';
-    if (value >= 20) return '#68BE45';
-    if (value >= 15) return '#168B50';
-    if (value >= 10) return '#176CC2';
-    if (value >= 6) return '#49B9E5';
-    if (value >= 2) return '#27C5D5';
-    if (value >= 1) return '#A6E5E7';
-    return '#AEB8C2';
-  }
-  if (mapMetric === 'wind') {
-    if (value >= 10) return '#983db5';
-    if (value >= 6) return '#e18b35';
-    if (value >= 3) return '#3289c9';
-    return '#55a987';
-  }
-  return getCwaTemperatureColor(value);
-}
-
-function updateMapLegend() {
-  const legend = document.getElementById('xuan-floating-legend');
-  if (!legend) return;
-  if (mapMetric === 'rain') {
-    legend.innerHTML = `
-      <div class="xuan-floating-legend-title">🌧️ 雨量（mm）</div>
-      <div class="xuan-floating-legend-rows" style="grid-template-columns:1fr;column-gap:0;row-gap:3px;min-width:0;width:100%">
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F4A6C9"></i>300 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#E66BB0"></i>200 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A51E79"></i>150 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#C72A9A"></i>130 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A7192D"></i>110 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#E52B2B"></i>90 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F0642B"></i>70 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F39A24"></i>50 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F5D52A"></i>40 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#D8E33A"></i>30 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#68BE45"></i>20 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#168B50"></i>15 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#176CC2"></i>10 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#49B9E5"></i>6 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#27C5D5"></i>2 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A6E5E7"></i>1 mm</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#AEB8C2"></i>0 無雨</div>
-      </div>`;
-  } else if (mapMetric === 'wind') {
-    legend.innerHTML = `
-      <div class="xuan-floating-legend-title">💨 風速（m/s）</div>
-      <div class="xuan-floating-legend-rows">
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#55a987"></i>0～3</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#3289c9"></i>3～6</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#e18b35"></i>6～10</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#983db5"></i>10 以上</div>
-      </div>`;
-  } else {
-    legend.innerHTML = `
-      <div class="xuan-floating-legend-title">🌡️ 氣溫（°C）</div>
-      <div class="xuan-floating-legend-rows" style="grid-template-columns:1fr;column-gap:0;row-gap:3px;min-width:0;width:100%">
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#7D2691"></i>38°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A60026"></i>36°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#EE4C50"></i>34°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F49A30"></i>32°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F5C05D"></i>30°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#F6E18A"></i>28°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#E5EEA0"></i>26°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#C1E694"></i>24°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A0D985"></i>22°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#7BC978"></i>20°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#55B96B"></i>18°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#2EAA61"></i>16°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#149E5C"></i>14°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#078F55"></i>12°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#A1DCE0"></i>10°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#70C0CA"></i>8°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#48AAB6"></i>6°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#2999A9"></i>4°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#16899A"></i>2°C</div>
-        <div class="xuan-floating-legend-row"><i class="xuan-floating-legend-swatch" style="background:#08798A"></i>0°C</div>
-      </div>`;
-  }
-  const titleNode = legend.querySelector('.xuan-floating-legend-title');
-  if (titleNode) {
-    const body = document.createElement('div');
-    body.className = 'xuan-legend-content';
-    Array.from(legend.childNodes).forEach(node => {
-      if (node !== titleNode) body.appendChild(node);
-    });
-
-    const panel = document.createElement('div');
-    panel.className = 'xuan-legend-panel';
-    panel.append(titleNode, body);
-    panel.hidden = mapLegendCollapsed;
-
-    // 收合時保留無箭頭的透明小把手，點擊可重新展開
-    const handle = document.createElement('button');
-    handle.type = 'button';
-    handle.className = 'xuan-floating-legend-handle';
-    handle.setAttribute('aria-label', mapLegendCollapsed ? '展開圖例' : '圖例已展開；點擊地圖空白處收合');
-    handle.setAttribute('title', mapLegendCollapsed ? '點擊箭頭展開圖例' : '點擊地圖空白處收合圖例');
-    handle.textContent = mapLegendCollapsed ? '›' : '';
-
-    legend.replaceChildren();
-    if (mapLegendCollapsed) legend.append(handle, panel);
-    else legend.append(panel);
-    legend.classList.toggle('is-collapsed', mapLegendCollapsed);
-    legend.classList.toggle('is-expanded', !mapLegendCollapsed);
-
-    handle.addEventListener('click', event => {
-      event.stopPropagation();
-      mapLegendCollapsed = false;
-      updateMapLegend();
-    });
-  }
-}
-
-function initMap() {
-  if (!window.L || weatherMap) return;
-  weatherMap = L.map('xuan-map', {
-    scrollWheelZoom: true,
-    preferCanvas: true,
-    attributionControl: false,
-    zoomControl: false
-  }).setView([23.7, 120.9], 7);
-
-  const osmBaseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18, attribution: '&copy; OpenStreetMap contributors'
-  });
-  const esriSatelliteBaseLayer = L.tileLayer(
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    { maxZoom: 19, attribution: 'Imagery &copy; Esri' }
-  );
-  osmBaseLayer.addTo(weatherMap);
-
-  L.control.layers(
-    { '街道底圖 (OSM)': osmBaseLayer, '衛星影像 (Esri)': esriSatelliteBaseLayer },
-    null,
-    { collapsed: true, position: 'bottomleft' }
-  ).addTo(weatherMap);
-
-  const legendControl = L.control({ position: 'bottomleft' });
-  legendControl.onAdd = function() {
-    const container = L.DomUtil.create('div', 'xuan-floating-legend');
-    container.id = 'xuan-floating-legend';
-    L.DomEvent.disableClickPropagation(container);
-    L.DomEvent.disableScrollPropagation(container);
-    return container;
-  };
-  legendControl.addTo(weatherMap);
-  updateMapLegend();
-
-  // 點擊 Leaflet 地圖空白區域即可收合圖例；測站及地圖控制項不觸發
-  weatherMap.on('click', () => {
-    if (!mapLegendCollapsed) {
-      mapLegendCollapsed = true;
-      updateMapLegend();
-    }
-  });
-
-  L.control.zoom({ position: 'bottomright' }).addTo(weatherMap);
-
-  let townshipBoundaryLayer = null, countyBoundaryLayer = null, boundaryLoading = false, boundaryLoaded = false;
-  const boundaryPane = weatherMap.createPane('xuanAdminBoundaryPane');
-  boundaryPane.style.zIndex = '350';
-  boundaryPane.style.pointerEvents = 'none';
-
-  async function toggleSatelliteBoundaries(show) {
-    if (!show) {
-      if (townshipBoundaryLayer && weatherMap.hasLayer(townshipBoundaryLayer)) weatherMap.removeLayer(townshipBoundaryLayer);
-      if (countyBoundaryLayer && weatherMap.hasLayer(countyBoundaryLayer)) weatherMap.removeLayer(countyBoundaryLayer);
-      return;
-    }
-    if (!boundaryLoaded && !boundaryLoading) {
-      boundaryLoading = true;
-      try {
-        const [townRes, countyRes] = await Promise.all([
-          fetch('https://geo.maderaojen.me/datasets/tw-townships/releases/v1/2026-07-04.1/data.geojson'),
-          fetch('https://geo.maderaojen.me/datasets/tw-counties/releases/v1/2026-08-07.1/data.geojson')
-        ]);
-        if (townRes.ok && countyRes.ok) {
-          const [townGeo, countyGeo] = await Promise.all([townRes.json(), countyRes.json()]);
-          townshipBoundaryLayer = L.geoJSON(townGeo, {
-            pane: 'xuanAdminBoundaryPane', interactive: false,
-            style: () => ({ color: '#d5dce5', weight: 0.75, opacity: 0.92, fill: false })
-          });
-          countyBoundaryLayer = L.geoJSON(countyGeo, {
-            pane: 'xuanAdminBoundaryPane', interactive: false,
-            style: () => ({ color: '#ffffff', weight: 2.5, opacity: 0.98, fill: false })
-          });
-          boundaryLoaded = true;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>台灣即時氣象雷達與天氣監控中心 | CWA Weather Radar</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts: Inter & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    }
+                }
+            }
         }
-      } catch (e) {
-        console.warn('行政區界線載入失敗：', e);
-      } finally {
-        boundaryLoading = false;
-      }
-    }
-    if (boundaryLoaded) {
-      if (townshipBoundaryLayer && !weatherMap.hasLayer(townshipBoundaryLayer)) townshipBoundaryLayer.addTo(weatherMap);
-      if (countyBoundaryLayer && !weatherMap.hasLayer(countyBoundaryLayer)) countyBoundaryLayer.addTo(weatherMap);
-    }
-  }
-  weatherMap.on('baselayerchange', event => toggleSatelliteBoundaries(event.layer === esriSatelliteBaseLayer));
+    </script>
 
-  function syncStationLabelVisibility() {
-    const mapElement = document.getElementById('xuan-map');
-    if (!mapElement) return;
-    const show = weatherMap.getZoom() >= 11;
-    mapElement.classList.toggle('xuan-show-station-labels', show);
-    if (!show) {
-      mapElement.querySelectorAll('.xuan-station-tooltip').forEach(el => el.classList.remove('xuan-label-overlap'));
-      return;
-    }
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const mapRect = mapElement.getBoundingClientRect();
-      const labels = Array.from(mapElement.querySelectorAll('.xuan-station-tooltip'));
-      labels.forEach(el => el.classList.remove('xuan-label-overlap'));
-      const centerX = mapRect.left + mapRect.width / 2;
-      const centerY = mapRect.top + mapRect.height / 2;
-      labels.sort((a, b) => {
-        const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
-        const pa = a.dataset.selected === '1' ? -1e9 : Math.hypot((ra.left + ra.right) / 2 - centerX, (ra.top + ra.bottom) / 2 - centerY);
-        const pb = b.dataset.selected === '1' ? -1e9 : Math.hypot((rb.left + rb.right) / 2 - centerX, (rb.top + rb.bottom) / 2 - centerY);
-        return pa - pb;
-      });
-      const accepted = [];
-      labels.forEach(el => {
-        const r = el.getBoundingClientRect();
-        const box = { left: r.left - 3, right: r.right + 3, top: r.top - 2, bottom: r.bottom + 2 };
-        const overlaps = accepted.some(a => !(box.right <= a.left || box.left >= a.right || box.bottom <= a.top || box.top >= a.bottom));
-        if (overlaps) el.classList.add('xuan-label-overlap');
-        else if (r.width && r.height && r.right > mapRect.left && r.left < mapRect.right && r.bottom > mapRect.top && r.top < mapRect.bottom) accepted.push(box);
-        else el.classList.add('xuan-label-overlap');
-      });
-    }));
-  }
-  weatherMap.on('zoomend moveend', syncStationLabelVisibility);
-  window.addEventListener('resize', syncStationLabelVisibility);
-  syncStationLabelVisibility();
+    <style>
+        /* 全螢幕沉浸式基礎設定 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #060a12;
+            user-select: none;
+        }
 
-  stationMarkers = L.layerGroup().addTo(weatherMap);
-  setTimeout(() => weatherMap.invalidateSize(true), 400);
-}
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            background: #080d17;
+        }
 
-function drawMarkers() {
-  if (!weatherMap || !stationMarkers) return;
-  stationMarkers.clearLayers();
+        /* 動態風場流線 Canvas 疊加層 (不阻擋地圖滑鼠互動) */
+        #wind-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 450; /* 位於底圖與雷達之上，測站標記之下 */
+            pointer-events: none;
+        }
 
-  const valid = stations.filter(s =>
-    s.lat !== null && s.lon !== null &&
-    s.lat >= 20 && s.lat <= 27 &&
-    s.lon >= 117 && s.lon <= 123 &&
-    (mapMetric === 'temperature'
-      ? (s.temperature !== null && !/儀器\s*(故障|調校)|故障|調校/.test(String(s.weather || '')))
-      : mapMetric === 'rain'
-        ? s.rain !== null
-        : mapMetric === 'wind'
-          ? s.wind !== null
-          : true)
-  );
+        /* 隱藏預設 Leaflet 縮放控制項 */
+        .leaflet-control-zoom {
+            display: none !important;
+        }
+        .leaflet-control-attribution {
+            background: rgba(15, 23, 42, 0.7) !important;
+            color: #64748b !important;
+            backdrop-filter: blur(6px);
+            font-size: 10px !important;
+            border-top-left-radius: 8px;
+        }
+        .leaflet-control-attribution a {
+            color: #94a3b8 !important;
+        }
 
-  valid.forEach(station => {
-    const value = getMapValue(station);
-    const color = getColor(value);
-    const selected = station.id === selectedId;
+        /* 毛玻璃面板通用樣式 */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.22);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.65), 0 8px 10px -6px rgba(0, 0, 0, 0.65);
+        }
 
-    const marker = L.circleMarker([station.lat, station.lon], {
-      radius: selected ? 8 : 5,
-      color: '#ffffff',
-      weight: 1.5,
-      opacity: 1,
-      fillColor: color,
-      fillOpacity: 0.95,
-      interactive: true,
-      bubblingMouseEvents: false
-    });
+        /* 氣象警特報多邊形呼吸閃爍動畫 */
+        @keyframes alertPulse {
+            0%, 100% { fill-opacity: 0.16; stroke-opacity: 0.85; }
+            50% { fill-opacity: 0.34; stroke-opacity: 1; }
+        }
+        .alert-polygon-pulse {
+            animation: alertPulse 2.6s ease-in-out infinite;
+        }
 
-    const metricUnit = mapMetric === 'rain' ? 'mm' : (mapMetric === 'wind' ? 'm/s' : '°C');
-    const metricValue = value === null ? '--' : `${fmt(value, 1)} ${metricUnit}`;
-    marker.bindTooltip(`
-      <span class="xuan-station-label-name">${safe(station.name)}</span>
-      <span class="xuan-station-label-value">${safe(metricValue)}</span>
-    `, { permanent: true, direction: 'bottom', offset: [0, 7], opacity: 1, className: 'xuan-station-tooltip' });
+        /* 雷達回波雲團柔和羽化濾鏡 */
+        .radar-blob-blur {
+            filter: blur(10px);
+        }
 
-    marker.on('tooltipopen', event => {
-      if (event.tooltip && event.tooltip.getElement()) {
-        event.tooltip.getElement().dataset.selected = selected ? '1' : '0';
-      }
-    });
+        /* 測站氣溫膠囊發光與懸停動畫 */
+        .station-pill {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+        }
+        .station-pill:hover {
+            transform: scale(1.12) translateY(-2px);
+            z-index: 1000 !important;
+        }
+        .station-pill-active {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 2px #ffffff, 0 0 18px rgba(56, 189, 248, 0.95) !important;
+        }
 
-    marker.bindPopup(`
-      <div style="min-width:170px;line-height:1.75;font-size:12px">
-        <strong>${safe(station.name)}</strong>
-        <div style="color:#64758c">${safe(station.county)} ${safe(station.town)}</div>
-        <hr style="border:0;border-top:1px solid #e2e8f0;margin:5px 0">
-        氣溫：<b>${fmt(station.temperature)} °C</b><br>
-        天氣：${safe(station.weather)}<br>
-        濕度：${fmt(station.humidity, 0)} % ｜ 雨量：${fmt(station.rain)} mm<br>
-        風速：${fmt(station.wind)} m/s ｜ 陣風：${fmt(station.gust)} m/s<br>
-        <small style="color:#64758c">觀測：${safe(formatTime(station.time))}</small>
-      </div>
-    `);
-    marker.addTo(stationMarkers);
-  });
+        /* 自訂 Leaflet 彈出氣泡框 */
+        .leaflet-popup-content-wrapper {
+            background: rgba(15, 23, 42, 0.9) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            border: 1px solid rgba(56, 189, 248, 0.35) !important;
+            color: #f8fafc !important;
+            border-radius: 16px !important;
+            box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.75) !important;
+            padding: 0 !important;
+        }
+        .leaflet-popup-content {
+            margin: 0 !important;
+            min-width: 270px;
+            max-width: 310px;
+        }
+        .leaflet-popup-tip {
+            background: rgba(15, 23, 42, 0.9) !important;
+            border: 1px solid rgba(56, 189, 248, 0.35) !important;
+        }
+        .leaflet-popup-close-button {
+            color: #94a3b8 !important;
+            top: 10px !important;
+            right: 10px !important;
+            font-size: 18px !important;
+        }
+        .leaflet-popup-close-button:hover {
+            color: #ffffff !important;
+        }
 
-  if (gpsPosition && gpsMarker) gpsMarker.setLatLng([gpsPosition.lat, gpsPosition.lon]);
-}
+        /* 跑馬燈動畫 */
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: inline-flex;
+            white-space: nowrap;
+            animation: marquee 28s linear infinite;
+        }
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
 
-function distanceKm(lat1, lon1, lat2, lon2) {
-  const rad = value => value * Math.PI / 180;
-  const dLat = rad(lat2 - lat1), dLon = rad(lon2 - lon1);
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLon / 2) ** 2;
-  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
+        /* 自訂深色細捲軸 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.25);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(56, 189, 248, 0.35);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(56, 189, 248, 0.65);
+        }
 
-function findNearest(lat, lon) {
-  return stations
-    .filter(s => s.lat !== null && s.lon !== null && s.temperature !== null)
-    .map(s => ({ ...s, distance: distanceKm(lat, lon, s.lat, s.lon) }))
-    .sort((a, b) => a.distance - b.distance)[0] || null;
-}
+        /* 時間軸滑桿自訂樣式 */
+        input[type=range].radar-slider {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range].radar-slider::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 999px;
+            border: 1px solid rgba(71, 85, 105, 0.5);
+        }
+        input[type=range].radar-slider::-webkit-slider-thumb {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #38bdf8;
+            border: 2px solid #ffffff;
+            box-shadow: 0 0 10px #38bdf8;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -6px;
+            transition: transform 0.15s ease;
+        }
+        input[type=range].radar-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body class="text-slate-100 font-sans antialiased">
 
-function updateLocal(station) {
-  if (!station) return;
-  selectedId = station.id;
+    <!-- 全螢幕深色地圖容器 -->
+    <div id="map"></div>
 
-  const chipPlace = $('#chip-place');
-  const chipTemp = $('#chip-temp');
-  if (chipPlace) chipPlace.textContent = `${station.town || station.county}・${station.name}`;
-  if (chipTemp) chipTemp.textContent = `${fmt(station.temperature)}°C`;
+    <!-- 風場流線示意（非實測） Canvas 疊加層 -->
+    <canvas id="wind-canvas"></canvas>
 
-  const label = $('#location-label');
-  if (label) label.textContent = `${station.county}・${station.town}・${station.name}`;
-  if ($('.temperature')) $('.temperature').innerHTML = `${fmt(station.temperature)}<small>°C</small>`;
-  if ($('.condition')) $('.condition').textContent = `${station.name}｜${station.weather}`;
-  if ($('.feels')) $('.feels').textContent = `最近測站｜${formatTime(station.time)}`;
+    <!-- ==================== 1. 頂部懸浮狀態列 ==================== -->
+    <header class="fixed top-3 left-3 right-3 z-30 pointer-events-none flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-2.5">
+        
+        <!-- 左側：系統標題與即時更新時間 -->
+        <div class="pointer-events-auto glass-panel rounded-2xl px-4 py-2.5 flex items-center justify-between gap-4 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="relative flex items-center justify-center w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-400/40 text-sky-400">
+                    <i data-lucide="radar" class="w-5 h-5"></i>
+                    <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-500"></span>
+                    </span>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-sm sm:text-base font-bold tracking-wide text-white">台灣即時氣象觀測中心</h1>
+                        <span class="hidden sm:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-400/30">CWA LIVE</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 flex items-center gap-2">
+                        <span id="scenario-status-text" class="text-emerald-400 font-medium">● CWA 即時觀測資料</span>
+                        <span>|</span>
+                        <span>資料更新時間：<strong id="obs-clock" class="text-slate-200 font-mono">--:--:--</strong></span>
+                    </p>
+                </div>
+            </div>
 
-  const icon = $('.weather-icon');
-  if (icon) {
-    const weatherText = String(station.weather || '');
-    icon.textContent = /雨|雷|陣雨|豪雨/.test(weatherText) ? '🌧️' : /陰|多雲/.test(weatherText) ? '⛅' : '🌤️';
-  }
+            <!-- 手機/平板快速切換面板按鈕 -->
+            <div class="flex lg:hidden items-center gap-1.5">
+                <button onclick="toggleLeftPanel()" title="圖層與情境控制" class="w-9 h-9 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-600/50 flex items-center justify-center text-sky-300 transition">
+                    <i data-lucide="layers" class="w-4 h-4"></i>
+                </button>
+                <button onclick="toggleRightDrawer()" title="測站詳情與預報" class="w-9 h-9 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-600/50 flex items-center justify-center text-amber-300 transition">
+                    <i data-lucide="cloud-sun" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
 
-  const metrics = document.querySelectorAll('.metric strong');
-  if (metrics[0]) metrics[0].innerHTML = `${fmt(station.humidity, 0)}<em>%</em>`;
-  if (metrics[1]) metrics[1].innerHTML = `${fmt(station.wind)}<em>m/s</em>`;
-  if (metrics[2]) metrics[2].innerHTML = `${fmt(station.gust)}<em>m/s</em>`;
-  if (metrics[3]) metrics[3].innerHTML = `${fmt(station.rain)}<em>mm</em>`;
+        <!-- 中間：全台天氣警特報跑馬燈提示 -->
+        <div class="pointer-events-auto glass-panel rounded-2xl px-3.5 py-2 flex items-center gap-2.5 overflow-hidden flex-1 max-w-full xl:max-w-xl">
+            <span class="shrink-0 px-2 py-0.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px] font-bold flex items-center gap-1">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> 警特報
+            </span>
+            <div class="overflow-hidden relative flex-1 text-xs text-slate-200">
+                <div id="alert-marquee" class="animate-marquee gap-8">
+                    <!-- 由 JS 依據情境動態填入警特報跑馬燈內容 -->
+                </div>
+            </div>
+        </div>
 
-  const status = $('#gps-status');
-  if (status) {
-    status.textContent = `定位成功｜距離 ${station.name} ${station.distance.toFixed(1)} km`;
-    status.dataset.state = 'success';
-  }
-  drawMarkers();
-}
+        <!-- 右側：手動刷新與 CWA Open Data API 說明按鈕 -->
+        <div class="pointer-events-auto glass-panel rounded-2xl px-3 py-2 flex items-center justify-between xl:justify-end gap-2 shrink-0">
+            <button onclick="manualRefreshData()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-600/50 text-slate-200 text-xs font-medium transition cursor-pointer">
+                <i id="refresh-spin-icon" data-lucide="refresh-cw" class="w-3.5 h-3.5 text-sky-400"></i>
+                <span>更新觀測</span>
+            </button>
 
-function locateUser() {
-  if (locating) return;
-  const button = $('#gps-button'), status = $('#gps-status');
-  if (!navigator.geolocation) {
-    status.textContent = '瀏覽器不支援 GPS 定位'; status.dataset.state = 'error'; return;
-  }
-  if (!window.isSecureContext) {
-    status.textContent = 'GPS 定位需要 HTTPS 安全連線'; status.dataset.state = 'error'; return;
-  }
+            <button onclick="openApiModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-600/90 hover:bg-sky-500 text-white text-xs font-semibold shadow-lg shadow-sky-950/60 transition cursor-pointer">
+                <i data-lucide="database" class="w-3.5 h-3.5"></i>
+                <span>中央氣象署資料來源與串接狀態</span>
+            </button>
+        </div>
+    </header>
 
-  locating = true;
-  button.disabled = true;
-  button.textContent = '定位中…';
-  status.textContent = '請允許使用你的位置';
-  status.dataset.state = 'pending';
+    <!-- ==================== 2. 左側懸浮圖層與區域控制台 (可一鍵收合/展開) ==================== -->
+    <aside id="left-panel" class="fixed top-36 xl:top-20 left-3 z-20 w-72 max-w-[calc(100vw-1.5rem)] transition-all duration-300 transform translate-x-0">
+        <div class="glass-panel rounded-2xl overflow-hidden">
+            
+            <!-- 標題與收合按鈕 -->
+            <div class="px-4 py-2.5 border-b border-slate-700/60 flex items-center justify-between bg-slate-800/40">
+                <div class="flex items-center gap-2 text-xs font-bold text-sky-300 tracking-wider">
+                    <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
+                    <span>氣象圖層與情境控制台</span>
+                </div>
+                <button onclick="toggleLeftPanel()" title="收合控制台" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700/50 transition cursor-pointer">
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </button>
+            </div>
 
-  navigator.geolocation.getCurrentPosition(
-    position => {
-      locating = false; button.disabled = false; button.textContent = '重新定位';
-      gpsPosition = {
-        lat: position.coords.latitude,
-        lon: position.coords.longitude,
-        accuracy: Math.max(1, position.coords.accuracy || 0)
-      };
-      const nearest = findNearest(gpsPosition.lat, gpsPosition.lon);
-      if (!nearest) {
-        status.textContent = '找不到有效測站'; status.dataset.state = 'error'; return;
-      }
-      updateLocal(nearest);
+            <div class="p-3.5 space-y-4 max-h-[calc(100vh-15.5rem)] overflow-y-auto custom-scrollbar">
+                
+                <!-- 即時資料來源狀態 -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-2">即時資料來源</label>
+                    <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs leading-relaxed">
+                        <div class="flex items-center gap-2 text-emerald-300 font-bold mb-1"><span class="w-2 h-2 rounded-full bg-emerald-400"></span>中央氣象署觀測資料</div>
+                        <p class="text-slate-400">測站數值取自 Xuan Weather GitHub Actions 整合資料；雷達圖使用氣象署官方雷達產品。</p>
+                    </div>
+                </div>
 
-      if (weatherMap) {
-        if (gpsMarker) weatherMap.removeLayer(gpsMarker);
-        if (gpsAccuracyCircle) weatherMap.removeLayer(gpsAccuracyCircle);
+                <!-- 2. 氣象圖層開關 (5 大圖層) -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-2">動態氣象圖層開關</label>
+                    <div class="space-y-1.5">
+                        <!-- 降水雷達回波 -->
+                        <label class="flex items-center justify-between p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/40 cursor-pointer transition">
+                            <span class="flex items-center gap-2 text-xs font-medium text-slate-200">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
+                                降水雷達回波 (dBZ)
+                            </span>
+                            <input type="checkbox" checked onchange="toggleWeatherLayer('radar', this.checked)" class="sr-only peer">
+                            <div class="w-8 h-4.5 bg-slate-700 rounded-full peer peer-checked:bg-sky-500 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-3.5"></div>
+                        </label>
 
-        gpsAccuracyCircle = L.circle([gpsPosition.lat, gpsPosition.lon], {
-          radius: gpsPosition.accuracy, className: 'xuan-gps-accuracy-breath',
-          color: '#4285f4', weight: 2, fillColor: '#4285f4', fillOpacity: .14, interactive: false
-        }).addTo(weatherMap);
+                        <!-- 動態風場流線 -->
+                        <label class="flex items-center justify-between p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/40 cursor-pointer transition">
+                            <span class="flex items-center gap-2 text-xs font-medium text-slate-200">
+                                <span class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]"></span>
+                                動態風場流線粒子
+                            </span>
+                            <input type="checkbox" onchange="toggleWeatherLayer('wind', this.checked)" class="sr-only peer">
+                            <div class="w-8 h-4.5 bg-slate-700 rounded-full peer peer-checked:bg-sky-500 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-3.5"></div>
+                        </label>
 
-        gpsMarker = L.marker([gpsPosition.lat, gpsPosition.lon], {
-          icon: L.divIcon({
-            className: 'xuan-gps-marker-wrap',
-            html: '<div class="xuan-gps-marker"><span class="xuan-gps-pulse"></span><span class="xuan-gps-dot"></span></div>',
-            iconSize: [28, 28], iconAnchor: [14, 14]
-          }),
-          zIndexOffset: 10000
-        }).addTo(weatherMap)
-          .bindPopup(`📍 你的 GPS 位置<br>精度：約 ${Math.round(gpsPosition.accuracy)} 公尺`);
+                        <!-- 測站氣溫標籤 -->
+                        <label class="flex items-center justify-between p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/40 cursor-pointer transition">
+                            <span class="flex items-center gap-2 text-xs font-medium text-slate-200">
+                                <span class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_#fbbf24]"></span>
+                                測站氣溫膠囊標籤
+                            </span>
+                            <input type="checkbox" checked onchange="toggleWeatherLayer('stations', this.checked)" class="sr-only peer">
+                            <div class="w-8 h-4.5 bg-slate-700 rounded-full peer peer-checked:bg-sky-500 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-3.5"></div>
+                        </label>
 
-        weatherMap.setView([gpsPosition.lat, gpsPosition.lon], Math.max(weatherMap.getZoom(), 10));
-      }
-    },
-    error => {
-      locating = false; button.disabled = false; button.textContent = '重新定位';
-      const messages = { 1: '定位權限遭拒絕', 2: '無法取得 GPS 位置', 3: '定位逾時，請重試' };
-      status.textContent = messages[error.code] || '定位失敗';
-      status.dataset.state = 'error';
-    },
-    { enableHighAccuracy: true, timeout: 25000, maximumAge: 60000 }
-  );
-}
+                        <!-- 氣象警特報範圍 -->
+                        <label class="flex items-center justify-between p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/40 cursor-pointer transition">
+                            <span class="flex items-center gap-2 text-xs font-medium text-slate-200">
+                                <span class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e]"></span>
+                                氣象警特報範圍（尚未串接）
+                            </span>
+                            <input type="checkbox" checked onchange="toggleWeatherLayer('alerts', this.checked)" class="sr-only peer">
+                            <div class="w-8 h-4.5 bg-slate-700 rounded-full peer peer-checked:bg-sky-500 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-3.5"></div>
+                        </label>
 
-function renderStations() {
-  const panel = $('#station-live-list');
-  if (!panel) return;
+                        <!-- 衛星雲圖紅外線遮罩 -->
+                        <label class="flex items-center justify-between p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/40 cursor-pointer transition">
+                            <span class="flex items-center gap-2 text-xs font-medium text-slate-200">
+                                <span class="w-2 h-2 rounded-full bg-indigo-400 shadow-[0_0_6px_#818cf8]"></span>
+                                衛星雲圖（尚未串接）
+                            </span>
+                            <input type="checkbox" disabled onchange="toggleWeatherLayer('satellite', this.checked)" class="sr-only peer">
+                            <div class="w-8 h-4.5 bg-slate-700 rounded-full peer peer-checked:bg-sky-500 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-3.5"></div>
+                        </label>
+                    </div>
+                </div>
 
-  const keyword = ($('#station-search')?.value || '').trim().toLowerCase();
-  const activeRegion = panel.dataset.stationRegion || 'all';
-  const activeCounty = panel.dataset.stationCounty || 'all';
-  const regionGroups = {
-    north: ['基隆市', '臺北市', '新北市', '桃園市', '新竹市', '新竹縣', '宜蘭縣'],
-    central: ['苗栗縣', '臺中市', '彰化縣', '南投縣', '雲林縣'],
-    south: ['嘉義市', '嘉義縣', '臺南市', '高雄市', '屏東縣'],
-    east: ['花蓮縣', '臺東縣'],
-    islands: ['澎湖縣', '金門縣', '連江縣']
-  };
-  const regionLabels = [
-    ['all', '全部'],
-    ['north', '北部'],
-    ['central', '中部'],
-    ['south', '南部'],
-    ['east', '東部'],
-    ['islands', '離島']
-  ];
-  const normalizePlace = value => String(value || '').trim().replace(/^台/, '臺');
-  const getRegion = station => {
-    const county = normalizePlace(station.county);
-    return Object.keys(regionGroups).find(key => regionGroups[key].includes(county)) || 'other';
-  };
-  const countyStations = stations.filter(s =>
-    activeRegion === 'all' || getRegion(s) === activeRegion
-  );
-  const regionCounts = Object.fromEntries(regionLabels.map(([key]) => [
-    key, key === 'all' ? stations.length : stations.filter(s => getRegion(s) === key).length
-  ]));
-  const countyOrder = activeRegion === 'all'
-    ? [...regionGroups.north, ...regionGroups.central, ...regionGroups.south, ...regionGroups.east, ...regionGroups.islands]
-    : (regionGroups[activeRegion] || []);
-  const counties = [...new Set(countyStations.map(s => normalizePlace(s.county)).filter(Boolean))]
-    .sort((a, b) => {
-      const ai = countyOrder.indexOf(a), bi = countyOrder.indexOf(b);
-      if (ai >= 0 || bi >= 0) return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi);
-      return a.localeCompare(b, 'zh-TW');
-    });
-  const selectedCountyStations = activeCounty === 'all'
-    ? countyStations
-    : countyStations.filter(s => normalizePlace(s.county) === activeCounty);
-  const filtered = selectedCountyStations.filter(s =>
-    `${s.name || ''} ${s.county || ''} ${s.town || ''}`.toLowerCase().includes(keyword)
-  );
+                <!-- 3. 區域快速飛越按鈕 -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-2">區域視角快速飛越</label>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button onclick="flyToRegion('taiwan', this)" class="region-btn col-span-3 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-sky-500/20 text-sky-300 border border-sky-400/50 transition cursor-pointer">
+                            全台灣本島總覽
+                        </button>
+                        <button onclick="flyToRegion('north', this)" class="region-btn px-2 py-1.5 rounded-xl text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition cursor-pointer">
+                            北部地區
+                        </button>
+                        <button onclick="flyToRegion('central', this)" class="region-btn px-2 py-1.5 rounded-xl text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition cursor-pointer">
+                            中部地區
+                        </button>
+                        <button onclick="flyToRegion('south', this)" class="region-btn px-2 py-1.5 rounded-xl text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition cursor-pointer">
+                            南部 (高雄)
+                        </button>
+                        <button onclick="flyToRegion('east', this)" class="region-btn col-span-3 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition cursor-pointer">
+                            東部與花東縱谷
+                        </button>
+                    </div>
+                </div>
 
-  // 選擇縣市後，直接列出該縣市所有鄉鎮市區的測站資料卡片，不再提供鄉鎮篩選層。
-  const visibleStations = activeCounty === 'all' ? filtered.slice(0, 120) : filtered;
+            </div>
+        </div>
+    </aside>
 
-  panel.innerHTML = `
-    <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:11px;color:var(--muted)">
-      <span>點擊測站可飛躍定位</span>
-      <span>${filtered.length.toLocaleString('zh-TW')} 站</span>
+    <!-- 左側收合時的展開浮動按鈕 -->
+    <button id="left-panel-expand-btn" onclick="toggleLeftPanel()" class="hidden fixed top-36 xl:top-20 left-3 z-20 glass-panel hover:bg-slate-800/90 text-sky-300 px-3 py-2.5 rounded-2xl items-center gap-2 text-xs font-semibold transition cursor-pointer">
+        <i data-lucide="layers" class="w-4 h-4"></i>
+        <span>圖層控制</span>
+    </button>
+
+    <!-- ==================== 3. 右側懸浮即時天氣詳情與預報抽屜 (可一鍵收合/展開) ==================== -->
+    <aside id="right-drawer" class="fixed top-36 xl:top-20 right-3 z-20 w-84 sm:w-96 max-w-[calc(100vw-1.5rem)] transition-all duration-300 transform translate-x-0">
+        <div class="glass-panel rounded-2xl overflow-hidden flex flex-col max-h-[calc(100vh-14.5rem)]">
+            
+            <!-- 抽屜標題列 -->
+            <div class="px-4 py-2.5 border-b border-slate-700/60 bg-slate-800/40 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-xs font-bold text-amber-300 tracking-wider">
+                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-rose-400"></i>
+                    <span>測站即時觀測</span><span id="station-count-label" class="text-[10px] text-emerald-300">載入中</span>
+                </div>
+                <button onclick="toggleRightDrawer()" title="收合天氣面板" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700/50 transition cursor-pointer">
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <!-- 抽屜可捲動主內容區 -->
+            <div class="p-4 space-y-4 overflow-y-auto custom-scrollbar">
+                
+                <!-- 當前選定測站大字體主卡片 (預設高雄市三民區) -->
+                <div class="p-3.5 rounded-2xl bg-gradient-to-br from-slate-800/90 via-slate-900/90 to-sky-950/60 border border-sky-500/30 relative overflow-hidden">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <span id="detail-station-name" class="text-base font-bold text-white">高雄市三民區</span>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-400/30">即時測站</span>
+                            </div>
+                            <p id="detail-weather-desc" class="text-xs text-slate-300 mt-0.5">多雲時晴 • 能見度良好</p>
+                        </div>
+                        <div id="detail-weather-icon" class="w-11 h-11 rounded-2xl bg-sky-500/15 border border-sky-400/30 flex items-center justify-center text-amber-300">
+                            <!-- 內嵌 SVG 天氣圖示 -->
+                        </div>
+                    </div>
+
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <div class="flex items-baseline gap-1">
+                            <span id="detail-temp" class="text-4xl font-bold font-mono tracking-tight text-white">24.8</span>
+                            <span class="text-lg font-medium text-sky-300">°C</span>
+                        </div>
+                        <div class="text-right text-xs text-slate-300 space-y-0.5">
+                            <div>體感溫度 <strong id="detail-feels-like" class="text-white font-mono">未提供</strong></div>
+                            <div>AQI <span id="detail-aqi" class="px-1.5 py-0.2 rounded bg-slate-700 text-slate-300 font-mono font-bold">未串接</span></div>
+                        </div>
+                    </div>
+
+                    <!-- 四項核心氣象指標 -->
+                    <div class="mt-3.5 pt-3 border-t border-slate-700/60 grid grid-cols-4 gap-1.5 text-center">
+                        <div class="bg-slate-950/50 rounded-xl p-1.5">
+                            <div class="text-[10px] text-slate-400">相對濕度</div>
+                            <div id="detail-humidity" class="text-xs font-mono font-bold text-sky-300 mt-0.5">68%</div>
+                        </div>
+                        <div class="bg-slate-950/50 rounded-xl p-1.5">
+                            <div class="text-[10px] text-slate-400">風向風速</div>
+                            <div id="detail-wind" class="text-xs font-mono font-bold text-emerald-300 mt-0.5">東北 3.2m/s</div>
+                        </div>
+                        <div class="bg-slate-950/50 rounded-xl p-1.5">
+                            <div class="text-[10px] text-slate-400">累積雨量</div>
+                            <div id="detail-rain" class="text-xs font-mono font-bold text-cyan-300 mt-0.5">0.0 mm</div>
+                        </div>
+                        <div class="bg-slate-950/50 rounded-xl p-1.5">
+                            <div class="text-[10px] text-slate-400">紫外線</div>
+                            <div id="detail-uv" class="text-xs font-mono font-bold text-amber-300 mt-0.5">未串接</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 未來 24 小時逐 3 小時氣溫與降雨機率 SVG 圖表 -->
+                <div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-700/60">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                            <i data-lucide="trending-up" class="w-3.5 h-3.5 text-sky-400"></i> 測站資料狀態
+                        </span>
+                        <div class="flex items-center gap-2 text-[10px]">
+                            <span class="flex items-center gap-1 text-amber-300"><span class="w-2 h-0.5 bg-amber-400 inline-block"></span>氣溫</span>
+                            <span class="flex items-center gap-1 text-sky-400"><span class="w-2 h-2 bg-sky-500/50 inline-block rounded-xs"></span>降雨%</span>
+                        </div>
+                    </div>
+                    <div id="hourly-chart-container" class="w-full text-xs text-slate-400 leading-relaxed py-3">顯示該測站最新觀測時間與有效欄位；未接入官方預報前不產生推算曲線。</div>                    </div>
+                </div>
+
+                <!-- 一週天氣預報精簡列表 -->
+                <div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-700/60">
+                    <div class="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-400"></i> 預報資料狀態
+                    </div>
+                    <div id="weekly-forecast-list" class="space-y-1.5 text-xs text-slate-400 leading-relaxed">尚未接入中央氣象署鄉鎮預報資料，暫不顯示推算值。</div>                    </div>
+                </div>
+
+            </div>
+        </div>
+    </aside>
+
+    <!-- 右側收合時的展開浮動按鈕 -->
+    <button id="right-drawer-expand-btn" onclick="toggleRightDrawer()" class="hidden fixed top-36 xl:top-20 right-3 z-20 glass-panel hover:bg-slate-800/90 text-amber-300 px-3 py-2.5 rounded-2xl items-center gap-2 text-xs font-semibold transition cursor-pointer">
+        <i data-lucide="cloud-sun" class="w-4 h-4"></i>
+        <span>測站預報</span>
+    </button>
+
+    <!-- ==================== 4. 底部懸浮時間軸播放控制器 (Timeline Scrubber) ==================== -->
+    <div class="fixed bottom-3 left-3 right-3 xl:right-[26.5rem] z-20 pointer-events-none flex flex-col sm:flex-row items-stretch sm:items-end justify-between gap-2.5">
+        
+        <!-- 時間軸控制器主體 -->
+        <div class="pointer-events-auto glass-panel rounded-2xl px-4 py-2.5 flex-1 max-w-2xl">
+            <div class="flex items-center justify-between gap-3 mb-1.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center" title="官方最新單張雷達圖"><i data-lucide="radio" class="w-3.5 h-3.5"></i></span>
+                    <span class="text-xs font-bold text-slate-200">中央氣象署最新雷達回波</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span id="timeline-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">即時觀測</span>
+                    <span id="timeline-time-label" class="text-xs font-mono font-bold text-sky-300">現在 (00:00)</span>
+                </div>
+            </div>
+
+            <div class="w-full rounded-full bg-slate-800/80 h-1.5 overflow-hidden mt-2"><div class="h-full w-full bg-sky-500/80"></div></div>
+            <div class="flex justify-between text-[10px] font-mono text-slate-400 mt-1"><span>官方雷達產品</span><span class="text-sky-300">約每 10 分鐘更新</span><span id="radar-product-status">載入中</span></div>
+        </div>
+
+        <!-- 左下角自訂地圖縮放按鈕 -->
+        <div class="pointer-events-auto hidden sm:flex flex-col glass-panel rounded-xl p-1 gap-1 shrink-0">
+            <button onclick="map.zoomIn()" title="放大地圖" class="w-7 h-7 rounded-lg hover:bg-slate-700/70 text-slate-200 flex items-center justify-center transition cursor-pointer">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            </button>
+            <div class="h-[1px] bg-slate-700/80 mx-1"></div>
+            <button onclick="map.zoomOut()" title="縮小地圖" class="w-7 h-7 rounded-lg hover:bg-slate-700/70 text-slate-200 flex items-center justify-center transition cursor-pointer">
+                <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+            </button>
+        </div>
     </div>
-    <input id="station-search" type="search" placeholder="搜尋縣市、鄉鎮或測站名稱" value="${safe(keyword)}">
-    <div class="xw-station-region-tabs" role="group" aria-label="測站區域分類">
-      ${regionLabels.map(([key, label]) => `
-        <button type="button" data-station-region="${key}" class="${activeRegion === key ? 'active' : ''}">${label} ${regionCounts[key].toLocaleString('zh-TW')}</button>
-      `).join('')}
+
+    <!-- ==================== 5. 右下角氣象圖例 (dBZ 雷達色階 & 氣溫色階) ==================== -->
+    <div class="fixed bottom-3 right-3 z-20 hidden xl:block pointer-events-auto glass-panel rounded-2xl px-3.5 py-2.5 w-96">
+        <div class="space-y-2">
+            <!-- 雷達回波 dBZ 色階 -->
+            <div>
+                <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                    <span class="font-semibold text-slate-300">雷達回波強度 (dBZ)</span>
+                    <span class="font-mono">10 &nbsp; 20 &nbsp; 35 &nbsp; 45 &nbsp; 55 &nbsp; 65+</span>
+                </div>
+                <div class="h-2 w-full rounded-full bg-gradient-to-r from-[#00e5ff] via-[#10b981] via-[#facc15] via-[#f97316] via-[#ef4444] to-[#d946ef] shadow-inner"></div>
+            </div>
+
+            <!-- 氣溫色階 -->
+            <div>
+                <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                    <span class="font-semibold text-slate-300">測站氣溫指標 (°C)</span>
+                    <span class="font-mono">12° &nbsp;&nbsp; 18° &nbsp;&nbsp; 24° &nbsp;&nbsp; 30° &nbsp;&nbsp; 35°+</span>
+                </div>
+                <div class="h-2 w-full rounded-full bg-gradient-to-r from-[#3b82f6] via-[#06b6d4] via-[#10b981] via-[#f59e0b] to-[#ef4444] shadow-inner"></div>
+            </div>
+        </div>
     </div>
-    <div class="xw-station-county-wrap">
-      <div class="xw-station-filter-title">📍 選擇縣市</div>
-      <div class="xw-station-county-tabs" role="group" aria-label="縣市分類">
-        <button type="button" data-station-county="all" class="${activeCounty === 'all' ? 'active' : ''}">全部縣市</button>
-        ${counties.map(county => `
-          <button type="button" data-station-county="${safe(county)}" class="${activeCounty === county ? 'active' : ''}">${safe(county)}</button>
-        `).join('')}
-      </div>
+
+    <!-- ==================== 6. 中央氣象署 CWA Open Data API 串接說明彈窗 ==================== -->
+    <div id="api-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-panel rounded-2xl max-w-xl w-full overflow-hidden border border-sky-500/40">
+            <div class="px-5 py-4 border-b border-slate-700/70 flex items-center justify-between bg-slate-800/60">
+                <div class="flex items-center gap-2.5">
+                    <i data-lucide="server" class="w-5 h-5 text-sky-400"></i>
+                    <h3 class="font-bold text-white text-base">中央氣象署 CWA Open Data API 串接架構說明</h3>
+                </div>
+                <button onclick="closeApiModal()" class="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-3.5 text-xs text-slate-300 leading-relaxed max-h-[72vh] overflow-y-auto custom-scrollbar">
+                <p class="text-slate-200">
+                    本系統採用<strong>全螢幕即時氣象視覺化引擎</strong>架構，即時測站與雷達資料已採用官方產品；警特報、衛星及預報模組仍需另行串接。若需接入<strong>交通部中央氣象署 (CWA) 氣象資料開放平臺</strong>真實即時資料，可依下列端點進行串接：
+                </p>
+
+                <div class="space-y-2.5">
+                    <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                        <div class="font-bold text-sky-300 mb-1">1. 自動氣象站-氣象觀測資料 (O-A0001-001)</div>
+                        <code class="block text-[11px] text-emerald-400 font-mono bg-black/50 p-1.5 rounded mb-1 break-all">
+                            GET https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0001-001?Authorization={CWA_API_KEY}
+                        </code>
+                        <p class="text-slate-400">每 10 分鐘更新全台無人與有人測站之即時氣溫 (<code class="text-slate-200">AirTemperature</code>)、相對濕度、風向風速與日累積雨量。</p>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                        <div class="font-bold text-sky-300 mb-1">2. 雷達整合回波圖資料 (O-A0058-003)</div>
+                        <code class="block text-[11px] text-emerald-400 font-mono bg-black/50 p-1.5 rounded mb-1 break-all">
+                            GET https://opendata.cwa.gov.tw/fileapi/v1/opendataapi/O-A0058-003?Authorization={CWA_API_KEY}&format=JSON
+                        </code>
+                        <p class="text-slate-400">取得台灣周邊經緯度網格化 dBZ 雷達反射率矩陣，可直接透過 <code class="text-slate-200">L.imageOverlay</code> 或 WebGL/Canvas 渲染於地圖上方。</p>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700/80">
+                        <div class="font-bold text-sky-300 mb-1">3. 天氣警特報與鄉鎮預報 (W-C0033-001 / F-D0047-061)</div>
+                        <p class="text-slate-400">透過 <code class="text-slate-200">W-C0033-001</code> 取得豪雨、陸上強風與低溫特報縣市警戒區，並以 <code class="text-slate-200">F-D0047-061</code> 取得高雄市三民區等鄉鎮逐 3 小時預報資料。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-5 py-3 bg-slate-800/50 border-t border-slate-700/70 flex justify-end">
+                <button onclick="closeApiModal()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition cursor-pointer">
+                    了解並返回地圖
+                </button>
+            </div>
+        </div>
     </div>
-    <div class="xw-station-grid">
-      ${visibleStations.map(s => `
-        <button type="button" class="xw-station-card" data-lat="${s.lat ?? ''}" data-lon="${s.lon ?? ''}">
-          <strong>${safe(s.name)}</strong>
-          <small>${safe(s.county)} ${safe(s.town)}</small>
-          <div class="temp">${fmt(s.temperature)}°C</div>
-          <div class="meta">${safe(s.weather)}<br>濕度 ${fmt(s.humidity, 0)}% · 風 ${fmt(s.wind)}m/s<br>雨量 ${fmt(s.rain)}mm</div>
-        </button>
-      `).join('')}
+
+    <!-- 系統狀態提示 Toast -->
+    <div id="toast-box" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300">
+        <div class="glass-panel border-sky-400/50 text-sky-200 px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span id="toast-text">視角已切換</span>
+        </div>
     </div>
-    ${activeCounty === 'all' && filtered.length > 120 ? '<div style="padding:8px 2px;color:var(--muted);font-size:10px;text-align:center">目前顯示前 120 站，請選擇縣市或使用搜尋縮小範圍</div>' : ''}
-    ${filtered.length === 0 ? '<div style="padding:18px 4px;color:var(--muted);font-size:12px;text-align:center">此分類沒有符合的測站</div>' : ''}
-  `;
 
-  panel.querySelectorAll('[data-station-region]').forEach(button => {
-    button.addEventListener('click', () => {
-      panel.dataset.stationRegion = button.dataset.stationRegion;
-      panel.dataset.stationCounty = 'all';
-      renderStations();
-    });
-  });
-  panel.querySelectorAll('[data-station-county]').forEach(button => {
-    button.addEventListener('click', () => {
-      panel.dataset.stationCounty = button.dataset.stationCounty;
-      renderStations();
-    });
-  });
+    <!-- ==================== JavaScript 核心氣象視覺化引擎 ==================== -->
+    <script>
+        // 初始化 Lucide 圖示
+        lucide.createIcons();
 
-  const input = $('#station-search');
-  if (input) {
-    input.addEventListener('input', () => {
-      const pos = input.selectionStart;
-      renderStations();
-      const nextInput = $('#station-search');
-      if (nextInput) {
-        nextInput.focus();
-        if (typeof pos === 'number') nextInput.setSelectionRange(pos, pos);
-      }
-    });
-  }
-  panel.querySelectorAll('.xw-station-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const lat = Number(card.dataset.lat), lon = Number(card.dataset.lon);
-      if (weatherMap && Number.isFinite(lat) && Number.isFinite(lon)) {
-        weatherMap.setView([lat, lon], Math.max(weatherMap.getZoom(), 11));
-        $('#xw-drawer')?.classList.remove('open');
-        $('#xw-drawer-toggle')?.setAttribute('aria-expanded', 'false');
-      }
-    });
-  });
-}
-function setDataConnectionStatus(state, message) {
-  const element = $('.updated');
-  if (!element) return;
-  element.dataset.state = ['connected', 'updating', 'error'].includes(state) ? state : 'updating';
-  element.textContent = message;
-}
+        // 1. 初始化全螢幕 Leaflet 地圖 (預設聚焦台灣本島，略偏高雄三民區視角)
+        const map = L.map('map', {
+            center: [23.55, 120.85],
+            zoom: 8,
+            zoomControl: false,
+            attributionControl: true
+        });
 
-function renderBelowDashboard() {
-  const overview = document.getElementById('xw-dashboard-overview');
-  const extremes = document.getElementById('xw-dashboard-extremes');
-  const regionsHost = document.getElementById('xw-dashboard-regions');
-  if (!overview || !extremes || !regionsHost) return;
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO | 中央氣象署官方雷達與測站觀測資料',
+            subdomains: 'abcd',
+            maxZoom: 18,
+            minZoom: 6
+        }).addTo(map);
 
-  const valid = key => stations.filter(s => Number.isFinite(s[key]));
-  const temps = valid('temperature'), rains = valid('rain'), winds = valid('wind'), gusts = valid('gust');
-  const avgTemp = temps.length ? temps.reduce((sum, s) => sum + s.temperature, 0) / temps.length : null;
-  const overviewCards = [
-    ['🌡️ 全台平均氣溫', avgTemp === null ? '--°C' : avgTemp.toFixed(1) + '°C', '有效氣溫觀測 ' + temps.length.toLocaleString('zh-TW') + ' 站'],
-    ['📍 有效氣溫測站', temps.length.toLocaleString('zh-TW') + ' 站', '總測站 ' + stations.length.toLocaleString('zh-TW') + ' 站'],
-    ['🌧️ 有效雨量測站', rains.length.toLocaleString('zh-TW') + ' 站', '僅統計有有效雨量數值的測站'],
-    ['💨 有效風速測站', winds.length.toLocaleString('zh-TW') + ' 站', '僅統計有有效風速數值的測站']
-  ];
-  overview.innerHTML = overviewCards.map(([label, value, note]) =>
-    '<article class="xw-dashboard-card"><div class="card-label">' + label + '</div><div class="card-value">' + value + '</div><div class="card-note">' + note + '</div></article>'
-  ).join('');
+        // 氣象圖層群組
+        const weatherLayers = {
+            radar: L.layerGroup().addTo(map),
+            stations: L.layerGroup().addTo(map),
+            alerts: L.layerGroup().addTo(map),
+            satellite: L.layerGroup() // 預設關閉，可一鍵開啟
+        };
 
-  const pick = (items, key, descending) => [...items].sort((a, b) => descending ? b[key] - a[key] : a[key] - b[key])[0] || null;
-  const low = pick(temps, 'temperature', false);
-  const items = [
-    ['🔥 最高氣溫', pick(temps, 'temperature', true), 'temperature', '°C'],
-    ['❄️ 最低氣溫', low, 'temperature', '°C'],
-    ['💨 最大陣風', pick(gusts, 'gust', true), 'gust', 'm/s'],
-    ['🌧️ 最大雨量', pick(rains, 'rain', true), 'rain', 'mm']
-  ];
-  extremes.innerHTML = items.map(([label, station, key, unit]) => {
-    if (!station) return '<article class="xw-dashboard-card station-card"><div class="card-label">' + label + '</div><div class="card-value">暫無有效資料</div></article>';
-    const place = [station.county, station.town].filter(Boolean).join(' ');
-    return '<article class="xw-dashboard-card station-card"><div class="card-label">' + label + '</div><div class="card-value">' + fmt(station[key]) + ' ' + unit + '</div><div class="card-note"><strong>' + safe(station.name) + '</strong><br>' + safe(place) + '</div></article>';
-  }).join('');
+        // 區域飛越座標預設
+        const regionPresets = {
+            taiwan: { center: [23.55, 120.85], zoom: 8, label: '全台灣本島總覽' },
+            north: { center: [25.02, 121.52], zoom: 10, label: '北部地區 (雙北/桃竹)' },
+            central: { center: [24.15, 120.68], zoom: 10, label: '中部地區 (台中/彰化)' },
+            south: { center: [22.66, 120.32], zoom: 11, label: '南部地區 (高雄市三民區核心)' },
+            east: { center: [23.85, 121.48], zoom: 9, label: '東部與花東縱谷' }
+        };
 
-  const regionRows = XUAN_REGIONS.map(region => {
-    const members = temps.filter(s => region.counties.includes(s.county) || region.counties.includes(String(s.county).replace(/^臺/, '台')));
-    const averageTemp = members.length ? members.reduce((sum, s) => sum + s.temperature, 0) / members.length : null;
-    return { name: region.name, count: members.length, average: averageTemp };
-  });
-  regionsHost.innerHTML = regionRows.map(region =>
-    '<article class="xw-dashboard-card xw-dashboard-region"><div><div class="card-label">' + region.name + '</div><span>' + region.count.toLocaleString('zh-TW') + ' 站</span></div><strong>' + (region.average === null ? '--°C' : region.average.toFixed(1) + '°C') + '</strong></article>'
-  ).join('');
-}
+        // 全局狀態：測站資料直接來自既有 data/cwa-observations.json
+        const DATA_URL = './data/cwa-observations.json';
+        const REFRESH_MS = 5 * 60 * 1000;
+        const RADAR_URL = 'https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0058-001.png';
+        const RADAR_BOUNDS = [[17.75, 115.00], [29.25, 126.50]];
+        let currentScenario = 'monsoon'; // 僅供選擇性風場示意動畫，不代表實測風場
+        let selectedStationId = '';
+        let timelineOffsetMinutes = 0;
+        let isPlayingTimeline = false;
+        let timelineTimer = null;
+        let windLayerVisible = false;
+        let cwaStations = [];
+        let cwaUpdatedAt = null;
+        let radarOverlay = null;
 
-function renderXuanHighlights() {
-  const valid = stations.filter(s => s && s.name);
-  const pick = key => valid.filter(s => Number.isFinite(s[key])).sort((a, b) => b[key] - a[key]);
-  const temp = pick('temperature'), gust = pick('gust'), rain = pick('rain');
-  const low = temp.length ? [...temp].sort((a, b) => a.temperature - b.temperature)[0] : null;
-  const set = (valueId, stationId, item, key, unit, digits = 1) => {
-    const valueEl = document.getElementById(valueId), stationEl = document.getElementById(stationId);
-    if (valueEl) valueEl.innerHTML = item ? `${Number(item[key]).toFixed(digits)}<em>${unit}</em>` : `--<em>${unit}</em>`;
-    if (stationEl) stationEl.textContent = item ? `${item.county || ''} ${item.name}`.trim() : '--';
-  };
-  set('xuan-high-temp', 'xuan-high-temp-station', temp[0], 'temperature', '°C');
-  set('xuan-low-temp', 'xuan-low-temp-station', low, 'temperature', '°C');
-  set('xuan-max-gust', 'xuan-max-gust-station', gust[0], 'gust', 'm/s');
-  set('xuan-max-rain', 'xuan-max-rain-station', rain[0], 'rain', 'mm');
-}
+        function toNumber(value) {
+            if (value === null || value === undefined || value === '' || value === '-99') return null;
+            const n = Number(value);
+            return Number.isFinite(n) && n > -90 ? n : null;
+        }
+        function compassDirection(value) {
+            const n = toNumber(value);
+            if (n === null) return '未知';
+            const dirs = ['北','北北東','東北','東北東','東','東南東','東南','南南東','南','南南西','西南','西南西','西','西北西','北北西'];
+            return dirs[Math.round((((n % 360) + 360) % 360) / 22.5) % 16];
+        }
+        function parseCwaStation(raw) {
+            const w = raw.WeatherElement || {};
+            const coords = raw.GeoInfo?.Coordinates || [];
+            const coord = coords.find(x => String(x.CoordinateName || '').toUpperCase() === 'WGS84')
+                || coords.find(x => toNumber(x.StationLatitude) !== null && toNumber(x.StationLongitude) !== null) || {};
+            const rainValue = w.Now?.Precipitation ?? raw.RainfallElement?.Now?.Precipitation ?? null;
+            const rawDir = w.WindDirection;
+            return {
+                id: String(raw.StationId || raw.StationID || raw.StationNo || raw.StationName || ''),
+                name: raw.StationName || raw.StationNameEN || '未知測站',
+                county: raw.GeoInfo?.CountyName || '', town: raw.GeoInfo?.TownName || '',
+                coords: [toNumber(coord.StationLatitude), toNumber(coord.StationLongitude)],
+                temp: toNumber(w.AirTemperature), humidity: toNumber(w.RelativeHumidity),
+                windDir: toNumber(rawDir) === null ? (rawDir || '未知') : compassDirection(rawDir),
+                windSpd: toNumber(w.WindSpeed), gust: toNumber(w.GustInfo?.PeakGustSpeed),
+                rain: toNumber(rainValue), desc: w.Weather || '無天氣描述',
+                obsTime: raw.ObsTime?.DateTime || raw.ObsTime || ''
+            };
+        }
+        function formatObsTime(value) {
+            if (!value) return '--';
+            const d = new Date(value);
+            return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleString('zh-TW', {timeZone:'Asia/Taipei',hour12:false});
+        }
+        function setRadarStatus(message, error = false) {
+            const el = document.getElementById('radar-product-status');
+            if (el) { el.textContent = message; el.className = error ? 'text-rose-300' : 'text-emerald-300'; }
+        }
 
-let currentRanking = 'hot';
-const XUAN_REGIONS = [
-  { name: '北部', counties: ['臺北市', '台北市', '新北市', '基隆市', '桃園市', '新竹市', '新竹縣', '宜蘭縣'] },
-  { name: '中部', counties: ['苗栗縣', '臺中市', '台中市', '彰化縣', '南投縣', '雲林縣'] },
-  { name: '南部', counties: ['嘉義市', '嘉義縣', '臺南市', '台南市', '高雄市', '屏東縣'] },
-  { name: '東部', counties: ['花蓮縣', '臺東縣', '台東縣'] },
-  { name: '離島', counties: ['澎湖縣', '金門縣', '連江縣'] }
-];
-const XUAN_RANK_CONFIG = {
-  hot: { key: 'temperature', unit: '°C', descending: true },
-  'lowland-cold': {
-    key: 'temperature', unit: '°C', descending: false,
-    filter: station => Number.isFinite(station.altitude) && station.altitude <= 200,
-    showAltitude: true
-  },
-  cold: { key: 'temperature', unit: '°C', descending: false },
-  gust: { key: 'gust', unit: 'm/s', descending: true },
-  rain: { key: 'rain', unit: 'mm', descending: true },
-  wind: { key: 'wind', unit: 'm/s', descending: true }
-};
+        // 依據溫度取得發光膠囊顏色
+        function getTempColor(temp) {
+            if (temp < 18) return { bg: 'rgba(37, 99, 235, 0.85)', border: '#60a5fa', glow: 'rgba(59, 130, 246, 0.7)' };
+            if (temp < 22) return { bg: 'rgba(8, 145, 178, 0.85)', border: '#22d3ee', glow: 'rgba(6, 182, 212, 0.7)' };
+            if (temp < 26) return { bg: 'rgba(5, 150, 105, 0.85)', border: '#34d399', glow: 'rgba(16, 185, 129, 0.7)' };
+            if (temp < 30) return { bg: 'rgba(217, 119, 6, 0.85)', border: '#fbbf24', glow: 'rgba(245, 158, 11, 0.7)' };
+            return { bg: 'rgba(225, 29, 72, 0.85)', border: '#fb7185', glow: 'rgba(244, 63, 94, 0.7)' };
+        }
 
-function renderLiveRankings() {
-  const host = document.getElementById('xuan-ranking-list');
-  if (!host) return;
-  const cfg = XUAN_RANK_CONFIG[currentRanking] || XUAN_RANK_CONFIG.hot;
-  const rows = stations.filter(x => Number.isFinite(x[cfg.key]) && (!cfg.filter || cfg.filter(x)))
-    .sort((a, b) => cfg.descending ? b[cfg.key] - a[cfg.key] : a[cfg.key] - b[cfg.key])
-    .slice(0, 10);
-  host.innerHTML = rows.length
-    ? rows.map((x, i) => {
-        const location = `${safe(x.county)} ${safe(x.town)}`;
-        const altitudeLabel = cfg.showAltitude ? ` · 海拔 ${fmt(x.altitude, 0)} 公尺` : '';
-        return `<div class="xuan-rank-row"><span class="xuan-rank-number">${i + 1}</span><div class="xuan-rank-station"><b>${safe(x.name)}</b><small>${location}${altitudeLabel}</small></div><span class="xuan-rank-value">${fmt(x[cfg.key], 1)} ${cfg.unit}</span></div>`;
-      }).join('')
-    : '<div>目前沒有符合條件且具有效氣溫資料的測站</div>';
-  const note = document.getElementById('xuan-ranking-note');
-  if (note) note.textContent = cfg.showAltitude
-    ? '平地低溫排行：僅列入具有效氣溫資料且海拔 ≤ 200 公尺的測站；依最新觀測值排序。'
-    : '依測站最新有效觀測值排序；非日累積或預報值。';
-  document.querySelectorAll('[data-rank]').forEach(b => b.classList.toggle('active', b.dataset.rank === currentRanking));
-}
+        // 內嵌精緻 SVG 天氣圖示生成器
+        function getWeatherSvg(desc) {
+            if (desc.includes('颱風') || desc.includes('雷')) {
+                return `<svg class="w-6 h-6 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M13 13l-2 5h4l-2 5" stroke="#facc15"/></svg>`;
+            }
+            if (desc.includes('雨')) {
+                return `<svg class="w-6 h-6 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 17H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M16 19v2M12 19v3M8 19v2" stroke="#38bdf8" stroke-linecap="round"/></svg>`;
+            }
+            return `<svg class="w-6 h-6 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4" fill="rgba(251,191,36,0.3)"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`;
+        }
 
-function renderRegionalComparison() {
-  const host = document.getElementById('xuan-region-list');
-  if (!host) return;
-  const rows = XUAN_REGIONS.map(region => {
-    const members = stations.filter(x => region.counties.includes(x.county) && Number.isFinite(x.temperature));
-    return { ...region, count: members.length, average: members.length ? members.reduce((a, x) => a + x.temperature, 0) / members.length : null };
-  }).filter(x => x.count);
-  if (!rows.length) { host.textContent = '目前沒有足夠的區域氣溫資料'; return; }
-  const vals = rows.map(x => x.average), min = Math.min(...vals), span = Math.max(1, Math.max(...vals) - min);
-  host.innerHTML = rows.map(x => `<div class="xuan-region-row"><span class="xuan-region-name">${x.name}</span><div class="xuan-region-track"><div class="xuan-region-fill" style="width:${18 + (x.average - min) / span * 82}%"></div></div><span class="xuan-region-value">${x.average.toFixed(1)}°C</span></div>`).join('');
-}
+        // 3. 中央氣象署官方雷達整合回波圖（O-A0058-001）
+        function renderRadarAndSatellite(forceRefresh = false) {
+            weatherLayers.radar.clearLayers();
+            weatherLayers.satellite.clearLayers();
+            const cacheKey = forceRefresh ? Date.now() : Math.floor(Date.now() / 600000);
+            radarOverlay = L.imageOverlay(RADAR_URL + '?_=' + cacheKey, RADAR_BOUNDS, {
+                opacity: 0.82, interactive: false, alt: '中央氣象署雷達整合回波圖'
+            });
+            radarOverlay.on('load', () => setRadarStatus('已載入 ' + new Date().toLocaleTimeString('zh-TW',{hour12:false})));
+            radarOverlay.on('error', () => setRadarStatus('雷達圖載入失敗', true));
+            radarOverlay.addTo(weatherLayers.radar);
+        }
 
-function renderWeatherBrief() {
-  const host = document.getElementById('xuan-weather-brief');
-  if (!host) return;
-  const t = stations.filter(x => Number.isFinite(x.temperature)), g = stations.filter(x => Number.isFinite(x.gust)), r = stations.filter(x => Number.isFinite(x.rain));
-  const hot = [...t].sort((a, b) => b.temperature - a.temperature)[0];
-  const cold = [...t].sort((a, b) => a.temperature - b.temperature)[0];
-  const gust = [...g].sort((a, b) => b.gust - a.gust)[0];
-  const rain = [...r].sort((a, b) => b.rain - a.rain)[0];
-  const items = [];
-  if (hot) items.push(['🌡️', '目前最高氣溫', `${hot.county} ${hot.name} ${fmt(hot.temperature)}°C`]);
-  if (cold) items.push(['❄️', '目前最低氣溫', `${cold.county} ${cold.name} ${fmt(cold.temperature)}°C`]);
-  if (gust) items.push(['💨', '目前最大陣風', `${gust.county} ${gust.name} ${fmt(gust.gust)} m/s`]);
-  if (rain) items.push(['🌧️', '目前最大瞬時雨量', `${rain.county} ${rain.name} ${fmt(rain.rain)} mm`]);
-  host.innerHTML = items.map(([icon, label, value]) => `<div class="xuan-brief-item"><span>${icon}</span><div><strong>${label}</strong><br>${safe(value)}</div></div>`).join('') || '目前沒有足夠資料';
-  const coverage = document.getElementById('xuan-data-coverage');
-  if (coverage) coverage.textContent = `資料概況：整合 ${stations.length} 站｜氣溫 ${t.length} 站｜陣風 ${g.length} 站｜雨量 ${r.length} 站`;
-}
+                // 4. 尚未串接警特報 API 前，不繪製虛構警戒區
+        function renderWeatherAlerts() {
+            weatherLayers.alerts.clearLayers();
+            const host = document.getElementById('alert-marquee');
+            if (host) host.innerHTML = '<span class="inline-flex items-center gap-2"><strong class="text-amber-300">警特報資料流尚未串接</strong><span>請以中央氣象署最新公告為準</span><a href="https://www.cwa.gov.tw/V8/C/P/Warning.html" target="_blank" rel="noopener noreferrer" class="text-sky-300 underline">查看官方警特報</a></span>';
+        }
 
-function renderMapInfoPanel(updatedAt = null) {
-  const set = (id, value) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
-  };
-  const validTemps = stations.filter(x => Number.isFinite(x.temperature));
-  const hot = [...validTemps].sort((a, b) => b.temperature - a.temperature)[0];
-  const cold = [...validTemps].sort((a, b) => a.temperature - b.temperature)[0];
-  const gust = stations.filter(x => Number.isFinite(x.gust)).sort((a, b) => b.gust - a.gust)[0];
-  const rain = stations.filter(x => Number.isFinite(x.rain)).sort((a, b) => b.rain - a.rain)[0];
-  const avg = validTemps.length
-    ? validTemps.reduce((sum, x) => sum + x.temperature, 0) / validTemps.length
-    : null;
+                // 5. 繪製中央氣象署真實測站，不使用固定 12 站模擬值
+        function renderStationsAndDetails() {
+            weatherLayers.stations.clearLayers();
+            if (!cwaStations.length) {
+                document.getElementById('detail-station-name').textContent = '等待測站資料';
+                document.getElementById('detail-weather-desc').textContent = '尚未成功讀取中央氣象署整合資料';
+                document.getElementById('detail-temp').textContent = '--';
+                return;
+            }
+            const valid = cwaStations.filter(st =>
+                st.coords.every(Number.isFinite) && st.coords[0] >= 17 && st.coords[0] <= 27 &&
+                st.coords[1] >= 115 && st.coords[1] <= 126 &&
+                (st.temp !== null || st.humidity !== null || st.windSpd !== null || st.rain !== null)
+            );
+            valid.forEach(st => {
+                const hasTemp = st.temp !== null;
+                const style = hasTemp ? getTempColor(st.temp) : {bg:'rgba(71,85,105,.9)',border:'#94a3b8',glow:'rgba(148,163,184,.3)'};
+                const selected = st.id === selectedStationId;
+                const icon = L.divIcon({
+                    className:'custom-station-marker',
+                    html:'<div class="station-pill ' + (selected?'station-pill-active':'') + ' flex items-center gap-1 px-1.5 py-1 rounded-full text-white text-[10px] font-bold whitespace-nowrap cursor-pointer border" style="background:'+style.bg+';border-color:'+style.border+';box-shadow:0 0 8px '+style.glow+';backdrop-filter:blur(5px)"><span>'+(hasTemp?st.temp.toFixed(1)+'°':'●')+'</span></div>',
+                    iconSize:[42,24],iconAnchor:[21,12]
+                });
+                const marker=L.marker(st.coords,{icon,title:[st.county,st.town,st.name].join(' ')}).addTo(weatherLayers.stations);
+                marker.on('click',()=>{selectedStationId=st.id;updateRightDrawerDetails(st);});
+                const place=[st.county,st.town].filter(Boolean).join(' ');
+                const popup='<div class="p-3.5"><div class="flex items-center justify-between mb-1.5 pr-4"><span class="text-sm font-bold text-white">'+place+' '+st.name+'</span><span class="text-xs font-mono font-bold px-2 py-0.5 rounded-full text-white" style="background:'+style.bg+'">'+(hasTemp?st.temp.toFixed(1)+'°C':'--°C')+'</span></div><div class="text-[10px] text-slate-400 mb-2">觀測時間：'+formatObsTime(st.obsTime)+'</div><div class="text-[11px] text-sky-300 mb-2.5">'+(st.desc||'無天氣描述')+'</div><div class="grid grid-cols-2 gap-2 text-xs bg-slate-950/75 p-2.5 rounded-xl border border-slate-800"><div><span class="text-slate-400">濕度：</span><strong class="font-mono text-sky-300">'+(st.humidity===null?'--':st.humidity+'%')+'</strong></div><div><span class="text-slate-400">風向風速：</span><strong class="text-emerald-300">'+(st.windSpd===null?'--':st.windDir+' '+st.windSpd+'m/s')+'</strong></div><div><span class="text-slate-400">陣風：</span><strong class="font-mono text-amber-300">'+(st.gust===null?'--':st.gust+'m/s')+'</strong></div><div><span class="text-slate-400">雨量：</span><strong class="font-mono text-cyan-300">'+(st.rain===null?'--':st.rain+'mm')+'</strong></div></div></div>';
+                marker.bindPopup(popup);
+            });
+            const active=valid.find(st=>st.id===selectedStationId)||valid.find(st=>st.county.includes('高雄'))||valid[0];
+            if(active){selectedStationId=active.id;updateRightDrawerDetails(active);}
+            const count=document.getElementById('station-count-label');
+            if(count) count.textContent=valid.length.toLocaleString('zh-TW')+' 站';
+        }
 
-  set('xw-info-station-count', `${stations.length.toLocaleString('zh-TW')} 站`);
-  set('xw-info-avg-temp', avg === null ? '-- °C' : `${avg.toFixed(1)} °C`);
-  set('xw-info-high-temp', hot ? `${hot.temperature.toFixed(1)} °C` : '-- °C');
-  set('xw-info-low-temp', cold ? `${cold.temperature.toFixed(1)} °C` : '-- °C');
-  set('xw-info-max-gust', gust ? `${gust.gust.toFixed(1)} m/s` : '-- m/s');
-  set('xw-info-max-rain', rain ? `${rain.rain.toFixed(1)} mm` : '-- mm');
-  set('xw-info-updated', updatedAt
-    ? `資料更新時間：${formatTime(updatedAt)}｜依目前載入的測站觀測資料統計，點選地圖測站可查看單站詳細觀測。`
-    : '資訊依目前載入的氣象測站觀測資料更新；點選地圖測站可查看該站詳細觀測。');
-}
+        // 右側只顯示實際觀測欄位；不產生假預報、假 AQI 或假體感溫度
+        function updateRightDrawerDetails(st) {
+            const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};
+            set('detail-station-name',[st.county,st.town,st.name].filter(Boolean).join(' '));
+            set('detail-weather-desc',st.desc||'無天氣描述');
+            const icon=document.getElementById('detail-weather-icon');
+            if(icon) icon.innerHTML=getWeatherSvg(st.desc||'');
+            set('detail-temp',st.temp===null?'--':st.temp.toFixed(1));
+            set('detail-feels-like','未提供');
+            set('detail-humidity',st.humidity===null?'--':st.humidity+'%');
+            set('detail-wind',st.windSpd===null?'--':st.windDir+' '+st.windSpd+'m/s');
+            set('detail-rain',st.rain===null?'--':st.rain+' mm');
+            set('detail-uv','未串接');
+            set('detail-obs-time','觀測時間：'+formatObsTime(st.obsTime));
+            const aqi=document.getElementById('detail-aqi');
+            if(aqi){aqi.textContent='未串接';aqi.className='px-1.5 py-0.2 rounded bg-slate-700 text-slate-300 font-mono font-bold';}
+            const chart=document.getElementById('hourly-chart-container');
+            if(chart) chart.innerHTML='<div class="grid grid-cols-2 gap-2 text-center"><div class="rounded-xl bg-slate-950/60 p-2"><div class="text-[10px] text-slate-400">即時氣溫</div><strong class="text-lg text-amber-300">'+(st.temp===null?'--':st.temp.toFixed(1)+'°C')+'</strong></div><div class="rounded-xl bg-slate-950/60 p-2"><div class="text-[10px] text-slate-400">相對濕度</div><strong class="text-lg text-sky-300">'+(st.humidity===null?'--':st.humidity+'%')+'</strong></div><div class="rounded-xl bg-slate-950/60 p-2"><div class="text-[10px] text-slate-400">平均風速</div><strong class="text-lg text-emerald-300">'+(st.windSpd===null?'--':st.windSpd+'m/s')+'</strong></div><div class="rounded-xl bg-slate-950/60 p-2"><div class="text-[10px] text-slate-400">陣風</div><strong class="text-lg text-rose-300">'+(st.gust===null?'--':st.gust+'m/s')+'</strong></div></div><p class="text-[10px] text-slate-500 mt-2">資料來源：中央氣象署自動氣象站觀測；非預報資料。</p>';
+            const weekly=document.getElementById('weekly-forecast-list');
+            if(weekly) weekly.textContent='目前尚未接入鄉鎮逐 3 小時及 7 日預報 API，為避免誤導，不顯示推算值。';
+            lucide.createIcons();
+        }
 
-function renderWeatherInsights() {
-  renderLiveRankings();
-  renderRegionalComparison();
-  renderWeatherBrief();
-  renderMapInfoPanel();
-}
+                // 6. HTML5 Canvas 動態風場流線粒子系統 (Wind Streamlines)
+        const windCanvas = document.getElementById('wind-canvas');
+        const windCtx = windCanvas.getContext('2d');
+        let particles = [];
+        const PARTICLE_COUNT = 260;
 
-document.addEventListener('click', event => {
-  const button = event.target.closest('[data-rank]');
-  if (!button) return;
-  currentRanking = button.dataset.rank;
-  renderLiveRankings();
-});
+        function resizeWindCanvas() {
+            windCanvas.width = window.innerWidth;
+            windCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeWindCanvas);
+        resizeWindCanvas();
 
-async function loadWeatherData() {
-  try {
-    const response = await fetch(`${DATA_URL}?_=${Date.now()}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    if (!data.success || !Array.isArray(data.stations) || !data.stations.length) throw new Error('測站資料格式錯誤');
+        function initWindParticles() {
+            particles = [];
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push({
+                    x: Math.random() * windCanvas.width,
+                    y: Math.random() * windCanvas.height,
+                    age: Math.floor(Math.random() * 90),
+                    maxAge: 65 + Math.floor(Math.random() * 55),
+                    speedFactor: 0.75 + Math.random() * 0.6
+                });
+            }
+        }
+        initWindParticles();
 
-    stations = data.stations.map(parseStation);
-    const countBadge = $('#xw-station-count');
-    if (countBadge) countBadge.textContent = stations.length.toLocaleString('zh-TW');
-    renderXuanHighlights();
-    renderBelowDashboard();
-    renderWeatherInsights();
-    renderMapInfoPanel(data.updatedAt);
+        // 計算螢幕像素座標處的風場向量 (vx, vy)
+        function getWindVector(x, y) {
+            if (currentScenario === 'monsoon') {
+                // 東北季風：由東北吹向西南，並受中央山脈地形產生微幅繞流波動
+                const wave = Math.sin(y * 0.008 + x * 0.005) * 0.45;
+                return { vx: -2.1 + wave, vy: 2.3 + wave * 0.6 };
+            } else if (currentScenario === 'meiyu') {
+                // 夏季西南氣流：由西南吹向東北
+                const wave = Math.cos(x * 0.007) * 0.5;
+                return { vx: 2.2 + wave, vy: -2.0 + wave * 0.5 };
+            } else {
+                // 颱風逆時針環流 (渦旋中心投影於地圖東南外海座標)
+                const centerLatLng = [22.35 + (timelineOffsetMinutes / 60) * 0.35, 121.95 - (timelineOffsetMinutes / 60) * 0.42];
+                const centerPx = map.latLngToContainerPoint(centerLatLng);
+                const dx = x - centerPx.x;
+                const dy = y - centerPx.y;
+                const dist = Math.sqrt(dx * dx + dy * dy) + 1;
+                // 逆時針切線向量 (dy, -dx) 加上微幅向內輻合吸力
+                const speed = Math.min(5.2, Math.max(1.8, 420 / (dist + 60)));
+                const vx = (dy / dist) * speed - (dx / dist) * 0.35;
+                const vy = (-dx / dist) * speed - (dy / dist) * 0.35;
+                return { vx, vy };
+            }
+        }
 
-    const validTemperature = stations.filter(s => s.temperature !== null);
-    const updatedTimestamp = Date.parse(data.updatedAt);
-    const ageMs = Date.now() - updatedTimestamp;
-    const isRecent = Number.isFinite(updatedTimestamp) && ageMs >= -5 * 60 * 1000 && ageMs <= 20 * 60 * 1000;
+        function animateWindStreamlines() {
+            if (!windLayerVisible) {
+                windCtx.clearRect(0, 0, windCanvas.width, windCanvas.height);
+                requestAnimationFrame(animateWindStreamlines);
+                return;
+            }
 
-    setDataConnectionStatus(
-      isRecent ? 'connected' : 'updating',
-      isRecent ? `● ${formatTime(data.updatedAt)}` : `● 等待同步｜${formatTime(data.updatedAt)}`
-    );
+            // 漸隱拖尾效果，營造流暢風場絲線感
+            windCtx.globalCompositeOperation = 'destination-in';
+            windCtx.fillStyle = 'rgba(0, 0, 0, 0.91)';
+            windCtx.fillRect(0, 0, windCanvas.width, windCanvas.height);
 
-    if (selectedId) {
-      const selected = stations.find(s => s.id === selectedId);
-      if (selected) {
-        selected.distance = gpsPosition ? distanceKm(gpsPosition.lat, gpsPosition.lon, selected.lat, selected.lon) : 0;
-        updateLocal(selected);
-      }
-    } else {
-      const avgTemp = fmt(average('temperature'));
-      if ($('#chip-place')) $('#chip-place').textContent = '全台平均';
-      if ($('#chip-temp')) $('#chip-temp').textContent = `${avgTemp}°C`;
-      $('.temperature').innerHTML = `${avgTemp}<small>°C</small>`;
-      $('.condition').textContent = `全臺測站平均｜${validTemperature.length} 站`;
-      $('.feels').textContent = '全臺平均統計｜點「重新定位」查所在地';
-      const metrics = document.querySelectorAll('.metric strong');
-      if (metrics[0]) metrics[0].innerHTML = `${fmt(average('humidity'))}<em>%</em>`;
-      if (metrics[1]) metrics[1].innerHTML = `${fmt(average('wind'))}<em>m/s</em>`;
-      if (metrics[2]) metrics[2].innerHTML = `${fmt(maximum('gust'))}<em>m/s</em>`;
-      if (metrics[3]) metrics[3].innerHTML = `${fmt(maximum('rain'))}<em>mm</em>`;
-    }
+            windCtx.globalCompositeOperation = 'lighter';
+            windCtx.lineWidth = 1.45;
 
-    renderStations();
-    drawMarkers();
-  } catch (error) {
-    console.error('氣象資料讀取失敗：', error);
-    setDataConnectionStatus('error', '● 資料讀取失敗');
-  }
-}
+            particles.forEach(p => {
+                const prevX = p.x;
+                const prevY = p.y;
+                const vec = getWindVector(p.x, p.y);
 
-async function startWeather() {
-  setDataConnectionStatus('updating', '● 正在連線');
-  setupLocation();
-  setupMap();
-  await loadWeatherData();
-  try {
-    await loadLeaflet();
-    initMap();
-    drawMarkers();
-    setTimeout(() => { if (weatherMap) weatherMap.invalidateSize(true); }, 500);
-  } catch (error) {
-    console.error('地圖載入失敗：', error);
-  }
-  setInterval(loadWeatherData, REFRESH_MS);
-}
+                p.x += vec.vx * p.speedFactor;
+                p.y += vec.vy * p.speedFactor;
+                p.age++;
 
-startWeather();
+                const lifeRatio = 1 - Math.abs((p.age / p.maxAge) * 2 - 1);
+                const strokeColor = currentScenario === 'typhoon'
+                    ? `rgba(244, 114, 182, ${lifeRatio * 0.55})`
+                    : `rgba(56, 189, 248, ${lifeRatio * 0.52})`;
 
-// 地圖下方資訊區快速捲動入口
-document.getElementById('xw-scroll-cue')?.addEventListener('click', () => {
-  document.getElementById('xw-below-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-});
+                windCtx.beginPath();
+                windCtx.strokeStyle = strokeColor;
+                windCtx.moveTo(prevX, prevY);
+                windCtx.lineTo(p.x, p.y);
+                windCtx.stroke();
 
-// 所在地迷你膠囊展開 / 收合
-document.getElementById('xw-local-toggle')?.addEventListener('click', () => {
-  const wrap = document.getElementById('xw-local-wrap');
-  const btn = document.getElementById('xw-local-toggle');
-  if (!wrap || !btn) return;
-  const open = wrap.classList.toggle('expanded');
-  btn.setAttribute('aria-expanded', String(open));
-});
+                // 粒子生命週期結束或超出邊界時重生
+                if (p.age >= p.maxAge || p.x < 0 || p.x > windCanvas.width || p.y < 0 || p.y > windCanvas.height) {
+                    p.x = Math.random() * windCanvas.width;
+                    p.y = Math.random() * windCanvas.height;
+                    p.age = 0;
+                }
+            });
 
-// 右側抽屜開關
-document.getElementById('xw-drawer-toggle')?.addEventListener('click', () => {
-  const drawer = document.getElementById('xw-drawer');
-  const btn = document.getElementById('xw-drawer-toggle');
-  if (!drawer || !btn) return;
-  const open = drawer.classList.toggle('open');
-  btn.setAttribute('aria-expanded', String(open));
-});
+            requestAnimationFrame(animateWindStreamlines);
+        }
 
-// 抽屜分頁切換
-document.querySelectorAll('.xw-drawer-tabs [data-tab]').forEach(tabBtn => {
-  tabBtn.addEventListener('click', () => {
-    const target = tabBtn.dataset.tab;
-    document.querySelectorAll('.xw-drawer-tabs [data-tab]').forEach(b => b.classList.toggle('active', b === tabBtn));
-    document.querySelectorAll('.xw-tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-' + target));
-  });
-});
+        // 7. 互動控制函式
+        function setWeatherScenario() { showToast('此版僅顯示真實觀測資料，不提供模擬天氣情境'); }
 
-// 手動重新整理
-document.getElementById('refresh-weather')?.addEventListener('click', async () => {
-  const btn = document.getElementById('refresh-weather');
-  if (!btn || typeof loadWeatherData !== 'function') return;
-  btn.disabled = true;
-  btn.classList.add('is-loading');
-  try { await loadWeatherData(); } finally {
-    btn.disabled = false;
-    btn.classList.remove('is-loading');
-  }
-});
-</script>
+                function toggleWeatherLayer(layerKey, isVisible) {
+            if (layerKey === 'wind') {
+                windLayerVisible = isVisible;
+                if (isVisible) animateWindStreamlines();
+                return;
+            }
+            if (isVisible) {
+                map.addLayer(weatherLayers[layerKey]);
+            } else {
+                map.removeLayer(weatherLayers[layerKey]);
+            }
+        }
+
+        function flyToRegion(regionKey, btnEl) {
+            const preset = regionPresets[regionKey];
+            if (!preset) return;
+            map.flyTo(preset.center, preset.zoom, { duration: 1.3 });
+
+            document.querySelectorAll('.region-btn').forEach(btn => {
+                const isFull = btn.classList.contains('col-span-3') && btn.textContent.includes('全台灣');
+                btn.className = `region-btn ${isFull ? 'col-span-3 px-2.5' : (btn.classList.contains('col-span-3') ? 'col-span-3 px-2.5' : 'px-2')} py-1.5 rounded-xl text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition cursor-pointer`;
+            });
+            if (btnEl) {
+                const isFull = btnEl.classList.contains('col-span-3');
+                btnEl.className = `region-btn ${isFull ? 'col-span-3 px-2.5' : 'px-2'} py-1.5 rounded-xl text-xs font-semibold bg-sky-500/20 text-sky-300 border border-sky-400/50 transition cursor-pointer`;
+            }
+
+            if (regionKey === 'south') {
+                selectedStationId = 'KHH-SM';
+                renderStationsAndDetails();
+            }
+            showToast(`視角已移動至：${preset.label}`);
+        }
+
+        // 目前顯示官方最新單張雷達圖；未接歷史序列前不模擬時間回放
+        function onTimelineScrub() {
+            timelineOffsetMinutes=0;
+            const label=document.getElementById('timeline-time-label');
+            const badge=document.getElementById('timeline-badge');
+            if(label) label.textContent='最新官方影像';
+            if(badge){badge.textContent='即時雷達';badge.className='text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';}
+        }
+        function toggleTimelinePlay(){showToast('歷史雷達影像序列尚未串接，暫不提供回放');}
+
+                // 左右懸浮面板收合控制
+        let leftOpen = true;
+        function toggleLeftPanel() {
+            const panel = document.getElementById('left-panel');
+            const expandBtn = document.getElementById('left-panel-expand-btn');
+            leftOpen = !leftOpen;
+            if (leftOpen) {
+                panel.classList.remove('-translate-x-[120%]', 'opacity-0', 'pointer-events-none');
+                expandBtn.classList.add('hidden');
+                expandBtn.classList.remove('flex');
+            } else {
+                panel.classList.add('-translate-x-[120%]', 'opacity-0', 'pointer-events-none');
+                expandBtn.classList.remove('hidden');
+                expandBtn.classList.add('flex');
+            }
+        }
+
+        let rightOpen = true;
+        function toggleRightDrawer() {
+            const drawer = document.getElementById('right-drawer');
+            const expandBtn = document.getElementById('right-drawer-expand-btn');
+            rightOpen = !rightOpen;
+            if (rightOpen) {
+                drawer.classList.remove('translate-x-[120%]', 'opacity-0', 'pointer-events-none');
+                expandBtn.classList.add('hidden');
+                expandBtn.classList.remove('flex');
+            } else {
+                drawer.classList.add('translate-x-[120%]', 'opacity-0', 'pointer-events-none');
+                expandBtn.classList.remove('hidden');
+                expandBtn.classList.add('flex');
+            }
+        }
+
+        function openApiModal(){document.getElementById('api-modal').classList.remove('hidden');}
+        function closeApiModal(){document.getElementById('api-modal').classList.add('hidden');}
+
+        function updateObsClock(){
+            const el=document.getElementById('obs-clock');
+            if(el) el.textContent=cwaUpdatedAt?formatObsTime(cwaUpdatedAt):'--';
+        }
+        async function loadCwaObservations(showMessage=false){
+            const icon=document.getElementById('refresh-spin-icon');
+            if(icon) icon.classList.add('animate-spin');
+            try{
+                const response=await fetch(DATA_URL+'?_='+Date.now(),{cache:'no-store'});
+                if(!response.ok) throw new Error('HTTP '+response.status);
+                const payload=await response.json();
+                if(!payload||payload.success!==true||!Array.isArray(payload.stations)) throw new Error('整合測站資料格式不正確');
+                cwaStations=payload.stations.map(parseCwaStation);
+                cwaUpdatedAt=payload.updatedAt||null;
+                updateObsClock();
+                renderStationsAndDetails();
+                const status=document.getElementById('scenario-status-text');
+                if(status){status.textContent='● CWA 即時觀測｜'+cwaStations.length.toLocaleString('zh-TW')+' 站';status.className='text-emerald-400 font-medium';}
+                const clock=document.getElementById('obs-clock');
+                if(clock) clock.title='整合資料更新時間：'+formatObsTime(cwaUpdatedAt);
+                if(showMessage) showToast('已更新 '+cwaStations.length.toLocaleString('zh-TW')+' 站中央氣象署觀測資料');
+            }catch(error){
+                console.error('CWA 測站資料載入失敗：',error);
+                const status=document.getElementById('scenario-status-text');
+                if(status){status.textContent='● CWA 資料讀取失敗';status.className='text-rose-400 font-medium';}
+                if(showMessage) showToast('測站資料更新失敗，請稍後再試');
+            }finally{if(icon)icon.classList.remove('animate-spin');}
+        }
+        function manualRefreshData(){loadCwaObservations(true);renderRadarAndSatellite(true);}
+
+                let toastTimer;
+        function showToast(msg) {
+            const box = document.getElementById('toast-box');
+            document.getElementById('toast-text').textContent = msg;
+            box.classList.remove('opacity-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => box.classList.add('opacity-0'), 2500);
+        }
+
+        // 啟動地圖、官方雷達與測站資料更新
+        window.onload=async function(){
+            if(window.innerWidth<1024){toggleLeftPanel();toggleRightDrawer();}
+            onTimelineScrub(0);
+            renderRadarAndSatellite(true);
+            renderWeatherAlerts();
+            await loadCwaObservations();
+            setInterval(loadCwaObservations,REFRESH_MS);
+            setInterval(()=>renderRadarAndSatellite(true),10*60*1000);
+        };
+    </script>
 </body>
 </html>
