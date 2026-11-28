@@ -1,0 +1,61 @@
+name: Weather Forecast AQI UV Data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weather-products
+  cancel-in-progress: false
+
+jobs:
+  update-weather-products:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch CWA forecast and MOENV AQI UV
+        env:
+          CWA_API_KEY: ${{ secrets.CWA_API_KEY }}
+          MOENV_API_KEY: ${{ secrets.MOENV_API_KEY }}
+        run: python scripts/fetch_weather_products.py
+
+      - name: Commit and push weather products
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cp data/weather-products.json "$RUNNER_TEMP/weather-products.json"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            cp "$RUNNER_TEMP/weather-products.json" data/weather-products.json
+            git add data/weather-products.json
+            if git diff --cached --quiet; then
+              echo "天氣預報與環境資料沒有變更，不需要提交。"
+              exit 0
+            fi
+            git commit -m "Update CWA forecasts and MOENV AQI UV data"
+            if git push origin HEAD:main; then
+              echo "天氣預報、AQI 與紫外線資料已推送。"
+              exit 0
+            fi
+            echo "推送衝突，第 ${attempt} 次重試。"
+            sleep $((attempt * 4))
+          done
+          echo "::error::重試 5 次仍無法推送 weather-products.json"
+          exit 1
