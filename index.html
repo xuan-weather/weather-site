@@ -491,7 +491,7 @@
             minZoom: 6
         }).addTo(map);
 
-        // 僅保留測站與警特報圖層；不載入雷達或衛星影像
+        // 僅保留測站與警特報圖層；不載入衛星影像
         const weatherLayers = { stations: L.layerGroup().addTo(map), alerts: L.layerGroup() };
 
         // 區域飛越座標預設
@@ -771,7 +771,7 @@
         function setWeatherScenario() { showToast('此版僅顯示真實觀測資料，不提供模擬天氣情境'); }
 
                 function toggleWeatherLayer(layerKey, isVisible) {
-            if (layerKey === 'satellite' || layerKey === 'radar') return;
+            if (layerKey === 'satellite') return;
             if (layerKey === 'wind') {
                 windLayerVisible = isVisible;
                 if (isVisible) animateWindStreamlines();
